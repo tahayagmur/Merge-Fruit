@@ -573,6 +573,10 @@ function renderLoop(time) {
     gameLoopId = requestAnimationFrame(renderLoop);
 }
 
+// Menu particle stub fonksiyonları (ileride animasyon eklenebilir)
+function startMenuParticles() { /* TODO: menu arka plan animasyonu */ }
+function stopMenuParticles()  { /* TODO: menu arka plan animasyonu durdur */ }
+
 // Event Listeners for UI
 restartBtn.addEventListener('click', () => {
     // Hide game over, show main menu
@@ -844,8 +848,8 @@ document.getElementById('btn-upgrade').addEventListener('click', () => {
         boosts.upgrade--;
         saveGameState();
         updateHUDs();
-        if (currentFruitLevel < FRUITS.length - 1) {
-            currentFruitLevel++;
+        if (nextFruitLevel < FRUITS.length - 1) {
+            nextFruitLevel++;
             createPreviewFruit();
         }
     } else if (boosts.upgrade === 0) {
