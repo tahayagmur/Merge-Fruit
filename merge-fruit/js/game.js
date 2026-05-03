@@ -853,7 +853,6 @@ document.getElementById('btn-upgrade').addEventListener('click', () => {
     }
 });
 
-// ── OYUNU BASLAT ─────────────────────────────────────────────────
-window.addEventListener('DOMContentLoaded', () => {
-    initGame();
-});
+
+// ── OYUNU BASLAT (script body sonunda yuklendigindan direkt cagri) ──
+initGame();
