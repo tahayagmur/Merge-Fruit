@@ -1,980 +1,158 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="tr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tamga Studio — Where Ancient Meets Digital</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --gold: #c9a84c;
-            --gold-light: #e8c96a;
-            --gold-dim: rgba(201,168,76,0.15);
-            --bg: #06060f;
-            --bg2: #0c0c1a;
-            --bg3: #111128;
-            --text: #f0f0f8;
-            --text-dim: rgba(240,240,248,0.5);
-            --text-muted: rgba(240,240,248,0.25);
-            --border: rgba(255,255,255,0.07);
-            --border-gold: rgba(201,168,76,0.3);
-            --radius: 16px;
-        }
-
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-
-        html { scroll-behavior: smooth; }
-
-        body {
-            font-family: 'Inter', sans-serif;
-            background: var(--bg);
-            color: var(--text);
-            overflow-x: hidden;
-            line-height: 1.6;
-        }
-
-        /* ── NOISE TEXTURE ── */
-        body::before {
-            content: '';
-            position: fixed;
-            inset: 0;
-            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
-            pointer-events: none;
-            z-index: 0;
-            opacity: 0.4;
-        }
-
-        /* ── NAV ── */
-        nav {
-            position: fixed;
-            top: 0; left: 0; right: 0;
-            z-index: 100;
-            padding: 0 40px;
-            height: 72px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            background: rgba(6,6,15,0.8);
-            backdrop-filter: blur(20px);
-            border-bottom: 1px solid var(--border);
-            transition: background 0.3s;
-        }
-
-        .nav-logo {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            text-decoration: none;
-        }
-
-        .nav-logo-mark {
-            width: 36px;
-            height: 36px;
-            position: relative;
-        }
-
-        .nav-logo-text {
-            font-family: 'Space Grotesk', sans-serif;
-            font-size: 1.1rem;
-            font-weight: 700;
-            color: var(--text);
-            letter-spacing: 0.5px;
-        }
-
-        .nav-logo-text span { color: var(--gold); }
-
-        .nav-links {
-            display: flex;
-            align-items: center;
-            gap: 36px;
-            list-style: none;
-        }
-
-        .nav-links a {
-            color: var(--text-dim);
-            text-decoration: none;
-            font-size: 0.875rem;
-            font-weight: 500;
-            letter-spacing: 0.3px;
-            transition: color 0.2s;
-        }
-
-        .nav-links a:hover { color: var(--text); }
-
-        .nav-cta {
-            padding: 9px 22px;
-            background: var(--gold-dim);
-            border: 1px solid var(--border-gold);
-            border-radius: 8px;
-            color: var(--gold) !important;
-            font-weight: 600 !important;
-            transition: background 0.2s, border-color 0.2s !important;
-        }
-
-        .nav-cta:hover {
-            background: rgba(201,168,76,0.25) !important;
-            color: var(--gold-light) !important;
-        }
-
-        /* ── HERO ── */
-        .hero {
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            padding: 120px 40px 80px;
-            position: relative;
-            overflow: hidden;
-        }
-
-        /* Geometric background */
-        .hero-bg {
-            position: absolute;
-            inset: 0;
-            overflow: hidden;
-            pointer-events: none;
-        }
-
-        .hero-orb {
-            position: absolute;
-            border-radius: 50%;
-            filter: blur(80px);
-            opacity: 0.12;
-        }
-
-        .hero-orb-1 {
-            width: 600px; height: 600px;
-            background: radial-gradient(circle, #c9a84c, transparent);
-            top: -200px; left: 50%;
-            transform: translateX(-50%);
-            animation: orbFloat 8s ease-in-out infinite alternate;
-        }
-
-        .hero-orb-2 {
-            width: 400px; height: 400px;
-            background: radial-gradient(circle, #4c6bc9, transparent);
-            bottom: 0; right: -100px;
-            opacity: 0.08;
-            animation: orbFloat 10s ease-in-out infinite alternate-reverse;
-        }
-
-        @keyframes orbFloat {
-            0% { transform: translateX(-50%) scale(1); }
-            100% { transform: translateX(-50%) scale(1.15) translateY(30px); }
-        }
-
-        /* Tamga symbol SVG background */
-        .hero-symbol {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 600px;
-            height: 600px;
-            opacity: 0.03;
-            animation: symbolRotate 40s linear infinite;
-        }
-
-        @keyframes symbolRotate {
-            from { transform: translate(-50%, -50%) rotate(0deg); }
-            to   { transform: translate(-50%, -50%) rotate(360deg); }
-        }
-
-        /* Grid lines */
-        .hero-grid {
-            position: absolute;
-            inset: 0;
-            background-image:
-                linear-gradient(rgba(201,168,76,0.04) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(201,168,76,0.04) 1px, transparent 1px);
-            background-size: 80px 80px;
-            mask-image: radial-gradient(ellipse 60% 50% at 50% 50%, black, transparent);
-        }
-
-        .hero-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            padding: 6px 16px;
-            border: 1px solid var(--border-gold);
-            border-radius: 99px;
-            background: var(--gold-dim);
-            font-size: 0.75rem;
-            font-weight: 600;
-            color: var(--gold);
-            letter-spacing: 1.5px;
-            text-transform: uppercase;
-            margin-bottom: 32px;
-            position: relative;
-        }
-
-        .badge-dot {
-            width: 6px; height: 6px;
-            border-radius: 50%;
-            background: var(--gold);
-            animation: pulse 2s ease-in-out infinite;
-        }
-
-        @keyframes pulse {
-            0%, 100% { opacity: 1; transform: scale(1); }
-            50% { opacity: 0.5; transform: scale(0.8); }
-        }
-
-        .hero h1 {
-            font-family: 'Space Grotesk', sans-serif;
-            font-size: clamp(2.8rem, 7vw, 5.5rem);
-            font-weight: 700;
-            line-height: 1.05;
-            letter-spacing: -2px;
-            margin-bottom: 24px;
-            position: relative;
-        }
-
-        .hero h1 .line-gold {
-            background: linear-gradient(135deg, var(--gold), var(--gold-light), var(--gold));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-size: 200% auto;
-            animation: shimmer 4s linear infinite;
-        }
-
-        @keyframes shimmer {
-            0% { background-position: 0% center; }
-            100% { background-position: 200% center; }
-        }
-
-        .hero-desc {
-            font-size: 1.15rem;
-            color: var(--text-dim);
-            max-width: 540px;
-            margin: 0 auto 48px;
-            font-weight: 400;
-            line-height: 1.7;
-            position: relative;
-        }
-
-        .hero-actions {
-            display: flex;
-            gap: 16px;
-            justify-content: center;
-            flex-wrap: wrap;
-            position: relative;
-        }
-
-        .btn-primary {
-            padding: 14px 32px;
-            background: linear-gradient(135deg, var(--gold), #a8873d);
-            border: none;
-            border-radius: 10px;
-            color: #0a0800;
-            font-size: 0.95rem;
-            font-weight: 700;
-            cursor: pointer;
-            text-decoration: none;
-            transition: transform 0.2s, box-shadow 0.2s;
-            box-shadow: 0 8px 30px rgba(201,168,76,0.3);
-            letter-spacing: 0.3px;
-        }
-
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 12px 40px rgba(201,168,76,0.45);
-        }
-
-        .btn-secondary {
-            padding: 14px 32px;
-            background: rgba(255,255,255,0.05);
-            border: 1px solid var(--border);
-            border-radius: 10px;
-            color: var(--text);
-            font-size: 0.95rem;
-            font-weight: 600;
-            cursor: pointer;
-            text-decoration: none;
-            transition: background 0.2s, border-color 0.2s, transform 0.2s;
-        }
-
-        .btn-secondary:hover {
-            background: rgba(255,255,255,0.09);
-            border-color: rgba(255,255,255,0.15);
-            transform: translateY(-2px);
-        }
-
-        /* Stats bar */
-        .hero-stats {
-            display: flex;
-            gap: 60px;
-            margin-top: 80px;
-            position: relative;
-            padding-top: 40px;
-            border-top: 1px solid var(--border);
-        }
-
-        .stat-item { text-align: center; }
-
-        .stat-num {
-            font-family: 'Space Grotesk', sans-serif;
-            font-size: 2rem;
-            font-weight: 700;
-            color: var(--gold);
-            line-height: 1;
-            margin-bottom: 4px;
-        }
-
-        .stat-label {
-            font-size: 0.75rem;
-            color: var(--text-muted);
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            font-weight: 500;
-        }
-
-        /* ── SECTION BASE ── */
-        section {
-            padding: 100px 40px;
-            position: relative;
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-
-        .section-label {
-            display: inline-flex;
-            align-items: center;
-            gap: 10px;
-            font-size: 0.72rem;
-            font-weight: 700;
-            color: var(--gold);
-            letter-spacing: 2px;
-            text-transform: uppercase;
-            margin-bottom: 16px;
-        }
-
-        .section-label::before {
-            content: '';
-            width: 20px;
-            height: 1px;
-            background: var(--gold);
-        }
-
-        .section-title {
-            font-family: 'Space Grotesk', sans-serif;
-            font-size: clamp(1.8rem, 4vw, 2.8rem);
-            font-weight: 700;
-            letter-spacing: -1px;
-            line-height: 1.1;
-            margin-bottom: 16px;
-        }
-
-        .section-desc {
-            font-size: 1rem;
-            color: var(--text-dim);
-            max-width: 480px;
-            line-height: 1.7;
-            margin-bottom: 60px;
-        }
-
-        /* ── DIVIDER ── */
-        .divider {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 40px;
-        }
-
-        .divider hr {
-            border: none;
-            border-top: 1px solid var(--border);
-        }
-
-        /* ── GAMES SECTION ── */
-        #games { background: var(--bg); }
-
-        .cards-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 20px;
-        }
-
-        .card {
-            background: var(--bg2);
-            border: 1px solid var(--border);
-            border-radius: var(--radius);
-            overflow: hidden;
-            transition: transform 0.3s, border-color 0.3s, box-shadow 0.3s;
-            cursor: pointer;
-            text-decoration: none;
-            color: inherit;
-            display: block;
-        }
-
-        .card:hover {
-            transform: translateY(-6px);
-            border-color: var(--border-gold);
-            box-shadow: 0 20px 60px rgba(0,0,0,0.4), 0 0 0 1px var(--border-gold);
-        }
-
-        .card-thumb {
-            width: 100%;
-            aspect-ratio: 16/9;
-            background: var(--bg3);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 4rem;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .card-thumb-bg {
-            position: absolute;
-            inset: 0;
-            opacity: 0.15;
-        }
-
-        .card-thumb-emoji {
-            position: relative;
-            z-index: 1;
-            filter: drop-shadow(0 4px 12px rgba(0,0,0,0.5));
-        }
-
-        .card-tag {
-            position: absolute;
-            top: 12px;
-            right: 12px;
-            padding: 4px 10px;
-            border-radius: 6px;
-            font-size: 0.65rem;
-            font-weight: 700;
-            letter-spacing: 1px;
-            text-transform: uppercase;
-            z-index: 2;
-        }
-
-        .tag-live {
-            background: rgba(34,197,94,0.2);
-            border: 1px solid rgba(34,197,94,0.4);
-            color: #4ade80;
-        }
-
-        .tag-soon {
-            background: rgba(201,168,76,0.2);
-            border: 1px solid rgba(201,168,76,0.4);
-            color: var(--gold);
-        }
-
-        .card-body {
-            padding: 20px;
-        }
-
-        .card-category {
-            font-size: 0.7rem;
-            font-weight: 600;
-            color: var(--gold);
-            letter-spacing: 1px;
-            text-transform: uppercase;
-            margin-bottom: 6px;
-        }
-
-        .card-title {
-            font-family: 'Space Grotesk', sans-serif;
-            font-size: 1.15rem;
-            font-weight: 700;
-            margin-bottom: 8px;
-            line-height: 1.2;
-        }
-
-        .card-desc {
-            font-size: 0.83rem;
-            color: var(--text-dim);
-            line-height: 1.6;
-            margin-bottom: 16px;
-        }
-
-        .card-footer {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        .card-platform {
-            display: flex;
-            gap: 6px;
-        }
-
-        .platform-badge {
-            padding: 3px 8px;
-            background: rgba(255,255,255,0.05);
-            border: 1px solid var(--border);
-            border-radius: 4px;
-            font-size: 0.65rem;
-            font-weight: 600;
-            color: var(--text-muted);
-            letter-spacing: 0.5px;
-        }
-
-        .card-arrow {
-            width: 28px;
-            height: 28px;
-            border-radius: 50%;
-            border: 1px solid var(--border);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--text-muted);
-            font-size: 0.8rem;
-            transition: background 0.2s, color 0.2s, border-color 0.2s;
-        }
-
-        .card:hover .card-arrow {
-            background: var(--gold);
-            border-color: var(--gold);
-            color: #0a0800;
-        }
-
-        /* ── PHILOSOPHY SECTION ── */
-        #philosophy {
-            background: var(--bg2);
-            max-width: 100%;
-            padding: 100px 0;
-        }
-
-        #philosophy .inner {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 40px;
-        }
-
-        .philosophy-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 80px;
-            align-items: center;
-        }
-
-        .philosophy-visual {
-            position: relative;
-        }
-
-        .tamga-mark {
-            width: 100%;
-            max-width: 360px;
-            aspect-ratio: 1;
-            margin: 0 auto;
-            display: block;
-        }
-
-        .pillars-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 16px;
-            margin-top: 48px;
-        }
-
-        .pillar {
-            padding: 20px;
-            background: var(--bg3);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            transition: border-color 0.2s;
-        }
-
-        .pillar:hover { border-color: var(--border-gold); }
-
-        .pillar-icon {
-            font-size: 1.4rem;
-            margin-bottom: 10px;
-        }
-
-        .pillar-title {
-            font-size: 0.85rem;
-            font-weight: 700;
-            margin-bottom: 4px;
-            color: var(--text);
-        }
-
-        .pillar-desc {
-            font-size: 0.75rem;
-            color: var(--text-dim);
-            line-height: 1.5;
-        }
-
-        /* ── CONTACT SECTION ── */
-        #contact {
-            text-align: center;
-        }
-
-        .contact-card {
-            background: var(--bg2);
-            border: 1px solid var(--border);
-            border-radius: 24px;
-            padding: 60px 40px;
-            max-width: 640px;
-            margin: 0 auto;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .contact-card::before {
-            content: '';
-            position: absolute;
-            top: 0; left: 50%;
-            transform: translateX(-50%);
-            width: 200px;
-            height: 1px;
-            background: linear-gradient(90deg, transparent, var(--gold), transparent);
-        }
-
-        .contact-email {
-            font-family: 'Space Grotesk', sans-serif;
-            font-size: 1.3rem;
-            font-weight: 600;
-            color: var(--gold);
-            text-decoration: none;
-            display: inline-block;
-            margin: 24px 0;
-            transition: color 0.2s;
-        }
-
-        .contact-email:hover { color: var(--gold-light); }
-
-        /* ── FOOTER ── */
-        footer {
-            border-top: 1px solid var(--border);
-            padding: 40px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 20px;
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-
-        .footer-logo {
-            font-family: 'Space Grotesk', sans-serif;
-            font-size: 1rem;
-            font-weight: 700;
-            color: var(--text-dim);
-        }
-
-        .footer-logo span { color: var(--gold); }
-
-        .footer-copy {
-            font-size: 0.8rem;
-            color: var(--text-muted);
-        }
-
-        /* ── SCROLL ANIMATION ── */
-        .reveal {
-            opacity: 0;
-            transform: translateY(30px);
-            transition: opacity 0.7s ease, transform 0.7s ease;
-        }
-
-        .reveal.visible {
-            opacity: 1;
-            transform: translateY(0);
-        }
-
-        /* ── MOBILE ── */
-        @media (max-width: 768px) {
-            nav { padding: 0 20px; }
-            .nav-links { display: none; }
-            .hero { padding: 100px 20px 60px; }
-            .hero-stats { gap: 30px; flex-wrap: wrap; justify-content: center; }
-            section { padding: 70px 20px; }
-            .philosophy-grid { grid-template-columns: 1fr; gap: 40px; }
-            .philosophy-visual { display: none; }
-            .pillars-grid { grid-template-columns: 1fr; }
-            footer { padding: 30px 20px; flex-direction: column; text-align: center; }
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tamga Studio – Dijital Ajans & Oyun Geliştirme</title>
+<meta name="description" content="Tamga Studio: Mobil oyunlar, web tasarım ve dijital pazarlama alanında yaratıcı çözümler üreten Türk dijital ajansı.">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800;900&display=swap" rel="stylesheet">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3066824413621209" crossorigin="anonymous"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Outfit',sans-serif}
+:root{--primary:#ff477e;--secondary:#fce043;--dark:#0f0a1e;--purple:#6d28d9}
+body{background:var(--dark);color:#fff;overflow-x:hidden}
+
+/* NAV */
+nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:18px 40px;display:flex;justify-content:space-between;align-items:center;background:rgba(15,10,30,.85);backdrop-filter:blur(12px);border-bottom:1px solid rgba(255,255,255,.08)}
+.logo{font-size:1.5rem;font-weight:900;background:linear-gradient(90deg,#ff477e,#a855f7);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+nav a{color:rgba(255,255,255,.75);text-decoration:none;margin-left:28px;font-size:.95rem;font-weight:600;transition:.2s}
+nav a:hover{color:#fff}
+
+/* HERO */
+.hero{min-height:100vh;display:flex;align-items:center;justify-content:center;text-align:center;padding:100px 20px 60px;background:radial-gradient(ellipse at 50% 0%,rgba(109,40,217,.35) 0%,transparent 70%)}
+.hero h1{font-size:clamp(2.5rem,6vw,5rem);font-weight:900;line-height:1.1;margin-bottom:20px}
+.hero h1 span{background:linear-gradient(90deg,#ff477e,#fce043);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.hero p{font-size:1.2rem;color:rgba(255,255,255,.65);max-width:600px;margin:0 auto 36px;line-height:1.7}
+.btn-primary{display:inline-block;padding:16px 36px;background:linear-gradient(135deg,#ff477e,#a855f7);border-radius:50px;color:#fff;text-decoration:none;font-weight:800;font-size:1.05rem;margin:8px;box-shadow:0 8px 30px rgba(255,71,126,.35);transition:.2s}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 12px 40px rgba(255,71,126,.5)}
+.btn-secondary{display:inline-block;padding:16px 36px;border:2px solid rgba(255,255,255,.25);border-radius:50px;color:#fff;text-decoration:none;font-weight:700;font-size:1.05rem;margin:8px;transition:.2s}
+.btn-secondary:hover{border-color:#fff;background:rgba(255,255,255,.08)}
+
+/* STATS */
+.stats{display:flex;justify-content:center;gap:60px;padding:50px 20px;border-top:1px solid rgba(255,255,255,.07);border-bottom:1px solid rgba(255,255,255,.07);flex-wrap:wrap}
+.stat h3{font-size:2.5rem;font-weight:900;color:var(--secondary)}
+.stat p{color:rgba(255,255,255,.55);font-size:.9rem;margin-top:4px}
+
+/* SERVICES */
+.section{padding:80px 20px;max-width:1100px;margin:0 auto}
+.section-title{text-align:center;font-size:2.2rem;font-weight:800;margin-bottom:12px}
+.section-title span{color:var(--primary)}
+.section-sub{text-align:center;color:rgba(255,255,255,.5);margin-bottom:50px;font-size:1rem}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:24px}
+.card{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:20px;padding:30px;transition:.25s}
+.card:hover{background:rgba(255,255,255,.07);transform:translateY(-4px)}
+.card-icon{font-size:2.5rem;margin-bottom:16px}
+.card h3{font-size:1.15rem;font-weight:800;margin-bottom:10px}
+.card p{color:rgba(255,255,255,.55);line-height:1.6;font-size:.93rem}
+
+/* GAME SHOWCASE */
+.showcase{background:linear-gradient(135deg,rgba(109,40,217,.2),rgba(255,71,126,.1));border:1px solid rgba(255,255,255,.08);border-radius:28px;padding:50px;display:flex;align-items:center;gap:50px;flex-wrap:wrap;margin:0 20px}
+.showcase-text h2{font-size:2rem;font-weight:800;margin-bottom:12px}
+.showcase-text p{color:rgba(255,255,255,.6);line-height:1.7;margin-bottom:24px;max-width:480px}
+.showcase-img{flex:1;min-width:200px;text-align:center;font-size:8rem}
+
+/* CONTACT */
+.contact{background:rgba(255,255,255,.03);border-radius:28px;padding:60px 40px;text-align:center;margin:0 20px 80px;border:1px solid rgba(255,255,255,.07)}
+.contact h2{font-size:2rem;font-weight:800;margin-bottom:12px}
+.contact p{color:rgba(255,255,255,.55);margin-bottom:28px}
+.contact a{color:var(--secondary);text-decoration:none;font-weight:700}
+
+/* FOOTER */
+footer{padding:30px 40px;border-top:1px solid rgba(255,255,255,.07);display:flex;justify-content:space-between;align-items:center;flex-wrap:gap;color:rgba(255,255,255,.35);font-size:.85rem;flex-wrap:wrap;gap:10px}
+footer a{color:rgba(255,255,255,.4);text-decoration:none;margin-left:16px}
+footer a:hover{color:#fff}
+</style>
 </head>
 <body>
 
-<!-- NAV -->
 <nav>
-    <a href="#" class="nav-logo">
-        <svg class="nav-logo-mark" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <rect x="2" y="2" width="32" height="32" rx="8" stroke="#c9a84c" stroke-width="1.5" fill="none"/>
-            <path d="M18 8 L18 28 M8 18 L28 18 M10 10 L26 26 M26 10 L10 26" stroke="#c9a84c" stroke-width="1.2" stroke-linecap="round"/>
-            <circle cx="18" cy="18" r="3" fill="#c9a84c"/>
-        </svg>
-        <span class="nav-logo-text">Tamga<span>Studio</span></span>
-    </a>
-    <ul class="nav-links">
-        <li><a href="#games">Games</a></li>
-        <li><a href="#apps">Apps</a></li>
-        <li><a href="#philosophy">Philosophy</a></li>
-        <li><a href="#contact" class="nav-cta">Contact</a></li>
-    </ul>
+  <div class="logo">TAMGA STUDIO</div>
+  <div>
+    <a href="#hizmetler">Hizmetler</a>
+    <a href="#oyun">Oyun</a>
+    <a href="#iletisim">İletişim</a>
+    <a href="about.html">Hakkımızda</a>
+  </div>
 </nav>
 
 <!-- HERO -->
-<div class="hero">
-    <div class="hero-bg">
-        <div class="hero-orb hero-orb-1"></div>
-        <div class="hero-orb hero-orb-2"></div>
-        <div class="hero-grid"></div>
-        <svg class="hero-symbol" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <circle cx="100" cy="100" r="90" stroke="#c9a84c" stroke-width="0.5"/>
-            <circle cx="100" cy="100" r="60" stroke="#c9a84c" stroke-width="0.5"/>
-            <circle cx="100" cy="100" r="30" stroke="#c9a84c" stroke-width="0.5"/>
-            <path d="M100 10 L100 190 M10 100 L190 100 M29 29 L171 171 M171 29 L29 171" stroke="#c9a84c" stroke-width="0.5"/>
-            <circle cx="100" cy="100" r="5" fill="#c9a84c"/>
-        </svg>
-    </div>
+<section class="hero">
+  <div>
+    <h1>Yaratıcı Dijital<br><span>Çözümler Üretiyoruz</span></h1>
+    <p>Tamga Studio; mobil oyun geliştirme, web tasarım ve dijital pazarlama alanlarında markanızı büyütecek özgün projeler tasarlar.</p>
+    <a href="#hizmetler" class="btn-primary">Hizmetlerimiz</a>
+    <a href="merge-fruit/" class="btn-secondary">🎮 Oyunu Oyna</a>
+  </div>
+</section>
 
-    <div class="hero-badge">
-        <span class="badge-dot"></span>
-        Türkiye · Est. 2025
-    </div>
-
-    <h1>
-        We craft digital<br>
-        <span class="line-gold">experiences</span><br>
-        that endure.
-    </h1>
-
-    <p class="hero-desc">
-        Tamga Studio builds games and applications where ancient craftsmanship meets modern technology. Every product carries our mark.
-    </p>
-
-    <div class="hero-actions">
-        <a href="#games" class="btn-primary">Explore Our Work</a>
-        <a href="#contact" class="btn-secondary">Get in Touch</a>
-    </div>
-
-    <div class="hero-stats">
-        <div class="stat-item">
-            <div class="stat-num">1+</div>
-            <div class="stat-label">Games Live</div>
-        </div>
-        <div class="stat-item">
-            <div class="stat-num">∞</div>
-            <div class="stat-label">Passion</div>
-        </div>
-        <div class="stat-item">
-            <div class="stat-num">2025</div>
-            <div class="stat-label">Founded</div>
-        </div>
-    </div>
+<!-- STATS -->
+<div style="background:rgba(255,255,255,.02)">
+<div class="stats">
+  <div class="stat"><h3>1</h3><p>Yayınlanan Oyun</p></div>
+  <div class="stat"><h3>3+</h3><p>Platform</p></div>
+  <div class="stat"><h3>2026</h3><p>Kuruluş Yılı</p></div>
+  <div class="stat"><h3>∞</h3><p>Hedef</p></div>
+</div>
 </div>
 
-<!-- DIVIDER -->
-<div class="divider"><hr></div>
-
-<!-- GAMES -->
-<section id="games">
-    <div class="reveal">
-        <div class="section-label">Games</div>
-        <h2 class="section-title">Play our universe</h2>
-        <p class="section-desc">Carefully designed game experiences for mobile and web. Simple to pick up, impossible to put down.</p>
+<!-- SERVICES -->
+<div id="hizmetler">
+<div class="section">
+  <h2 class="section-title">Neler <span>Yapıyoruz?</span></h2>
+  <p class="section-sub">Dijital dünyada öne çıkmanız için ihtiyacınız olan her şey</p>
+  <div class="cards">
+    <div class="card">
+      <div class="card-icon">🎮</div>
+      <h3>HTML5 Oyun Geliştirme</h3>
+      <p>Tarayıcı tabanlı, mobil uyumlu ve CrazyGames, Poki gibi platformlarda yayınlanabilir oyunlar geliştiriyoruz.</p>
     </div>
-
-    <div class="cards-grid">
-        <!-- Merge Fruit -->
-        <a href="https://tamgastudio.com/merge-fruit/" class="card reveal">
-            <div class="card-thumb">
-                <div class="card-thumb-bg" style="background: linear-gradient(135deg, #1a1030, #2d1a0a);"></div>
-                <span class="card-thumb-emoji">🍉</span>
-                <span class="card-tag tag-live">● Live</span>
-            </div>
-            <div class="card-body">
-                <div class="card-category">Puzzle · Casual</div>
-                <h3 class="card-title">Merge Fruit</h3>
-                <p class="card-desc">Drop, merge and evolve fruits into the legendary Giant Watermelon. Physics-based casual gameplay with satisfying combos.</p>
-                <div class="card-footer">
-                    <div class="card-platform">
-                        <span class="platform-badge">Web</span>
-                        <span class="platform-badge">Android</span>
-                    </div>
-                    <div class="card-arrow">→</div>
-                </div>
-            </div>
-        </a>
-
-        <!-- Coming Soon Game -->
-        <div class="card reveal" style="cursor:default;">
-            <div class="card-thumb">
-                <div class="card-thumb-bg" style="background: linear-gradient(135deg, #0a1a2d, #1a0a2d);"></div>
-                <span class="card-thumb-emoji" style="opacity:0.4;">🎮</span>
-                <span class="card-tag tag-soon">Coming Soon</span>
-            </div>
-            <div class="card-body">
-                <div class="card-category">Game · TBA</div>
-                <h3 class="card-title" style="color: var(--text-muted);">Next Title</h3>
-                <p class="card-desc" style="opacity:0.5;">Something exciting is in development. Stay tuned for our next release.</p>
-                <div class="card-footer">
-                    <div class="card-platform">
-                        <span class="platform-badge">TBA</span>
-                    </div>
-                    <div class="card-arrow" style="opacity:0.3;">→</div>
-                </div>
-            </div>
-        </div>
+    <div class="card">
+      <div class="card-icon">🌐</div>
+      <h3>Web Tasarım & Geliştirme</h3>
+      <p>Modern, hızlı ve SEO uyumlu web siteleri tasarlayarak markanızın online varlığını güçlendiriyoruz.</p>
     </div>
-</section>
-
-<!-- DIVIDER -->
-<div class="divider"><hr></div>
-
-<!-- APPS -->
-<section id="apps">
-    <div class="reveal">
-        <div class="section-label">Applications</div>
-        <h2 class="section-title">Tools that matter</h2>
-        <p class="section-desc">Productivity and utility applications built with the same precision and craft as our games.</p>
+    <div class="card">
+      <div class="card-icon">📱</div>
+      <h3>Dijital Pazarlama</h3>
+      <p>Sosyal medya yönetimi, içerik üretimi ve dijital reklam stratejileriyle hedef kitlenize ulaşıyoruz.</p>
     </div>
-
-    <div class="cards-grid">
-        <!-- Coming Soon App 1 -->
-        <div class="card reveal" style="cursor:default;">
-            <div class="card-thumb">
-                <div class="card-thumb-bg" style="background: linear-gradient(135deg, #0a2d1a, #0a1a2d);"></div>
-                <span class="card-thumb-emoji" style="opacity:0.4;">📱</span>
-                <span class="card-tag tag-soon">Coming Soon</span>
-            </div>
-            <div class="card-body">
-                <div class="card-category">Application · TBA</div>
-                <h3 class="card-title" style="color: var(--text-muted);">App — Vol. 1</h3>
-                <p class="card-desc" style="opacity:0.5;">Our first utility application is in development. Details to be announced.</p>
-                <div class="card-footer">
-                    <div class="card-platform">
-                        <span class="platform-badge">Android</span>
-                    </div>
-                    <div class="card-arrow" style="opacity:0.3;">→</div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Coming Soon App 2 -->
-        <div class="card reveal" style="cursor:default;">
-            <div class="card-thumb">
-                <div class="card-thumb-bg" style="background: linear-gradient(135deg, #2d1a0a, #1a2d0a);"></div>
-                <span class="card-thumb-emoji" style="opacity:0.4;">⚡</span>
-                <span class="card-tag tag-soon">Coming Soon</span>
-            </div>
-            <div class="card-body">
-                <div class="card-category">Application · TBA</div>
-                <h3 class="card-title" style="color: var(--text-muted);">App — Vol. 2</h3>
-                <p class="card-desc" style="opacity:0.5;">More tools coming from the studio. Follow us to be the first to know.</p>
-                <div class="card-footer">
-                    <div class="card-platform">
-                        <span class="platform-badge">Android</span>
-                        <span class="platform-badge">Web</span>
-                    </div>
-                    <div class="card-arrow" style="opacity:0.3;">→</div>
-                </div>
-            </div>
-        </div>
+    <div class="card">
+      <div class="card-icon">💡</div>
+      <h3>Marka Kimliği</h3>
+      <p>Logo, renk paleti ve görsel kimlik çalışmalarıyla markanızı rakiplerinizden ayırt ediyoruz.</p>
     </div>
-</section>
+  </div>
+</div>
+</div>
 
-<!-- PHILOSOPHY -->
-<div id="philosophy">
-    <div class="inner">
-        <div class="philosophy-grid">
-            <div class="reveal">
-                <div class="section-label">Philosophy</div>
-                <h2 class="section-title">Ancient precision.<br>Digital future.</h2>
-                <p class="section-desc" style="margin-bottom: 0;">
-                    A tamga was the seal of a clan — a mark of identity, ownership and craftsmanship, pressed into metal, stone and earth. We carry that precision into every pixel we ship.
-                </p>
-
-                <div class="pillars-grid">
-                    <div class="pillar">
-                        <div class="pillar-icon">⚙️</div>
-                        <div class="pillar-title">Craft First</div>
-                        <div class="pillar-desc">Every detail is intentional. We don't ship until it's right.</div>
-                    </div>
-                    <div class="pillar">
-                        <div class="pillar-icon">🌍</div>
-                        <div class="pillar-title">Global Reach</div>
-                        <div class="pillar-desc">Built in Türkiye, made for the world.</div>
-                    </div>
-                    <div class="pillar">
-                        <div class="pillar-icon">⚡</div>
-                        <div class="pillar-title">Move Fast</div>
-                        <div class="pillar-desc">Lean team, high output, zero bureaucracy.</div>
-                    </div>
-                    <div class="pillar">
-                        <div class="pillar-icon">♾️</div>
-                        <div class="pillar-title">Long Game</div>
-                        <div class="pillar-desc">Products built to last, not to trend.</div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="philosophy-visual reveal">
-                <svg class="tamga-mark" viewBox="0 0 360 360" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <circle cx="180" cy="180" r="160" stroke="rgba(201,168,76,0.15)" stroke-width="1"/>
-                    <circle cx="180" cy="180" r="120" stroke="rgba(201,168,76,0.12)" stroke-width="1"/>
-                    <circle cx="180" cy="180" r="80" stroke="rgba(201,168,76,0.1)" stroke-width="1"/>
-                    <circle cx="180" cy="180" r="40" stroke="rgba(201,168,76,0.2)" stroke-width="1.5"/>
-                    <path d="M180 20 L180 340" stroke="rgba(201,168,76,0.1)" stroke-width="1"/>
-                    <path d="M20 180 L340 180" stroke="rgba(201,168,76,0.1)" stroke-width="1"/>
-                    <path d="M67 67 L293 293" stroke="rgba(201,168,76,0.08)" stroke-width="1"/>
-                    <path d="M293 67 L67 293" stroke="rgba(201,168,76,0.08)" stroke-width="1"/>
-                    <!-- Main tamga symbol -->
-                    <path d="M180 100 L180 260 M120 140 L240 140 M120 220 L240 220 M140 100 L140 260 M220 100 L220 260" stroke="rgba(201,168,76,0.6)" stroke-width="2" stroke-linecap="round"/>
-                    <circle cx="180" cy="180" r="12" fill="rgba(201,168,76,0.8)"/>
-                    <circle cx="180" cy="180" r="6" fill="#c9a84c"/>
-                    <!-- Corner marks -->
-                    <circle cx="100" cy="100" r="4" fill="rgba(201,168,76,0.3)"/>
-                    <circle cx="260" cy="100" r="4" fill="rgba(201,168,76,0.3)"/>
-                    <circle cx="100" cy="260" r="4" fill="rgba(201,168,76,0.3)"/>
-                    <circle cx="260" cy="260" r="4" fill="rgba(201,168,76,0.3)"/>
-                </svg>
-            </div>
-        </div>
-    </div>
+<!-- GAME SHOWCASE -->
+<div id="oyun" style="max-width:1100px;margin:0 auto 80px">
+<div class="showcase">
+  <div class="showcase-text">
+    <h2>🍉 Merge Fruit</h2>
+    <p>İlk oyunumuzu yayınladık! Meyveleri düşürün, birleştirin ve en yüksek skoru yakalayın. Tarayıcınızda ücretsiz oynayın.</p>
+    <a href="merge-fruit/" class="btn-primary">Hemen Oyna</a>
+  </div>
+  <div class="showcase-img">🍇🍎🍊<br>🥭🍉</div>
+</div>
 </div>
 
 <!-- CONTACT -->
-<section id="contact">
-    <div class="contact-card reveal">
-        <div class="section-label" style="justify-content:center;">Contact</div>
-        <h2 class="section-title">Let's build together</h2>
-        <p style="color: var(--text-dim); font-size: 0.95rem; line-height: 1.7; max-width: 400px; margin: 0 auto;">
-            Have a collaboration idea, business inquiry or just want to say hello? We'd love to hear from you.
-        </p>
-        <a href="mailto:hello@tamgastudio.com" class="contact-email">hello@tamgastudio.com</a>
-        <div>
-            <a href="mailto:hello@tamgastudio.com" class="btn-primary">Send a Message</a>
-        </div>
-    </div>
-</section>
+<div id="iletisim" style="max-width:1100px;margin:0 auto">
+<div class="contact">
+  <h2>Birlikte Çalışalım</h2>
+  <p>Projeniz için bizimle iletişime geçin.</p>
+  <p>📧 <a href="mailto:mtahayagmur@gmail.com">mtahayagmur@gmail.com</a></p>
+</div>
+</div>
 
-<!-- FOOTER -->
 <footer>
-    <div class="footer-logo">Tamga<span>Studio</span></div>
-    <div class="footer-copy">© 2025 Tamga Studio. All rights reserved.</div>
-    <div class="footer-copy">Built in Türkiye 🇹🇷</div>
+  <span>© 2026 Tamga Studio. Tüm hakları saklıdır.</span>
+  <div>
+    <a href="privacy-policy.html">Gizlilik Politikası</a>
+    <a href="about.html">Hakkımızda</a>
+  </div>
 </footer>
 
-<script>
-    // Scroll reveal
-    const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                entry.target.classList.add('visible');
-            }
-        });
-    }, { threshold: 0.1 });
-
-    document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
-
-    // Nav scroll effect
-    window.addEventListener('scroll', () => {
-        const nav = document.querySelector('nav');
-        nav.style.background = window.scrollY > 50
-            ? 'rgba(6,6,15,0.95)'
-            : 'rgba(6,6,15,0.8)';
-    });
-</script>
 </body>
 </html>
-
