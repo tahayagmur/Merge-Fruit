@@ -207,6 +207,42 @@ function createPreviewFruit() {
     previewX = width / 2;
 }
 
+// Bomba modu: tiklanan meyveyi patlat
+function handlePointerDown(e) {
+    if (!bombMode || isGameOver || !isGameStarted) return;
+    e.preventDefault();
+
+    let clientX, clientY;
+    if (e.touches && e.touches.length > 0) {
+        clientX = e.touches[0].clientX;
+        clientY = e.touches[0].clientY;
+    } else {
+        clientX = e.clientX;
+        clientY = e.clientY;
+    }
+
+    const rect = canvas.getBoundingClientRect();
+    const x = clientX - rect.left;
+    const y = clientY - rect.top;
+
+    const bodies = Composite.allBodies(world);
+    for (let body of bodies) {
+        if (body.label === 'fruit') {
+            const dx = body.position.x - x;
+            const dy = body.position.y - y;
+            if (Math.sqrt(dx*dx + dy*dy) <= body.circleRadius) {
+                Composite.remove(world, body);
+                boosts.bomb--;
+                saveGameState();
+                updateHUDs();
+                bombMode = false;
+                document.getElementById('btn-bomb').style.outline = '';
+                break;
+            }
+        }
+    }
+}
+
 function handlePointerMove(e) {
     if (isDropping || isGameOver || !isGameStarted || bombMode) return;
     
