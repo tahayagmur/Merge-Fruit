@@ -1,898 +1,496 @@
-const Engine = Matter.Engine,
-      Render = Matter.Render,
-      Runner = Matter.Runner,
-      Bodies = Matter.Bodies,
-      Body = Matter.Body,
-      Composite = Matter.Composite,
-      Events = Matter.Events;
+'use strict';
 
+const Engine    = Matter.Engine;
+const Bodies    = Matter.Bodies;
+const Body      = Matter.Body;
+const Composite = Matter.Composite;
+const Events    = Matter.Events;
+
+// ── MEYVE TANIMLARI ─────────────────────────────────────────────
 const FRUITS = [
-    { level: 0, label: 'Erik', emoji: '🟣', color: '#5e2165', radius: 22, score: 2, imgSource: 'assets/images/plum.png?v=10' },
-    { level: 1, label: 'Çilek', emoji: '🍓', color: '#ff3366', radius: 30, score: 4, imgSource: 'assets/images/strawberry.png?v=10' },
-    { level: 2, label: 'Üzüm', emoji: '🍇', color: '#b300b3', radius: 40, score: 8, imgSource: 'assets/images/grape.png?v=10' },
-    { level: 3, label: 'Elma', emoji: '🍎', color: '#e60000', radius: 52, score: 16, imgSource: 'assets/images/apple.png?v=10' },
-    { level: 4, label: 'Portakal', emoji: '🍊', color: '#ff8000', radius: 64, score: 32, imgSource: 'assets/images/orange.png?v=10' },
-    { level: 5, label: 'Şeftali', emoji: '🍑', color: '#ff9999', radius: 76, score: 64, imgSource: 'assets/images/peach.png?v=10' },
-    { level: 6, label: 'Mango', emoji: '🥭', color: '#ffcc00', radius: 88, score: 128, imgSource: 'assets/images/mango.png?v=10' },
-    { level: 7, label: 'Ejder Meyvesi', emoji: '🐉', color: '#ff0066', radius: 88, score: 256, imgSource: 'assets/images/dragonfruit.png?v=12', imgScale: 1.25 },
-    { level: 8, label: 'Ananas', emoji: '🍍', color: '#ffb300', radius: 126, score: 512, imgSource: 'assets/images/pineapple.png?v=10' },
-    { level: 9, label: 'Kavun', emoji: '🍈', color: '#ccff66', radius: 135, score: 1024, imgSource: 'assets/images/melon.png?v=10', imgScale: 1.08 },
-    { level: 10, label: 'Karpuz', emoji: '🍉', color: '#00cc00', radius: 158, score: 2048, imgSource: 'assets/images/watermelon.png?v=10', imgScale: 1.08 }
+    { level:0,  label:'Erik',          emoji:'🟣', color:'#5e2165', radius:22,  score:2,    imgSource:'assets/images/plum.png?v=10' },
+    { level:1,  label:'Cilek',         emoji:'🍓', color:'#ff3366', radius:30,  score:4,    imgSource:'assets/images/strawberry.png?v=10' },
+    { level:2,  label:'Uzum',          emoji:'🍇', color:'#b300b3', radius:40,  score:8,    imgSource:'assets/images/grape.png?v=10' },
+    { level:3,  label:'Elma',          emoji:'🍎', color:'#e60000', radius:52,  score:16,   imgSource:'assets/images/apple.png?v=10' },
+    { level:4,  label:'Portakal',      emoji:'🍊', color:'#ff8000', radius:64,  score:32,   imgSource:'assets/images/orange.png?v=10' },
+    { level:5,  label:'Seftali',       emoji:'🍑', color:'#ff9999', radius:76,  score:64,   imgSource:'assets/images/peach.png?v=10' },
+    { level:6,  label:'Mango',         emoji:'🥭', color:'#ffcc00', radius:88,  score:128,  imgSource:'assets/images/mango.png?v=10' },
+    { level:7,  label:'Ejder Meyvesi', emoji:'🐉', color:'#ff0066', radius:88,  score:256,  imgSource:'assets/images/dragonfruit.png?v=12', imgScale:1.25 },
+    { level:8,  label:'Ananas',        emoji:'🍍', color:'#ffb300', radius:126, score:512,  imgSource:'assets/images/pineapple.png?v=10' },
+    { level:9,  label:'Kavun',         emoji:'🍈', color:'#ccff66', radius:135, score:1024, imgSource:'assets/images/melon.png?v=10',       imgScale:1.08 },
+    { level:10, label:'Karpuz',        emoji:'🍉', color:'#00cc00', radius:158, score:2048, imgSource:'assets/images/watermelon.png?v=10',  imgScale:1.08 }
 ];
 
-// Preload images
-FRUITS.forEach(fruit => {
-    if (fruit.imgSource) {
-        fruit.img = new Image();
-        fruit.img.src = fruit.imgSource;
-    }
+FRUITS.forEach(function(f) {
+    if (f.imgSource) { f.img = new Image(); f.img.src = f.imgSource; }
 });
 
-let engine;
-let runner;
-let world;
-let canvas, ctx;
+// ── DURUM DEGİSKENLERİ ──────────────────────────────────────────
+var engine, world, canvas, ctx;
+var width = 0, height = 0;
+var nextFruitLevel = 0;
+var previewX = 0;
+var isDropping   = false;
+var isGameOver   = false;
+var isGameStarted= false;
+var bombMode     = false;
+var score  = 0;
+var coins  = 0;
+var boosts = { shake:0, bomb:0, swap:0, upgrade:0 };
+var particles  = [];
+var gameLoopId = null;
+var lastTime   = 0;
+var WALL_T = 60;
 
-let width, height;
-let currentFruit = null;
-let nextFruitLevel = 0;
-let isDropping = false;
-let score = 0;
-let isGameOver = false;
+// ── DOM ─────────────────────────────────────────────────────────
+function $(id){ return document.getElementById(id); }
+var scoreDisplay    = $('score-display');
+var nextItemDisplay = $('next-item-display');
+var gameContainer   = $('game-container');
+var canvasContainer = $('canvas-container');
+var gameOverLine    = $('game-over-line');
+var modal           = $('game-over-modal');
+var finalScoreEl    = $('final-score');
+var restartBtn      = $('restart-btn');
+var saveBtn         = $('save-score-btn');
+var playerNameInput = $('player-name');
+var leaderboardList = $('leaderboard-list');
+var mainMenu        = $('main-menu');
+var storeMenu       = $('store-menu');
+var inGameHeader    = $('in-game-header');
+var adOverlay       = $('ad-overlay');
+var playBtn         = $('play-btn');
+var storeBtn        = $('store-btn');
+var storeBackBtn    = $('store-back-btn');
+var storeReturnBtn  = $('store-return-btn');
+var adStateLoading  = $('ad-state-loading');
+var adStateWatching = $('ad-state-watching');
+var adStateReward   = $('ad-state-reward');
+var adStateError    = $('ad-state-error');
+var adProgressFill  = $('ad-progress-fill');
+var adRewardText    = $('ad-reward-text');
+var adCloseBtn      = $('ad-close-btn');
 
-// Physics boundaries
-const WALL_THICKNESS = 60;
-const BOTTOM_MARGIN = 0;
-
-// Render loop variables
-let particles = [];
-let gameLoopId;
-
-// DOM Elements
-const scoreDisplay = document.getElementById('score-display');
-const nextItemDisplay = document.getElementById('next-item-display');
-const gameContainer = document.getElementById('game-container');
-const canvasContainer = document.getElementById('canvas-container');
-const gameOverLine = document.getElementById('game-over-line');
-const modal = document.getElementById('game-over-modal');
-const finalScoreEl = document.getElementById('final-score');
-const restartBtn = document.getElementById('restart-btn');
-const saveBtn = document.getElementById('save-score-btn');
-const playerNameInput = document.getElementById('player-name');
-const leaderboardList = document.getElementById('leaderboard-list');
-
-// Meta-Game State
-let coins = 0;
-let boosts = { shake: 0, bomb: 0, swap: 0, upgrade: 0 };
-let isGameStarted = false;
-let bombMode = false;
-
-// Meta-Game DOM Elements
-const mainMenu = document.getElementById('main-menu');
-const storeMenu = document.getElementById('store-menu');
-const inGameHeader = document.getElementById('in-game-header');
-const boostHud = document.getElementById('boost-hud');
-const adOverlay = document.getElementById('ad-overlay');
-const playBtn = document.getElementById('play-btn');
-const storeBtn = document.getElementById('store-btn');
-const storeBackBtn = document.getElementById('store-back-btn');
-const storeReturnBtn = document.getElementById('store-return-btn');
-
+// ── KAYIT ────────────────────────────────────────────────────────
 function loadGameState() {
     try {
-        const data = JSON.parse(localStorage.getItem('suikaGameState'));
-        if (data) {
-            coins = data.coins || 0;
-            boosts = data.boosts || { shake: 0, bomb: 0, swap: 0, upgrade: 0 };
-        }
-    } catch(e) { console.error(e); }
+        var d = JSON.parse(localStorage.getItem('suikaGameState'));
+        if (d) { coins = d.coins || 0; boosts = d.boosts || { shake:0, bomb:0, swap:0, upgrade:0 }; }
+    } catch(e) {}
     updateHUDs();
 }
-
 function saveGameState() {
-    localStorage.setItem('suikaGameState', JSON.stringify({ coins, boosts }));
+    localStorage.setItem('suikaGameState', JSON.stringify({ coins: coins, boosts: boosts }));
 }
-
 function updateHUDs() {
-    document.getElementById('coin-display').innerText = coins;
-    document.getElementById('store-coin-display').innerText = coins;
-    // Store card badges (new design)
-    const shakeBadge   = document.getElementById('store-count-shake-badge');
-    const bombBadge    = document.getElementById('store-count-bomb-badge');
-    const swapBadge    = document.getElementById('store-count-swap-badge');
-    const upgradeBadge = document.getElementById('store-count-upgrade-badge');
-    if (shakeBadge)   shakeBadge.innerText   = '×' + boosts.shake;
-    if (bombBadge)    bombBadge.innerText    = '×' + boosts.bomb;
-    if (swapBadge)    swapBadge.innerText    = '×' + boosts.swap;
-    if (upgradeBadge) upgradeBadge.innerText = '×' + boosts.upgrade;
-    // In-game HUD
-    document.getElementById('count-shake').innerText   = boosts.shake;
-    document.getElementById('count-bomb').innerText    = boosts.bomb;
-    document.getElementById('count-swap').innerText    = boosts.swap;
-    document.getElementById('count-upgrade').innerText = boosts.upgrade;
+    $('coin-display').innerText       = coins;
+    $('store-coin-display').innerText = coins;
+    var sb = $('store-count-shake-badge');   if(sb) sb.innerText   = 'x' + boosts.shake;
+    var bb = $('store-count-bomb-badge');    if(bb) bb.innerText   = 'x' + boosts.bomb;
+    var wb = $('store-count-swap-badge');    if(wb) wb.innerText   = 'x' + boosts.swap;
+    var ub = $('store-count-upgrade-badge'); if(ub) ub.innerText   = 'x' + boosts.upgrade;
+    $('count-shake').innerText   = boosts.shake;
+    $('count-bomb').innerText    = boosts.bomb;
+    $('count-swap').innerText    = boosts.swap;
+    $('count-upgrade').innerText = boosts.upgrade;
 }
 
-function initGame() {
-    // Canvas setup
-    canvas = document.createElement('canvas');
-    ctx = canvas.getContext('2d');
-    canvasContainer.appendChild(canvas);
-    
-    // Resize handler
-    const resizeCanvas = () => {
-        const rect = canvasContainer.getBoundingClientRect();
-        width = rect.width;
-        height = rect.height;
-        canvas.width = width;
-        canvas.height = height;
-        ctx.imageSmoothingEnabled = true; // Use default anti-aliasing for smooth images
-        
-        if (world) {
-            // Update boundaries if already initialized (simple approach: just reload, but we'll try to keep them)
-            // For a simpler implementation, we assume mostly fixed aspect ratio and just set it once at start
-        }
-    };
-    
-    // Initial size
-    resizeCanvas();
-    
-    // Physics Engine setup
-    engine = Engine.create();
-    world = engine.world;
-    engine.gravity.y = 1.5; // Slightly higher gravity for snappier feel
-    
-    createBoundaries();
-    
-    // UI update
-    updateScore(0);
-    setNextFruit();
-    createPreviewFruit();
-    
-    // Input Handlers
-    canvas.addEventListener('mousemove', handlePointerMove);
-    canvas.addEventListener('touchmove', handlePointerMove, { passive: false });
-    canvas.addEventListener('mouseup', handlePointerDrop);
-    canvas.addEventListener('touchend', handlePointerDrop, { passive: false });
-    canvas.addEventListener('pointerdown', handlePointerDown);
-    
-    // Collision handling
-    Events.on(engine, 'collisionStart', handleCollisions);
-    
-    // Start game loop
-    engine.positionIterations = 8;
-    engine.velocityIterations = 8;
-    
-    lastTime = performance.now();
-    gameLoopId = requestAnimationFrame(renderLoop);
-    
+// ── SKOR ─────────────────────────────────────────────────────────
+function updateScore(v) {
+    score = v;
+    scoreDisplay.innerText = score;
+    scoreDisplay.style.transform = 'scale(1.3)';
+    setTimeout(function(){ scoreDisplay.style.transform = 'scale(1)'; }, 150);
+}
+
+// ── LIDERLIK ─────────────────────────────────────────────────────
+function updateLeaderboardUI() {
+    var scores = JSON.parse(localStorage.getItem('suikaScores')) || [];
+    if (scores.length === 0) { leaderboardList.innerHTML = '<li>Henuz skor kaydedilmedi.</li>'; return; }
+    leaderboardList.innerHTML = scores.map(function(s,i){ return '<li><span>'+(i+1)+'. '+s.name+'</span><span>'+s.score+'</span></li>'; }).join('');
+}
+function saveScore() {
+    var name = playerNameInput.value.trim() || 'Gizemli Oyuncu';
+    var list = JSON.parse(localStorage.getItem('suikaScores')) || [];
+    list.push({ name:name, score:score, date:new Date().toLocaleDateString() });
+    list.sort(function(a,b){ return b.score - a.score; });
+    localStorage.setItem('suikaScores', JSON.stringify(list.slice(0,5)));
     updateLeaderboardUI();
-    loadGameState();
+    playerNameInput.value = '';
+    saveBtn.innerText = 'KAYDEDILDI!';
+    setTimeout(function(){ saveBtn.innerText = 'SKORU KAYDET'; }, 2000);
 }
 
+// ── FİZİK SINIRLARI ──────────────────────────────────────────────
 function createBoundaries() {
-    const wallOptions = {
-        isStatic: true,
-        render: { fillStyle: 'transparent' },
-        friction: 0.1,
-        restitution: 0.2 // Bounciness
-    };
-    
-    // Left, Right, Bottom walls
-    const leftWall = Bodies.rectangle(-WALL_THICKNESS/2, height/2, WALL_THICKNESS, height * 2, wallOptions);
-    const rightWall = Bodies.rectangle(width + WALL_THICKNESS/2, height/2, WALL_THICKNESS, height * 2, wallOptions);
-    const bottomWall = Bodies.rectangle(width/2, height + WALL_THICKNESS/2 - BOTTOM_MARGIN, width * 2, WALL_THICKNESS, wallOptions);
-    
-    Composite.add(world, [leftWall, rightWall, bottomWall]);
+    var opt = { isStatic:true, friction:0.1, restitution:0.2, render:{ fillStyle:'transparent' } };
+    Composite.add(world, [
+        Bodies.rectangle(-WALL_T/2,        height/2, WALL_T,  height*2, opt),
+        Bodies.rectangle(width + WALL_T/2, height/2, WALL_T,  height*2, opt),
+        Bodies.rectangle(width/2, height + WALL_T/2, width*2, WALL_T,   opt)
+    ]);
 }
 
-function getRandomFruitLevel() {
-    // Bias towards smaller fruits for drops (0, 1, 2)
-    return Math.floor(Math.random() * 3);
-}
-
+// ── SIRADAKI MEYVE ───────────────────────────────────────────────
+function getRandomFruitLevel() { return Math.floor(Math.random() * 3); }
 function setNextFruit() {
     nextFruitLevel = getRandomFruitLevel();
-    const nextFruit = FRUITS[nextFruitLevel];
-    if (nextFruit.imgSource) {
-        nextItemDisplay.innerHTML = `<img src="${nextFruit.imgSource}" style="width: 100%; height: 100%; object-fit: contain;">`;
-    } else {
-        nextItemDisplay.innerHTML = nextFruit.emoji;
-        nextItemDisplay.style.fontSize = `${Math.min(nextFruit.radius * 1.5, 30)}px`;
-    }
+    var f = FRUITS[nextFruitLevel];
+    nextItemDisplay.innerHTML = f.imgSource
+        ? '<img src="' + f.imgSource + '" style="width:100%;height:100%;object-fit:contain;">'
+        : f.emoji;
 }
-
-let previewX = 0;
 function createPreviewFruit() {
-    if (isGameOver) return;
-    previewX = width / 2;
+    if (!isGameOver) previewX = width / 2;
 }
 
-// Bomba modu: tiklanan meyveyi patlat
-function handlePointerDown(e) {
-    if (!bombMode || isGameOver || !isGameStarted) return;
-    e.preventDefault();
-
-    let clientX, clientY;
-    if (e.touches && e.touches.length > 0) {
-        clientX = e.touches[0].clientX;
-        clientY = e.touches[0].clientY;
-    } else {
-        clientX = e.clientX;
-        clientY = e.clientY;
-    }
-
-    const rect = canvas.getBoundingClientRect();
-    const x = clientX - rect.left;
-    const y = clientY - rect.top;
-
-    const bodies = Composite.allBodies(world);
-    for (let body of bodies) {
-        if (body.label === 'fruit') {
-            const dx = body.position.x - x;
-            const dy = body.position.y - y;
-            if (Math.sqrt(dx*dx + dy*dy) <= body.circleRadius) {
-                Composite.remove(world, body);
-                boosts.bomb--;
-                saveGameState();
-                updateHUDs();
-                bombMode = false;
-                document.getElementById('btn-bomb').style.outline = '';
-                break;
-            }
-        }
-    }
+// ── GİRİŞ OLAYLARI ───────────────────────────────────────────────
+function getXY(e) {
+    var rect = canvas.getBoundingClientRect();
+    var src  = (e.touches && e.touches.length > 0) ? e.touches[0] : e;
+    return { x: src.clientX - rect.left, y: src.clientY - rect.top };
 }
 
 function handlePointerMove(e) {
     if (isDropping || isGameOver || !isGameStarted || bombMode) return;
-    
-    e.preventDefault(); // Prevent scrolling on touch
-    
-    let clientX;
-    if (e.touches && e.touches.length > 0) {
-        clientX = e.touches[0].clientX;
-    } else {
-        clientX = e.clientX;
+    e.preventDefault();
+    var p = getXY(e);
+    var r = FRUITS[nextFruitLevel].radius;
+    previewX = Math.max(r, Math.min(p.x, width - r));
+}
+
+function handlePointerDown(e) {
+    if (!isGameStarted || isGameOver || !bombMode) return;
+    e.preventDefault();
+    var p = getXY(e);
+    var bodies = Composite.allBodies(world);
+    for (var i = 0; i < bodies.length; i++) {
+        var b = bodies[i];
+        if (b.label !== 'fruit') continue;
+        var dx = b.position.x - p.x, dy = b.position.y - p.y;
+        if (Math.sqrt(dx*dx + dy*dy) <= b.circleRadius) {
+            Composite.remove(world, b);
+            boosts.bomb--;
+            saveGameState();
+            updateHUDs();
+            bombMode = false;
+            $('btn-bomb').style.outline = '';
+            break;
+        }
     }
-    
-    const rect = canvas.getBoundingClientRect();
-    let x = clientX - rect.left;
-    
-    // Constrain x so fruit doesn't overlap walls
-    const currentFruitConfig = FRUITS[nextFruitLevel];
-    const r = currentFruitConfig.radius;
-    x = Math.max(r, Math.min(x, width - r));
-    
-    previewX = x;
 }
 
 function handlePointerDrop(e) {
     if (isDropping || isGameOver || !isGameStarted || bombMode) return;
     if (e) e.preventDefault();
-    
     isDropping = true;
-    
-    const fruitConfig = FRUITS[nextFruitLevel];
-    const dropY = 50; // Drop from near top
-    
-    // Add physical body
-    const body = Bodies.circle(previewX, dropY, fruitConfig.radius, {
-        restitution: 0.2, // Bounciness
-        friction: 0.1,
-        density: 0.001 * (fruitConfig.level + 1), // Heavier fruits
-        label: 'fruit',
-        customData: {
-            level: fruitConfig.level,
-            emoji: fruitConfig.emoji,
-            color: fruitConfig.color,
-            hasDropped: true // Track if it has been dropped to prevent game over check on preview
-        }
+    var cfg = FRUITS[nextFruitLevel];
+    var body = Bodies.circle(previewX, 50, cfg.radius, {
+        restitution:0.2, friction:0.1,
+        density: 0.001 * (cfg.level + 1),
+        label:'fruit',
+        customData:{ level:cfg.level, emoji:cfg.emoji, color:cfg.color, hasDropped:true }
     });
-    
     Composite.add(world, body);
-    
-    // Setup next fruit
     setNextFruit();
-    
-    // Cooldown
-    setTimeout(() => {
-        isDropping = false;
-        createPreviewFruit();
-    }, 1000);
+    setTimeout(function(){ isDropping = false; createPreviewFruit(); }, 600);
 }
 
+// ── ÇARPIŞMA ─────────────────────────────────────────────────────
 function handleCollisions(event) {
-    const pairs = event.pairs;
-    
-    let bodiesToRemove = [];
-    let bodiesToAdd = [];
-    
-    for (let i = 0; i < pairs.length; i++) {
-        const bodyA = pairs[i].bodyA;
-        const bodyB = pairs[i].bodyB;
-        
-        if (bodyA.label === 'fruit' && bodyB.label === 'fruit') {
-            const levelA = bodyA.customData.level;
-            const levelB = bodyB.customData.level;
-            
-            if (levelA === levelB && levelA < FRUITS.length - 1) {
-                // To prevent double processing, check if they are already in the remove list
-                if (bodiesToRemove.includes(bodyA) || bodiesToRemove.includes(bodyB)) {
-                    continue;
-                }
-                
-                // Mark for removal
-                bodiesToRemove.push(bodyA, bodyB);
-                
-                // Spawn new fruit
-                const nextLevel = levelA + 1;
-                const config = FRUITS[nextLevel];
-                
-                // Spawn at average position
-                const newX = (bodyA.position.x + bodyB.position.x) / 2;
-                const newY = (bodyA.position.y + bodyB.position.y) / 2;
-                
-                const newBody = Bodies.circle(newX, newY, config.radius, {
-                    restitution: 0.2,
-                    friction: 0.1,
-                    density: 0.001 * (config.level + 1),
-                    label: 'fruit',
-                    customData: {
-                        level: config.level,
-                        emoji: config.emoji,
-                        color: config.color,
-                        hasDropped: true
-                    }
-                });
-                
-                // Add tiny random velocity to prevent perfect stacking lock
-                Body.setVelocity(newBody, {
-                    x: (Math.random() - 0.5) * 2,
-                    y: (Math.random() - 0.5) * 2
-                });
-                
-                bodiesToAdd.push(newBody);
-                
-                // Effects
-                coins += 5;
-                saveGameState();
-                updateHUDs();
-                updateScore(score + config.score);
-                spawnParticles(newX, newY, config.color);
-                triggerShake();
-            }
-        }
+    var toRemove = [], toAdd = [];
+    var pairs = event.pairs;
+    for (var i = 0; i < pairs.length; i++) {
+        var bA = pairs[i].bodyA, bB = pairs[i].bodyB;
+        if (bA.label !== 'fruit' || bB.label !== 'fruit') continue;
+        if (bA.customData.level !== bB.customData.level) continue;
+        if (toRemove.indexOf(bA) >= 0 || toRemove.indexOf(bB) >= 0) continue;
+        if (bA.customData.level >= FRUITS.length - 1) continue;
+        toRemove.push(bA, bB);
+        var lvl = bA.customData.level + 1;
+        var cfg = FRUITS[lvl];
+        var nx = (bA.position.x + bB.position.x) / 2;
+        var ny = (bA.position.y + bB.position.y) / 2;
+        var nb = Bodies.circle(nx, ny, cfg.radius, {
+            restitution:0.2, friction:0.1,
+            density:0.001*(lvl+1), label:'fruit',
+            customData:{ level:cfg.level, emoji:cfg.emoji, color:cfg.color, hasDropped:true }
+        });
+        Body.setVelocity(nb, { x:(Math.random()-.5)*2, y:(Math.random()-.5)*2 });
+        toAdd.push(nb);
+        coins += 5; saveGameState(); updateHUDs();
+        updateScore(score + cfg.score);
+        spawnParticles(nx, ny, cfg.color);
+        triggerShake();
     }
-    
-    if (bodiesToRemove.length > 0) {
-        Composite.remove(world, bodiesToRemove);
-        Composite.add(world, bodiesToAdd);
-    }
+    if (toRemove.length) { Composite.remove(world, toRemove); Composite.add(world, toAdd); }
 }
 
 function spawnParticles(x, y, color) {
-    const count = 15;
-    for (let i = 0; i < count; i++) {
-        const angle = Math.random() * Math.PI * 2;
-        const speed = Math.random() * 5 + 2;
-        particles.push({
-            x: x,
-            y: y,
-            vx: Math.cos(angle) * speed,
-            vy: Math.sin(angle) * speed,
-            color: color,
-            life: 1.0,
-            decay: Math.random() * 0.02 + 0.02,
-            radius: Math.random() * 4 + 2
-        });
+    for (var i = 0; i < 15; i++) {
+        var a = Math.random()*Math.PI*2, s = Math.random()*5+2;
+        particles.push({ x:x, y:y, vx:Math.cos(a)*s, vy:Math.sin(a)*s, color:color, life:1, decay:Math.random()*.02+.02, radius:Math.random()*4+2 });
     }
 }
-
 function triggerShake() {
     gameContainer.classList.remove('shake');
-    void gameContainer.offsetWidth; // trigger reflow
+    void gameContainer.offsetWidth;
     gameContainer.classList.add('shake');
-    setTimeout(() => {
-        gameContainer.classList.remove('shake');
-    }, 300);
+    setTimeout(function(){ gameContainer.classList.remove('shake'); }, 300);
 }
 
-function updateScore(newScore) {
-    score = newScore;
-    scoreDisplay.innerText = score;
-    
-    // Scale animation
-    scoreDisplay.style.transform = 'scale(1.3)';
-    setTimeout(() => {
-        scoreDisplay.style.transform = 'scale(1)';
-    }, 150);
-}
-
+// ── OYUN BİTİŞİ ──────────────────────────────────────────────────
 function checkGameOver() {
     if (isGameOver) return;
-    
-    const thresholdY = height * 0.15; // Match #game-over-line top: 15%
-    let isDanger = false;
-    
-    const bodies = Composite.allBodies(world);
-    for (let body of bodies) {
-        if (body.label === 'fruit' && body.customData && body.customData.hasDropped) {
-            // Check if top of the fruit is above threshold
-            if (body.position.y - body.circleRadius < thresholdY) {
-                // Only consider it danger if it's relatively still
-                if (Math.abs(body.velocity.y) < 1 && Math.abs(body.velocity.x) < 1) {
-                    isDanger = true;
-                    // In a real implementation, we'd need a timer here.
-                    // For now, simple instant game over or short delay
-                    if (!body.dangerTime) {
-                        body.dangerTime = Date.now();
-                    } else if (Date.now() - body.dangerTime > 1500) { // 1.5s above line
-                        triggerGameOver();
-                        break;
-                    }
-                }
-            } else {
-                body.dangerTime = 0;
+    var threshold = height * 0.15;
+    var danger = false;
+    var bodies = Composite.allBodies(world);
+    for (var i = 0; i < bodies.length; i++) {
+        var b = bodies[i];
+        if (b.label !== 'fruit' || !b.customData || !b.customData.hasDropped) continue;
+        if (b.position.y - b.circleRadius < threshold) {
+            if (Math.abs(b.velocity.y) < 1 && Math.abs(b.velocity.x) < 1) {
+                danger = true;
+                if (!b.dangerTime) b.dangerTime = Date.now();
+                else if (Date.now() - b.dangerTime > 1500) { triggerGameOver(); return; }
             }
-        }
+        } else { b.dangerTime = 0; }
     }
-    
-    if (isDanger) {
-        gameOverLine.classList.add('danger');
-    } else {
-        gameOverLine.classList.remove('danger');
-    }
+    if (danger) gameOverLine.classList.add('danger');
+    else        gameOverLine.classList.remove('danger');
 }
-
 function triggerGameOver() {
     isGameOver = true;
-    
     finalScoreEl.innerText = score;
     modal.classList.remove('hidden');
     playerNameInput.focus();
 }
 
+// ── RENDER ───────────────────────────────────────────────────────
+function drawFruit(cfg, cx, cy, r, centered) {
+    var dr = r * (cfg.imgScale || 1.0);
+    if (cfg.img && cfg.img.complete && cfg.img.naturalWidth > 0) {
+        if (centered) ctx.drawImage(cfg.img, -dr, -dr, dr*2, dr*2);
+        else          ctx.drawImage(cfg.img, cx-dr, cy-dr, dr*2, dr*2);
+    } else {
+        ctx.font = (r*1.2) + 'px Arial';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(cfg.emoji, centered ? 0 : cx, centered ? r*0.1 : cy+r*0.1);
+    }
+}
+
+function renderLoop(time) {
+    gameLoopId = requestAnimationFrame(renderLoop);
+    var delta = time - lastTime;
+    lastTime = time;
+    if (isGameStarted && !isGameOver)
+        Engine.update(engine, Math.min(delta || 16.66, 33));
+    ctx.clearRect(0, 0, width, height);
+    checkGameOver();
+
+    // Onizleme
+    if (!isDropping && !isGameOver && isGameStarted) {
+        var cfg = FRUITS[nextFruitLevel];
+        ctx.save(); ctx.globalAlpha = 0.55;
+        drawFruit(cfg, previewX, 50, cfg.radius, false);
+        ctx.restore();
+    }
+
+    // Cisimler
+    var bodies = Composite.allBodies(world);
+    for (var i = 0; i < bodies.length; i++) {
+        var b = bodies[i];
+        if (b.label !== 'fruit' || !b.customData) continue;
+        ctx.save();
+        ctx.translate(b.position.x, b.position.y);
+        ctx.rotate(b.angle);
+        drawFruit(FRUITS[b.customData.level], 0, 0, b.circleRadius, true);
+        ctx.restore();
+    }
+
+    // Parcaciklar
+    for (var j = particles.length - 1; j >= 0; j--) {
+        var p = particles[j];
+        ctx.save(); ctx.globalAlpha = p.life;
+        ctx.beginPath(); ctx.arc(p.x, p.y, p.radius, 0, Math.PI*2);
+        ctx.fillStyle = p.color; ctx.fill(); ctx.restore();
+        p.x += p.vx; p.y += p.vy; p.vy += 0.2; p.life -= p.decay;
+        if (p.life <= 0) particles.splice(j, 1);
+    }
+}
+
+// ── YENIDEN BASLAT ───────────────────────────────────────────────
 function restartGame() {
-    // Clear world
     Composite.clear(world);
-    Engine.clear(engine);
-    
     createBoundaries();
-    
-    score = 0;
-    updateScore(0);
-    isGameOver = false;
-    isDropping = false;
-    particles = [];
-    
+    score = 0; updateScore(0);
+    isGameOver = false; isDropping = false; bombMode = false; particles = [];
+    $('btn-bomb').style.outline = '';
     modal.classList.add('hidden');
     gameOverLine.classList.remove('danger');
-    
-    setNextFruit();
-    createPreviewFruit();
-    
+    setNextFruit(); createPreviewFruit();
     lastTime = performance.now();
 }
 
-function saveScore() {
-    const name = playerNameInput.value.trim() || 'Gizemli Oyuncu';
-    const currentScores = JSON.parse(localStorage.getItem('suikaScores')) || [];
-    
-    currentScores.push({ name, score, date: new Date().toLocaleDateString() });
-    currentScores.sort((a, b) => b.score - a.score); // Descending
-    const topScores = currentScores.slice(0, 5); // Keep top 5
-    
-    localStorage.setItem('suikaScores', JSON.stringify(topScores));
-    updateLeaderboardUI();
-    playerNameInput.value = ''; // clear input
-    
-    // Optionally change button text to indicate success
-    saveBtn.innerText = 'KAYDEDİLDİ!';
-    setTimeout(() => { saveBtn.innerText = 'SKORU KAYDET'; }, 2000);
-}
+function initGame() {
+    canvas = document.createElement('canvas');
+    ctx    = canvas.getContext('2d');
+    canvasContainer.appendChild(canvas);
 
-function updateLeaderboardUI() {
-    const scores = JSON.parse(localStorage.getItem('suikaScores')) || [];
-    leaderboardList.innerHTML = '';
-    
-    if (scores.length === 0) {
-        leaderboardList.innerHTML = '<li>Henüz skor kaydedilmedi.</li>';
-        return;
-    }
-    
-    scores.forEach((s, idx) => {
-        const li = document.createElement('li');
-        li.innerHTML = `<span>${idx + 1}. ${s.name}</span> <span>${s.score}</span>`;
-        leaderboardList.appendChild(li);
-    });
-}
+    engine = Engine.create();
+    world  = engine.world;
+    engine.gravity.y = 1.5;
 
-let lastTime = 0;
+    width  = 400; height = 600;
+    canvas.width = width; canvas.height = height;
+    ctx.imageSmoothingEnabled = true;
 
-function renderLoop(time) {
-    if (!ctx) return;
-    
-    const delta = time - lastTime;
-    lastTime = time;
-    
-    // Update physics manually for perfect frame sync (cap delta to 33ms to avoid huge jumps)
-    if (isGameStarted && !isGameOver) {
-        Engine.update(engine, Math.min(delta || 16.66, 33));
-    }
-    
-    // Clear canvas
-    ctx.clearRect(0, 0, width, height);
-    
-    checkGameOver();
-    
-    // Draw preview fruit
-    if (!isDropping && !isGameOver && isGameStarted) {
-        const config = FRUITS[nextFruitLevel];
-        const r = config.radius;
-        const dropY = 50;
-        
-        ctx.save();
-        ctx.globalAlpha = 0.5; // Make preview translucent
-        
-        // Draw fruit body
-        if (config.img && config.img.complete && config.img.naturalWidth > 0) {
-            const scale = config.imgScale || 1.0;
-            const drawR = r * scale;
-            ctx.drawImage(config.img, previewX - drawR, dropY - drawR, drawR * 2, drawR * 2);
-        } else {
-            // Draw emoji
-            ctx.font = `${r * 1.2}px Arial`;
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'middle';
-            ctx.fillText(config.emoji, previewX, dropY + r * 0.1);
-        }
-        
-        ctx.restore();
-    }
-    
-    // Draw physical bodies
-    const bodies = Composite.allBodies(world);
-    for (let body of bodies) {
-        if (body.label === 'fruit' && body.customData) {
-            const data = body.customData;
-            const r = body.circleRadius;
-            const pos = body.position;
-            
-            ctx.save();
-            ctx.translate(pos.x, pos.y);
-            ctx.rotate(body.angle);
-            
-            const config = FRUITS[data.level];
-            
-            if (config.img && config.img.complete && config.img.naturalWidth > 0) {
-                // Let it rotate with the physics body
-                const scale = config.imgScale || 1.0;
-                const drawR = r * scale;
-                ctx.drawImage(config.img, -drawR, -drawR, drawR * 2, drawR * 2);
-            } else {
-                // Fallback for fruits without images yet
-                // Draw emoji
-                ctx.font = `${r * 1.2}px Arial`;
-                ctx.textAlign = 'center';
-                ctx.textBaseline = 'middle';
-                // Disable rotation for emoji to keep them upright, or let them spin. Spinning is funnier.
-                ctx.fillText(data.emoji, 0, r * 0.1);
-            }
-            
-            ctx.restore();
-        }
-    }
-    
-    // Draw and update particles
-    for (let i = particles.length - 1; i >= 0; i--) {
-        const p = particles[i];
-        
-        ctx.save();
-        ctx.globalAlpha = p.life;
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
-        ctx.fillStyle = p.color;
-        ctx.fill();
-        ctx.restore();
-        
-        // Update physics
-        p.x += p.vx;
-        p.y += p.vy;
-        p.vy += 0.2; // Gravity for particles
-        p.life -= p.decay;
-        
-        if (p.life <= 0) {
-            particles.splice(i, 1);
-        }
-    }
-    
+    createBoundaries();
+    updateScore(0); setNextFruit(); createPreviewFruit();
+
+    canvas.addEventListener('mousemove',   handlePointerMove,  { passive:false });
+    canvas.addEventListener('touchmove',   handlePointerMove,  { passive:false });
+    canvas.addEventListener('mouseup',     handlePointerDrop,  { passive:false });
+    canvas.addEventListener('touchend',    handlePointerDrop,  { passive:false });
+    canvas.addEventListener('pointerdown', handlePointerDown,  { passive:false });
+
+    Events.on(engine, 'collisionStart', handleCollisions);
+    lastTime = performance.now();
     gameLoopId = requestAnimationFrame(renderLoop);
+    updateLeaderboardUI();
+    loadGameState();
 }
 
-// Menu particle stub fonksiyonları (ileride animasyon eklenebilir)
-function startMenuParticles() { /* TODO: menu arka plan animasyonu */ }
-function stopMenuParticles()  { /* TODO: menu arka plan animasyonu durdur */ }
+// ── MAGAZA ───────────────────────────────────────────────────────
+function openStore(fromGame) {
+    storeMenu.classList.remove('hidden');
+    updateHUDs();
+    storeReturnBtn.style.display = (fromGame && isGameStarted && !isGameOver) ? 'block' : 'none';
+}
 
-// Event Listeners for UI
-restartBtn.addEventListener('click', () => {
-    // Hide game over, show main menu
+// ── REKLAM ───────────────────────────────────────────────────────
+function setAdState(s) {
+    adStateLoading.style.display  = s==='loading'  ? '' : 'none';
+    adStateWatching.style.display = s==='watching' ? '' : 'none';
+    adStateReward.style.display   = s==='reward'   ? '' : 'none';
+    adStateError.style.display    = s==='error'    ? '' : 'none';
+}
+var adProgressInterval = null;
+function stopAdProgress() {
+    if (adProgressInterval) { clearInterval(adProgressInterval); adProgressInterval = null; }
+    if (adOverlay._noAdTimer)   { clearTimeout(adOverlay._noAdTimer);    adOverlay._noAdTimer   = null; }
+    if (adOverlay._simInterval) { clearInterval(adOverlay._simInterval); adOverlay._simInterval = null; }
+    adProgressFill.style.width = '100%';
+}
+function giveBoostReward(type, name) {
+    boosts[type]++;
+    saveGameState(); updateHUDs();
+    var icons = { shake:'🫨', bomb:'💣', swap:'🔄', upgrade:'⭐' };
+    adRewardText.innerText = (icons[type]||'🎁') + ' ' + name + " boost'u kazanildi!";
+    setAdState('reward');
+    setTimeout(function(){ adOverlay.classList.add('hidden'); }, 2500);
+}
+function showRewardedAd(type, name) {
+    adOverlay.classList.remove('hidden');
+    setAdState('loading');
+    if (typeof adBreak === 'function') {
+        adBreak({
+            type:'reward', name:'boost-reward-'+type,
+            beforeReward: function(show){ setAdState('watching'); adProgressFill.style.width='0%'; var e=0; adProgressInterval=setInterval(function(){ e+=200; adProgressFill.style.width=Math.min(e/30000*100,99)+'%'; },200); show(); },
+            adDismissed:  function(){ stopAdProgress(); adOverlay.classList.add('hidden'); },
+            adViewed:     function(){ stopAdProgress(); giveBoostReward(type, name); },
+            afterAd:      function(){}
+        });
+        adOverlay._noAdTimer = setTimeout(function(){ if(adStateLoading.style.display!=='none') setAdState('error'); }, 8000);
+    } else {
+        setAdState('watching');
+        var p = 0; adProgressFill.style.width = '0%';
+        adOverlay._simInterval = setInterval(function(){
+            p += 3.3; adProgressFill.style.width = Math.min(p,100)+'%';
+            if(p>=100){ clearInterval(adOverlay._simInterval); giveBoostReward(type,name); }
+        }, 1000);
+    }
+}
+
+// ── UI OLAYLARI ──────────────────────────────────────────────────
+playBtn.addEventListener('click', function() {
+    mainMenu.classList.add('hidden');
+    canvasContainer.classList.remove('hidden');
+    inGameHeader.classList.remove('hidden');
+    var rect = canvasContainer.getBoundingClientRect();
+    if (rect.width > 0 && rect.height > 0) {
+        width = rect.width; height = rect.height;
+        canvas.width = width; canvas.height = height;
+        ctx.imageSmoothingEnabled = true;
+    }
+    restartGame();
+    isGameStarted = true;
+});
+
+restartBtn.addEventListener('click', function() {
     modal.classList.add('hidden');
     canvasContainer.classList.add('hidden');
     inGameHeader.classList.add('hidden');
     mainMenu.classList.remove('hidden');
     isGameStarted = false;
-    startMenuParticles();
 });
+
 saveBtn.addEventListener('click', saveScore);
+storeBtn.addEventListener('click',       function(){ openStore(false); });
+storeBackBtn.addEventListener('click',   function(){ storeMenu.classList.add('hidden'); });
+storeReturnBtn.addEventListener('click', function(){ storeMenu.classList.add('hidden'); });
+if (adCloseBtn) adCloseBtn.addEventListener('click', function(){ adOverlay.classList.add('hidden'); });
 
-// Menu Navigation
-playBtn.addEventListener('click', () => {
-    mainMenu.classList.add('hidden');
-    canvasContainer.classList.remove('hidden');
-    inGameHeader.classList.remove('hidden');
-    
-    // Update canvas dimensions now that it is visible
-    const rect = canvasContainer.getBoundingClientRect();
-    if (rect.width > 0 && rect.height > 0) {
-        width = rect.width;
-        height = rect.height;
-        canvas.width = width;
-        canvas.height = height;
-        ctx.imageSmoothingEnabled = true;
-    }
-    
-    restartGame();
-    isGameStarted = true;
-    stopMenuParticles();
+$('btn-shake').addEventListener('click', function() {
+    if (!isGameStarted || isGameOver) return;
+    if (boosts.shake > 0) {
+        boosts.shake--; saveGameState(); updateHUDs();
+        var bodies = Composite.allBodies(world);
+        for (var i = 0; i < bodies.length; i++) {
+            if (bodies[i].label === 'fruit')
+                Body.applyForce(bodies[i], bodies[i].position, { x:(Math.random()-.5)*.08, y:-Math.random()*.06 });
+        }
+    } else openStore(true);
+});
+$('btn-bomb').addEventListener('click', function() {
+    if (!isGameStarted || isGameOver) return;
+    if (boosts.bomb > 0) { bombMode = true; $('btn-bomb').style.outline = '3px solid #ef4444'; }
+    else openStore(true);
+});
+$('btn-swap').addEventListener('click', function() {
+    if (!isGameStarted || isGameOver) return;
+    if (boosts.swap > 0) { boosts.swap--; saveGameState(); updateHUDs(); setNextFruit(); createPreviewFruit(); }
+    else openStore(true);
+});
+$('btn-upgrade').addEventListener('click', function() {
+    if (!isGameStarted || isGameOver) return;
+    if (boosts.upgrade > 0) {
+        boosts.upgrade--; saveGameState(); updateHUDs();
+        if (nextFruitLevel < FRUITS.length-1) { nextFruitLevel++; createPreviewFruit(); }
+    } else openStore(true);
 });
 
-function openStore(fromGame) {
-    storeMenu.classList.remove('hidden');
-    updateHUDs();
-    // "Oyuna Dön" butonunu sadece oyun sırasında göster
-    if (fromGame && isGameStarted && !isGameOver) {
-        storeReturnBtn.style.display = 'block';
-    } else {
-        storeReturnBtn.style.display = 'none';
-    }
-}
-
-storeBtn.addEventListener('click', () => {
-    openStore(false);
-});
-
-storeBackBtn.addEventListener('click', () => {
-    storeMenu.classList.add('hidden');
-});
-
-storeReturnBtn.addEventListener('click', () => {
-    storeMenu.classList.add('hidden');
-});
-
-// ── REWARDED AD SİSTEMİ ──────────────────────────────────────────
-// AdSense H5 Game Ad Placement API kullanımı.
-// Publisher ID'ni index.html'de ca-pub-XXXXXXXXXXXXXXXX yerine yaz.
-
-// adConfig başlangıçta bir kez çağrılır
-if (typeof adConfig === 'function') {
-    adConfig({
-        preloadAdBreaks: 'on', // reklamları önceden yükle
-        sound: 'on'
-    });
-}
-
-// Ad overlay state yönetimi
-const adStateLoading  = document.getElementById('ad-state-loading');
-const adStateWatching = document.getElementById('ad-state-watching');
-const adStateReward   = document.getElementById('ad-state-reward');
-const adStateError    = document.getElementById('ad-state-error');
-const adProgressFill  = document.getElementById('ad-progress-fill');
-const adRewardText    = document.getElementById('ad-reward-text');
-const adCloseBtn      = document.getElementById('ad-close-btn');
-
-function setAdState(state) {
-    adStateLoading.style.display  = state === 'loading'  ? '' : 'none';
-    adStateWatching.style.display = state === 'watching' ? '' : 'none';
-    adStateReward.style.display   = state === 'reward'   ? '' : 'none';
-    adStateError.style.display    = state === 'error'    ? '' : 'none';
-}
-
-function showRewardedAd(boostType, boostName) {
-    // Overlay'i aç, yükleniyor göster
-    adOverlay.classList.remove('hidden');
-    setAdState('loading');
-
-    // AdSense hazır değilse simülasyon modu (geliştirme/test ortamı)
-    const adsenseReady = typeof adBreak === 'function';
-
-    if (adsenseReady) {
-        adBreak({
-            type: 'reward',
-            name: 'boost-reward-' + boostType,
-
-            // Reklam gösterilmeden önce çağrılır, showAdFn() ile reklamı başlatırız
-            beforeReward: (showAdFn) => {
-                setAdState('watching');
-                animateAdProgress(30); // ~30 saniyelik progress bar
-                showAdFn();
-            },
-
-            // Kullanıcı reklamı tam izlemeden kapattı
-            adDismissed: () => {
-                stopAdProgress();
-                adOverlay.classList.add('hidden');
-            },
-
-            // Kullanıcı reklamı tam izledi → ödül ver
-            adViewed: () => {
-                stopAdProgress();
-                giveBoostReward(boostType, boostName);
-            },
-
-            // Reklam bulunamadı veya hata
-            afterAd: () => {
-                // adViewed ya da adDismissed zaten çağrıldıysa burada ek işlem yok
-            }
-        });
-
-        // Eğer birkaç saniye içinde beforeReward gelmezse reklam yok demektir
-        const noAdTimer = setTimeout(() => {
-            if (adStateLoading.style.display !== 'none') {
-                setAdState('error');
-            }
-        }, 8000);
-        adOverlay._noAdTimer = noAdTimer;
-
-    } else {
-        // ---- GELİŞTİRME / TEST MODU ----
-        // AdSense Publisher ID girilmemiş ortamlarda simülasyon çalışır
-        console.warn('[Ad] AdSense hazır değil – simülasyon modu aktif');
-        setAdState('watching');
-        let progress = 0;
-        adProgressFill.style.width = '0%';
-        const sim = setInterval(() => {
-            progress += 3.3;
-            adProgressFill.style.width = Math.min(progress, 100) + '%';
-            if (progress >= 100) {
-                clearInterval(sim);
-                giveBoostReward(boostType, boostName);
-            }
-        }, 1000);
-        adOverlay._simInterval = sim;
-    }
-}
-
-// Progress bar animasyonu
-let adProgressInterval = null;
-function animateAdProgress(durationSec) {
-    adProgressFill.style.width = '0%';
-    let elapsed = 0;
-    const step = 200; // ms
-    adProgressInterval = setInterval(() => {
-        elapsed += step;
-        const pct = Math.min((elapsed / (durationSec * 1000)) * 100, 99);
-        adProgressFill.style.width = pct + '%';
-    }, step);
-}
-function stopAdProgress() {
-    if (adProgressInterval) { clearInterval(adProgressInterval); adProgressInterval = null; }
-    if (adOverlay._noAdTimer)   { clearTimeout(adOverlay._noAdTimer);   adOverlay._noAdTimer = null; }
-    if (adOverlay._simInterval) { clearInterval(adOverlay._simInterval); adOverlay._simInterval = null; }
-    adProgressFill.style.width = '100%';
-}
-
-// Ödül ver ve overlay'i kapat
-function giveBoostReward(boostType, boostName) {
-    boosts[boostType]++;
-    saveGameState();
-    updateHUDs();
-
-    const icons = { shake:'🫨', bomb:'💣', swap:'🔄', upgrade:'⭐' };
-    adRewardText.innerText = `${icons[boostType] || '🎁'} ${boostName} boost'u kazanıldı!`;
-    setAdState('reward');
-
-    setTimeout(() => {
-        adOverlay.classList.add('hidden');
-    }, 2200);
-}
-
-// Hata ekranındaki "Tamam" butonu
-if (adCloseBtn) {
-    adCloseBtn.addEventListener('click', () => {
-        adOverlay.classList.add('hidden');
-    });
-}
-
-// ── STORE PURCHASES ──────────────────────────────────────────────
-
-// ── STORE PURCHASES ──────────────────────────────────────────────
-const BOOST_NAMES = { shake: 'Sarsinti', bomb: 'Bomba', swap: 'Donusturucu', upgrade: 'Seviye Atlama' };
-
-document.querySelectorAll('.buy-coin-btn, .store-buy-coin').forEach(btn => {
-    btn.addEventListener('click', (e) => {
-        const type  = btn.dataset.type;
-        const price = parseInt(btn.dataset.price, 10);
+var BOOST_NAMES = { shake:'Sarsinti', bomb:'Bomba', swap:'Donusturucu', upgrade:'Seviye Atlama' };
+document.querySelectorAll('.buy-coin-btn, .store-buy-coin').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+        var type = btn.dataset.type, price = parseInt(btn.dataset.price, 10);
         if (coins >= price) {
-            coins -= price;
-            boosts[type]++;
-            saveGameState();
-            updateHUDs();
-            // Kisa titresim efekti
+            coins -= price; boosts[type]++; saveGameState(); updateHUDs();
             btn.style.transform = 'scale(0.92)';
-            setTimeout(() => btn.style.transform = '', 150);
+            setTimeout(function(){ btn.style.transform = ''; }, 150);
         } else {
-            btn.style.background = '#ef4444';
-            btn.textContent = 'Yetersiz!';
-            setTimeout(() => {
-                btn.style.background = '';
-                btn.textContent = '🪙 ' + price;
-            }, 1200);
+            var orig = btn.textContent;
+            btn.textContent = 'Yetersiz!'; btn.style.background = '#ef4444';
+            setTimeout(function(){ btn.textContent = orig; btn.style.background = ''; }, 1200);
         }
     });
 });
-
-document.querySelectorAll('.buy-ad-btn, .store-buy-ad').forEach(btn => {
-    btn.addEventListener('click', (e) => {
-        const type = btn.dataset.type;
-        const name = BOOST_NAMES[type] || type;
-        showRewardedAd(type, name);
-    });
+document.querySelectorAll('.buy-ad-btn, .store-buy-ad').forEach(function(btn) {
+    btn.addEventListener('click', function(){ showRewardedAd(btn.dataset.type, BOOST_NAMES[btn.dataset.type] || btn.dataset.type); });
 });
 
-// ── BOOST HUD BUTONLARI ──────────────────────────────────────────
-document.getElementById('btn-shake').addEventListener('click', () => {
-    if (boosts.shake > 0 && isGameStarted && !isGameOver) {
-        boosts.shake--;
-        saveGameState();
-        updateHUDs();
-        // Tum meyveler rastgele itilir
-        const bodies = Matter.Composite.allBodies(world).filter(b => b.label === 'fruit');
-        bodies.forEach(b => {
-            Matter.Body.applyForce(b, b.position, {
-                x: (Math.random() - 0.5) * 0.08,
-                y: -Math.random() * 0.06
-            });
-        });
-    } else if (boosts.shake === 0) {
-        openStore(true);
-    }
-});
+if (typeof adConfig === 'function') adConfig({ preloadAdBreaks:'on', sound:'on' });
 
-document.getElementById('btn-bomb').addEventListener('click', () => {
-    if (boosts.bomb > 0 && isGameStarted && !isGameOver) {
-        bombMode = true;
-        document.getElementById('btn-bomb').style.outline = '3px solid #ef4444';
-    } else if (boosts.bomb === 0) {
-        openStore(true);
-    }
-});
-
-document.getElementById('btn-swap').addEventListener('click', () => {
-    if (boosts.swap > 0 && isGameStarted && !isGameOver) {
-        boosts.swap--;
-        saveGameState();
-        updateHUDs();
-        setNextFruit();
-        createPreviewFruit();
-    } else if (boosts.swap === 0) {
-        openStore(true);
-    }
-});
-
-document.getElementById('btn-upgrade').addEventListener('click', () => {
-    if (boosts.upgrade > 0 && isGameStarted && !isGameOver) {
-        boosts.upgrade--;
-        saveGameState();
-        updateHUDs();
-        if (nextFruitLevel < FRUITS.length - 1) {
-            nextFruitLevel++;
-            createPreviewFruit();
-        }
-    } else if (boosts.upgrade === 0) {
-        openStore(true);
-    }
-});
-
-
-// ── OYUNU BASLAT (script body sonunda yuklendigindan direkt cagri) ──
+// ── BASLAT ───────────────────────────────────────────────────────
 initGame();
