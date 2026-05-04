@@ -1,0 +1,1988 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="monetag" content="6ee068bf0e1fca7016dcd8f6e9b5d25f">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3066824413621209" crossorigin="anonymous"></script>
+    <script src="//imasdk.googleapis.com/js/sdkloader/ima3.js"></script>
+    <!-- Telegram Mini App SDK -->
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <title>GLITCH BUSINESS v28.0</title>
+    <style>
+        body { margin: 0; background-color: #050505; color: white; font-family: 'Segoe UI', sans-serif; display: flex; flex-direction: column; align-items: center; height: 100vh; overflow: hidden; user-select: none; -webkit-tap-highlight-color: transparent; padding-bottom: env(safe-area-inset-bottom, 0px); }
+        .top-btn { position: absolute; border: none; padding: 10px 14px; border-radius: 12px; color: white; font-weight: bold; cursor: pointer; z-index: 100; font-size: 10px; outline: none; }
+        #shop-btn { top: 15px; right: 10px; background: linear-gradient(45deg, #ff00ff, #00ffff); }
+        #tasks-btn { top: 15px; left: 10px; background: linear-gradient(45deg, #00ff00, #0088ff); }
+        #leaderboard-btn { top: 60px; left: 10px; background: #f39c12; }
+        #referral-btn { top: 60px; right: 10px; background: #e74c3c; }
+        #daily-btn { top: 105px; right: 10px; background: #9b59b6; }
+        #map-btn { top: 105px; left: 10px; background: #34495e; border: 1px solid #00ff00; }
+        #daily-code-btn { top: 150px; left: 10px; background: linear-gradient(45deg, #ff6b00, #ff0080); border: 2px solid #ffcc00; animation: codePulse 2s ease-in-out infinite; }
+        #spin-btn { top: 150px; right: 10px; background: linear-gradient(135deg, #f1c40f, #e67e22); border: 2px solid #fff3; font-size: 26px; padding: 6px 10px; border-radius: 14px; animation: spinBtnPulse 2.5s ease-in-out infinite; line-height: 1; }
+        #spin-main-timer { position: absolute; top: 200px; right: 5px; font-size: 8px; color: #f1c40f; text-align: center; width: 58px; font-weight: bold; pointer-events: none; }
+        #profile-btn { top: 195px; left: 10px; background: linear-gradient(45deg,#00c9ff,#92fe9d); color:#000; }
+        /* Profile Panel */
+        .profile-avatar { width:90px;height:90px;border-radius:20px;object-fit:cover;border:3px solid #00ff00;box-shadow:0 0 18px #00ff0066; }
+        .profile-stat-row { display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:#111;border-radius:12px;margin-bottom:8px;border:1px solid #222; }
+        .profile-stat-label { color:#888;font-size:12px; }
+        .profile-stat-value { color:#00ff00;font-weight:bold;font-size:14px; }
+        .badge-grid { display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:10px; }
+        .badge-card { background:#111;border-radius:16px;padding:14px 8px;text-align:center;border:2px solid #222;transition:all 0.3s; }
+        .badge-card.earned { border-color:#f1c40f;background:linear-gradient(135deg,#1a1200,#2a2000);box-shadow:0 0 14px #f1c40f44; }
+        .badge-card.locked { opacity:0.35;filter:grayscale(1); }
+        .badge-card .badge-icon { font-size:32px;margin-bottom:6px; }
+        .badge-card .badge-name { font-size:10px;color:#aaa;font-weight:bold;line-height:1.3; }
+        .badge-card.earned .badge-name { color:#f1c40f; }
+        .badge-card .badge-sub { font-size:9px;color:#555;margin-top:3px; }
+        @keyframes spinBtnPulse { 0%,100% { box-shadow: 0 0 10px #f1c40f; } 50% { box-shadow: 0 0 28px #ff6b00, 0 0 8px #fff; } }
+        /* Spin Wheel Styles */
+        #spin-panel { background: radial-gradient(ellipse at center, #07071a 0%, #000 100%); }
+        #wheel-wrap { position: relative; display: flex; justify-content: center; align-items: center; margin: 8px auto; padding: 20px 0 10px; }
+        #wheel-pointer { position: absolute; top: 2px; left: 50%; transform: translateX(-50%); z-index: 10; }
+        #spin-btn-go { width: 85%; padding: 16px; margin: 10px auto; display: block; border-radius: 50px; background: linear-gradient(135deg, #f1c40f 0%, #ff6b00 100%); border: none; color: #000; font-weight: bold; font-size: 18px; cursor: pointer; box-shadow: 0 4px 20px #f1c40f66; letter-spacing: 1px; transition: all 0.2s; }
+        #spin-btn-go:disabled { background: #2a2a2a; color: #555; box-shadow: none; cursor: not-allowed; }
+        #spin-result-box { background: linear-gradient(135deg,#0d0d1a,#111); border: 1px solid #2a2a2a; border-radius: 16px; padding: 16px; margin: 8px 0; text-align: center; min-height: 54px; }
+        #spin-countdown { font-size: 28px; font-weight: bold; color: #f1c40f; letter-spacing: 2px; text-align: center; font-family: monospace; margin: 4px 0; }
+        #spin-cooldown { color: #888; font-size: 12px; text-align: center; margin-top: 4px; }
+        @keyframes codePulse { 0%,100% { box-shadow: 0 0 8px #ff6b00; } 50% { box-shadow: 0 0 22px #ff0080, 0 0 5px #ffcc00; } }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        @keyframes fly { 0% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; transform: translateY(-100px); } }
+        #header { margin-top: 40px; text-align: center; }
+        #score { font-size: 45px; font-weight: bold; margin: 0; color: #00ff00; text-shadow: 0 0 20px #00ff00; }
+        #rank-badge { margin-top: 5px; padding: 5px 20px; border-radius: 50px; font-size: 12px; font-weight: bold; color: black; background: #00ff00; text-transform: uppercase; }
+        #tap-area { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; width: 100%; position: relative; }
+        #capy-image { width: 220px; height: 220px; border-radius: 40px; object-fit: cover; transition: transform 0.05s; border: 4px solid #1a1a1a; }
+        #play-mini-btn { margin-top: 20px; padding: 12px 20px; border-radius: 15px; background: linear-gradient(45deg, #f1c40f, #e67e22); border: none; color: white; font-weight: bold; cursor: pointer; font-size: 12px; }
+        #footer { width: 85%; margin-bottom: 20px; background: rgba(255,255,255,0.05); padding: 15px; border-radius: 20px; backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); }
+        #energy-bar-bg { width: 100%; height: 12px; background-color: #111; border-radius: 10px; margin-top: 5px; }
+        #energy-bar-fill { height: 100%; background: linear-gradient(90deg, #00ff00, #adff2f); width: 100%; transition: width 0.3s; }
+        #boost-status { font-size: 10px; color: #00ffff; text-align: center; margin-bottom: 5px; min-height: 12px; }
+        .full-panel { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.98); z-index: 200; display: none; overflow-y: auto; padding: 60px 20px 20px; box-sizing: border-box; }
+        .close-panel { position: absolute; top: 15px; right: 20px; font-size: 35px; color: white; cursor: pointer; z-index: 210; }
+        .item-card { background: #111; padding: 15px; border-radius: 15px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #222; }
+        .item-card button { background: #00ff00; border: none; padding: 8px 12px; border-radius: 8px; font-weight: bold; cursor: pointer; color: black; }
+        .item-card button:disabled { background: #333 !important; color: #777 !important; }
+        .shop-img { width: 55px; height: 55px; border-radius: 10px; margin-right: 12px; object-fit: cover; border: 1px solid #333; }
+        .daily-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-top: 15px; }
+        .day-box { background: #1a1a1a; padding: 12px; border-radius: 12px; text-align: center; border: 1px solid #333; font-size: 13px; position: relative; }
+        .day-box.active { border-color: #00ff00; background: #003300; }
+        /* Loyalty Popup */
+        #loyalty-popup {
+            display: none; position: fixed; inset: 0; z-index: 9999;
+            align-items: center; justify-content: center;
+            background: rgba(0,0,0,0.75); flex-direction: column; gap: 16px;
+        }
+        #loyalty-popup .loyalty-card {
+            background: linear-gradient(135deg, #1a0a00, #2a1800);
+            border: 3px solid #f1c40f;
+            border-radius: 24px; padding: 32px 40px; text-align: center;
+            box-shadow: 0 0 60px #f1c40faa;
+            animation: loyaltyIn 0.5s cubic-bezier(.17,.67,.44,1.3);
+        }
+        @keyframes loyaltyIn {
+            from { transform: scale(0.3) rotate(-10deg); opacity: 0; }
+            to   { transform: scale(1) rotate(0deg); opacity: 1; }
+        }
+        @keyframes badgeSpin {
+            0%,100% { transform: rotateY(0deg); }
+            50% { transform: rotateY(180deg); }
+        }
+        .tap-effect { position: absolute; color: #00ff00; font-weight: bold; font-size: 30px; pointer-events: none; animation: fly 0.7s forwards; z-index: 300; }
+        /* Daily Code Styles */
+        .stage-indicator { display: flex; justify-content: center; align-items: center; gap: 0; margin: 15px 0 20px; }
+        .stage-dot { width: 38px; height: 38px; border-radius: 50%; background: #1a1a1a; border: 2px solid #333; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 15px; transition: all 0.4s; flex-shrink: 0; }
+        .stage-connector { width: 35px; height: 2px; background: #333; flex-shrink: 0; }
+        .stage-dot.active { background: linear-gradient(135deg,#ff6b00,#ff0080); border-color: #ffcc00; color: white; box-shadow: 0 0 18px #ff6b00; }
+        .stage-dot.completed { background: #00ff00; border-color: #00ff00; color: black; }
+        .stage-box { background: #0d0d0d; border: 1px solid #2a2a2a; border-radius: 20px; padding: 25px 18px; margin: 12px 0; text-align: center; }
+        .stage-label { font-size: 18px; font-weight: bold; margin-bottom: 10px; color: #ffcc00; }
+        .code-input { width: 80%; padding: 14px; border-radius: 12px; background: #1a1a1a; border: 2px solid #333; color: #00ff00; font-size: 22px; text-align: center; font-family: monospace; letter-spacing: 4px; outline: none; box-sizing: border-box; }
+        .code-input:focus { border-color: #ff6b00; }
+        .dc-submit-btn { width: 80%; padding: 14px; margin-top: 12px; border-radius: 12px; background: linear-gradient(45deg, #ff6b00, #ff0080); border: none; color: white; font-weight: bold; font-size: 16px; cursor: pointer; }
+        .dc-submit-btn:disabled { background: #333; color: #666; cursor: not-allowed; }
+        #pattern-canvas { display: block; margin: 0 auto; touch-action: none; border-radius: 20px; background: #0a0a18; border: 1px solid #1a1a3a; }
+        #camera-video { width: 100%; max-width: 300px; border-radius: 15px; border: 2px solid #00ffff; display: block; margin: 0 auto; }
+        #camera-canvas { display: none; }
+        .photo-btn { padding: 14px 28px; border-radius: 50px; background: linear-gradient(45deg, #00ffff, #0080ff); border: none; color: black; font-weight: bold; font-size: 15px; cursor: pointer; margin-top: 12px; }
+        .photo-btn:disabled { background: #333; color: #666; cursor: not-allowed; }
+        .reward-banner { background: linear-gradient(45deg, #ff6b00, #ffcc00); padding: 25px; border-radius: 20px; text-align: center; font-size: 20px; font-weight: bold; color: black; margin: 20px 0; display: none; line-height: 1.5; }
+        .dc-err { color: #ff4444; font-size: 13px; margin-top: 8px; min-height: 18px; }
+        .dc-ok { color: #00ff00; font-size: 13px; margin-top: 8px; }
+
+        /* ── TICKET SYSTEM ── */
+        #ticket-bar { display:flex; align-items:center; justify-content:center; gap:8px; margin:0 0 14px; }
+        #ticket-count-badge { background:linear-gradient(135deg,#2a2200,#3d3300); border:2px solid #ffcc44; border-radius:50px; padding:6px 18px; font-size:16px; font-weight:bold; color:#ffcc44; display:flex; align-items:center; gap:6px; box-shadow:0 0 14px #ffcc4444; }
+        #ticket-shop-section { margin-top:18px; border-top:1px solid #222; padding-top:14px; }
+        #ticket-shop-section h3 { text-align:center; color:#ffcc44; margin:0 0 12px; font-size:15px; letter-spacing:1px; }
+        .ticket-shop-row { background:#111; border:1px solid #2a2a2a; border-radius:14px; padding:12px 14px; margin-bottom:8px; display:flex; align-items:center; justify-content:space-between; gap:10px; }
+        .ticket-shop-row .ts-info { flex:1; }
+        .ticket-shop-row .ts-info b { font-size:13px; color:#fff; }
+        .ticket-shop-row .ts-info small { color:#888; font-size:11px; display:block; margin-top:2px; }
+        .ticket-shop-row button { background:linear-gradient(135deg,#f1c40f,#e67e22); border:none; padding:8px 14px; border-radius:10px; font-weight:bold; color:#000; cursor:pointer; font-size:12px; white-space:nowrap; }
+        .ticket-shop-row button.pts-btn { background:linear-gradient(135deg,#00b4d8,#0077b6); color:#fff; }
+        .ticket-shop-row button:disabled { background:#333; color:#666; cursor:not-allowed; }
+        .no-ticket-msg { color:#ff4444; font-size:13px; text-align:center; margin:8px 0; font-weight:bold; }
+
+        /* ── AD MODAL ── */
+        #ad-modal { position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.95); z-index:500; display:none; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:30px; box-sizing:border-box; }
+        #ad-modal-inner { background:#111; border:2px solid #333; border-radius:24px; padding:32px 24px; max-width:340px; width:100%; }
+        #ad-timer-ring { width:90px; height:90px; margin:0 auto 18px; position:relative; }
+        #ad-timer-ring svg { transform:rotate(-90deg); }
+        #ad-timer-ring #ad-ring-fill { stroke-dasharray:251; stroke-dashoffset:0; transition:stroke-dashoffset 1s linear; }
+        #ad-timer-num { position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); font-size:28px; font-weight:bold; color:#f1c40f; font-family:monospace; }
+        #ad-reward-preview { color:#00ff00; font-size:17px; font-weight:bold; margin:10px 0 18px; }
+        #ad-skip-btn { background:linear-gradient(135deg,#f1c40f,#e67e22); border:none; padding:14px 32px; border-radius:50px; font-size:16px; font-weight:bold; color:#000; cursor:pointer; width:100%; display:none; }
+
+        /* ── EXTRA SPIN BUTTON ── */
+        #extra-spin-section { margin-top:10px; text-align:center; display:none; }
+        #extra-spin-ad-btn { background:linear-gradient(135deg,#8e44ad,#c0392b); border:none; padding:13px 28px; border-radius:50px; color:#fff; font-weight:bold; font-size:14px; cursor:pointer; width:85%; box-shadow:0 0 18px #8e44ad55; }
+        #extra-spin-label { color:#888; font-size:11px; margin-top:6px; }
+    </style>
+</head>
+<body>
+
+    <audio id="click-snd" src="click.mp3"></audio>
+    <audio id="money-snd" src="money.mp3"></audio>
+    <audio id="win-snd" src="winsound.mp3"></audio>
+
+    <!-- LOYALTY POPUP -->
+    <div id="loyalty-popup">
+        <div class="loyalty-card">
+            <div style="font-size:64px;animation:badgeSpin 1.5s ease-in-out infinite;">🏅</div>
+            <div style="color:#f1c40f;font-size:13px;letter-spacing:3px;margin-top:8px;">LOYALTY BADGE EARNED</div>
+            <div id="loyalty-pop-count" style="font-size:56px;font-weight:900;color:#fff;text-shadow:0 0 20px #f1c40f;line-height:1.1;margin:8px 0;">1×</div>
+            <div style="color:#aaa;font-size:13px;">7-day cycle completed!</div>
+            <div style="color:#f1c40f;font-size:12px;margin-top:6px;">🔥 Your loyalty has been rewarded!</div>
+        </div>
+        <button onclick="document.getElementById('loyalty-popup').style.display='none'" style="background:none;border:1px solid #555;color:#aaa;padding:10px 28px;border-radius:20px;cursor:pointer;font-size:13px;">CLOSE</button>
+    </div>
+
+    <div id="header">
+        <p id="score">0</p>
+        <div id="rank-badge">NOOB 1</div>
+    </div>
+
+    <div id="tap-area">
+        <img src="noob.png" id="capy-image" onpointerdown="handleTap(event)">
+        <button id="play-mini-btn" onclick="playMiniGame()">PLAY MINI GAME AND EARN 🎮</button>
+    </div>
+
+    <div id="footer">
+        <div id="boost-status"></div>
+        <div style="display:flex; justify-content:space-between; font-size:11px; color:#00ff00;">
+            <span>Energy: <span id="energy-text">100/100</span></span>
+            <span id="energy-timer">Full in: 00:00</span>
+        </div>
+        <div id="energy-bar-bg"><div id="energy-bar-fill"></div></div>
+    </div>
+
+    <button id="tasks-btn"      class="top-btn" onclick="openPanel('tasks-panel')">TASKS</button>
+    <button id="shop-btn"       class="top-btn" onclick="openPanel('shop-panel')">SHOP 🛒</button>
+    <button id="leaderboard-btn" class="top-btn" onclick="openPanel('rank-panel')">TOP 100</button>
+    <button id="referral-btn"   class="top-btn" onclick="openPanel('ref-panel')">FRIENDS</button>
+    <button id="daily-btn"      class="top-btn" onclick="openPanel('daily-panel')">DAILY</button>
+    <button id="map-btn"        class="top-btn" onclick="openPanel('map-panel')">RANK MAP</button>
+    <button id="daily-code-btn" class="top-btn" onclick="openPanel('daily-code-panel')">🔐 DAILY CODE</button>
+    <button id="spin-btn" class="top-btn" onclick="openPanel('spin-panel'); initSpinWheel()">🎡</button>
+    <button id="profile-btn" class="top-btn" onclick="openPanel('profile-panel'); renderProfile()">👤 PROFİL</button>
+
+    <!-- SHOP PANEL -->
+    <div id="shop-panel" class="full-panel">
+        <span class="close-panel" onclick="closePanel('shop-panel')">×</span>
+        <h2 style="text-align:center;">SHOP</h2>
+        <div id="boost-market"></div>
+        <h3 style="text-align:center; color:#ff00ff;">SKINS</h3>
+        <div id="skin-market"></div>
+        <h3 style="text-align:center; color:#00ffff; border-top:1px solid #333; padding-top:15px;">MY INVENTORY</h3>
+        <div id="inventory-list"></div>
+    </div>
+
+    <!-- DAILY PANEL -->
+    <div id="daily-panel" class="full-panel">
+        <span class="close-panel" onclick="closePanel('daily-panel')">×</span>
+        <h2 style="text-align:center;">7 DAYS REWARDS</h2>
+        <p id="daily-timer" style="text-align:center; color:#00ffff; font-size:14px;"></p>
+        <div id="daily-grid" class="daily-grid"></div>
+        <button id="claim-daily-btn" style="width:100%; margin-top:20px; padding:15px; border-radius:12px; background:#00ff00; border:none; font-weight:bold; cursor:pointer;" onclick="claimDaily()">CLAIM TODAY</button>
+    </div>
+
+    <!-- PROFILE PANEL -->
+    <div id="profile-panel" class="full-panel">
+        <span class="close-panel" onclick="closePanel('profile-panel')">×</span>
+        <div style="display:flex;align-items:center;gap:16px;margin-bottom:20px;">
+            <img id="profile-avatar" src="noob.png" class="profile-avatar">
+            <div>
+                <div id="profile-name" style="font-size:18px;font-weight:bold;color:#fff;"></div>
+                <div id="profile-rank-badge" style="display:inline-block;margin-top:5px;padding:4px 14px;border-radius:20px;font-size:11px;font-weight:bold;background:#00ff00;color:#000;"></div>
+            </div>
+        </div>
+
+        <!-- İstatistikler -->
+        <div style="color:#00ffff;font-size:12px;letter-spacing:2px;font-weight:bold;margin-bottom:10px;">📊 STATISTICS</div>
+        <div id="profile-stats"></div>
+
+        <!-- Badges -->
+        <div style="color:#f1c40f;font-size:12px;letter-spacing:2px;font-weight:bold;margin:18px 0 10px;">🏅 BADGES</div>
+        <div id="badge-grid" class="badge-grid"></div>
+    </div>
+
+    <!-- TASKS PANEL -->
+    <div id="tasks-panel" class="full-panel">
+        <span class="close-panel" onclick="closePanel('tasks-panel')">×</span>
+        <h2 style="text-align:center;">QUESTS</h2>
+        <div id="quest-list"></div>
+        <h3 style="text-align:center;">SOCIALS</h3>
+        <div id="social-list"></div>
+    </div>
+
+    <!-- FRIENDS PANEL -->
+    <div id="ref-panel" class="full-panel">
+        <span class="close-panel" onclick="closePanel('ref-panel')">×</span>
+        <h2 style="text-align:center;">👥 INVITE FRIENDS</h2>
+
+        <!-- Stats -->
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:18px;">
+            <div style="background:#111;border:1px solid #222;border-radius:14px;padding:14px;text-align:center;">
+                <div style="color:#888;font-size:11px;margin-bottom:4px;">TOTAL INVITED</div>
+                <div id="ref-total" style="color:#00ff00;font-size:28px;font-weight:bold;">0</div>
+            </div>
+            <div style="background:#111;border:1px solid #222;border-radius:14px;padding:14px;text-align:center;">
+                <div style="color:#888;font-size:11px;margin-bottom:4px;">PENDING REWARD</div>
+                <div id="ref-pending" style="color:#f1c40f;font-size:28px;font-weight:bold;">0</div>
+            </div>
+        </div>
+
+        <!-- Reward info -->
+        <div style="background:linear-gradient(135deg,#003300,#001a00);border:1px solid #00ff00;border-radius:14px;padding:14px;text-align:center;margin-bottom:16px;">
+            <div style="font-size:24px;">🎁</div>
+            <div style="color:#00ff00;font-weight:bold;font-size:16px;margin:4px 0;">75,000 coins per friend!</div>
+            <div style="color:#aaa;font-size:12px;">Both you and your friend earn when they join</div>
+        </div>
+
+        <!-- Referral link -->
+        <div style="background:#111;border:1px solid #333;border-radius:14px;padding:14px;margin-bottom:12px;">
+            <div style="color:#888;font-size:11px;margin-bottom:6px;">YOUR REFERRAL LINK</div>
+            <div id="ref-link-box" style="color:#00ffff;font-size:12px;word-break:break-all;background:#0a0a0a;padding:8px;border-radius:8px;font-family:monospace;">Loading...</div>
+        </div>
+
+        <!-- Buttons -->
+        <button onclick="copyRefLink()" style="width:100%;padding:14px;border-radius:12px;background:linear-gradient(135deg,#00ff00,#00cc00);border:none;color:#000;font-weight:bold;font-size:15px;cursor:pointer;margin-bottom:10px;">📋 COPY LINK</button>
+        <button onclick="shareRefLink()" style="width:100%;padding:14px;border-radius:12px;background:linear-gradient(135deg,#0088ff,#0044cc);border:none;color:#fff;font-weight:bold;font-size:15px;cursor:pointer;margin-bottom:10px;">📤 SHARE ON TELEGRAM</button>
+        <button id="claim-ref-btn" onclick="claimRefRewards()" style="width:100%;padding:14px;border-radius:12px;background:linear-gradient(135deg,#f1c40f,#e67e22);border:none;color:#000;font-weight:bold;font-size:15px;cursor:pointer;" disabled>🎁 CLAIM REWARDS</button>
+        <div id="ref-msg" style="text-align:center;margin-top:10px;font-size:13px;min-height:20px;"></div>
+    </div>
+
+    <!-- MINI GAME PANEL -->
+    <div id="minigame-panel" class="full-panel">
+        <span class="close-panel" onclick="closePanel('minigame-panel')">×</span>
+        <h2 style="text-align:center; color:#f1c40f;">GAME CENTER 🎮</h2>
+        <div id="ticket-bar">
+            <div id="ticket-count-badge">🎟️ <span id="ticket-count-display">0</span> Tickets</div>
+        </div>
+        <p style="text-align:center; font-size:12px; color:#aaa; margin-bottom:14px;">1 ticket per game · 5 free tickets daily</p>
+        <div id="minigame-list"></div>
+        <div id="ticket-shop-section">
+            <h3>🎟️ TICKET SHOP</h3>
+            <div id="ticket-shop-list"></div>
+        </div>
+    </div>
+
+    <!-- RANK MAP PANEL -->
+    <div id="map-panel" class="full-panel">
+        <span class="close-panel" onclick="closePanel('map-panel')">×</span>
+        <h2 style="text-align:center;">RANK MAP</h2>
+        <div id="roadmap-list"></div>
+    </div>
+
+    <!-- TOP 100 PANEL -->
+    <div id="rank-panel" class="full-panel">
+        <span class="close-panel" onclick="closePanel('rank-panel')">×</span>
+        <h2 style="text-align:center;">TOP 100 🏆</h2>
+        <div id="leaderboard-list"></div>
+    </div>
+
+    <!-- ======== SPIN WHEEL PANEL ======== -->
+    <div id="spin-panel" class="full-panel">
+        <span class="close-panel" onclick="closePanel('spin-panel')">×</span>
+        <h2 style="text-align:center; color:#f1c40f; margin-bottom:0; font-size:22px; letter-spacing:2px;">🎡 LUCKY WHEEL</h2>
+        <p style="text-align:center; color:#666; font-size:11px; margin:4px 0 0;">1 spin every 24 hours</p>
+        <div id="wheel-wrap">
+            <svg id="wheel-pointer" width="28" height="32" viewBox="0 0 28 32">
+                <polygon points="14,30 2,2 14,8 26,2" fill="#ffcc00" stroke="#ff6b00" stroke-width="2"/>
+                <circle cx="14" cy="6" r="4" fill="#ff6b00"/>
+            </svg>
+            <canvas id="wheel-canvas" width="290" height="290"></canvas>
+        </div>
+        <div id="spin-result-box">
+            <div id="spin-result-text" style="font-size:15px; font-weight:bold; color:#f1c40f;">🎰 Spin the wheel to win a prize!</div>
+        </div>
+        <button id="spin-btn-go" onclick="spinWheel(false)">🎰 SPIN!</button>
+        <div id="spin-countdown" style="display:none;"></div>
+        <div id="spin-cooldown"></div>
+        <div id="extra-spin-section">
+            <button id="extra-spin-ad-btn" onclick="watchAdForExtraSpin()">📺 Watch Ad → Get 2 Extra Spins</button>
+            <div id="extra-spin-label">Daily spin used — watch an ad to spin again!</div>
+        </div>
+    </div>
+    <div id="spin-main-timer"></div>
+
+    <!-- ══ AD MODAL ══ -->
+    <div id="ad-modal">
+        <div id="ad-modal-inner">
+            <div style="font-size:13px;color:#555;margin-bottom:16px;text-transform:uppercase;letter-spacing:2px;">Advertisement</div>
+            <div id="ad-video-wrap" style="position:relative;border-radius:12px;overflow:hidden;margin-bottom:14px;background:#000;height:180px;">
+                <video id="ad-video-el" style="width:100%;height:100%;object-fit:cover;" playsinline webkit-playsinline></video>
+                <div id="ima-container" style="position:absolute;top:0;left:0;width:100%;height:100%;"></div>
+                <div id="ad-loading-msg" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);color:#555;font-size:12px;text-align:center;">📺 Loading ad...</div>
+            </div>
+            <div id="ad-timer-ring">
+                <svg width="90" height="90" viewBox="0 0 90 90">
+                    <circle cx="45" cy="45" r="40" fill="none" stroke="#1a1a1a" stroke-width="7"/>
+                    <circle id="ad-ring-fill" cx="45" cy="45" r="40" fill="none" stroke="#f1c40f" stroke-width="7" stroke-linecap="round"/>
+                </svg>
+                <div id="ad-timer-num">5</div>
+            </div>
+            <div id="ad-reward-preview"></div>
+            <button id="ad-skip-btn" onclick="adFinished()">✅ CLAIM REWARD</button>
+        </div>
+    </div>
+
+    <!-- ======== DAILY CODE PANEL ======== -->
+    <div id="daily-code-panel" class="full-panel">
+        <span class="close-panel" onclick="closePanel('daily-code-panel'); stopCamera()">×</span>
+        <h2 style="text-align:center; color:#ffcc00; margin-bottom:4px;">🔐 DAILY CODE CHALLENGE</h2>
+        <p style="text-align:center; color:#ff6b00; font-weight:bold; font-size:15px; margin-top:0;">250,000 PUAN KAZAN! 💰</p>
+
+        <!-- Stage Indicator -->
+        <div class="stage-indicator">
+            <div class="stage-dot active" id="sdot-1">1</div>
+            <div class="stage-connector" id="scon-1"></div>
+            <div class="stage-dot" id="sdot-2">2</div>
+            <div class="stage-connector" id="scon-2"></div>
+            <div class="stage-dot" id="sdot-3">3</div>
+        </div>
+
+        <!-- Loading -->
+        <div id="dc-loading" style="text-align:center; padding:40px; color:#aaa;">
+            <div style="font-size:36px; display:inline-block; animation:spin 1s linear infinite;">⚙️</div>
+            <p style="margin-top:12px;">Günlük kod yükleniyor...</p>
+        </div>
+
+        <!-- No challenge today -->
+        <div id="dc-no-challenge" style="display:none; text-align:center; padding:40px; color:#666;">
+            <div style="font-size:52px;">😴</div>
+            <p style="margin-top:12px; font-size:15px;">Bugün kod yayınlanmadı.<br>Takip et:</p>
+            <a href="https://www.tiktok.com/@glitchbusiness1" style="color:#ff6b00; font-size:16px; font-weight:bold;" target="_blank">@glitchbusiness1</a>
+        </div>
+
+        <!-- Already completed -->
+        <div id="dc-already-done" style="display:none; text-align:center; padding:40px;">
+            <div style="font-size:52px;">✅</div>
+            <p style="color:#00ff00; font-size:18px; font-weight:bold; margin-top:12px;">Bugünün ödülünü aldınız!</p>
+            <p style="color:#aaa; font-size:13px;">Yarın tekrar gelin 🎯</p>
+        </div>
+
+        <!-- Error -->
+        <div id="dc-conn-error" style="display:none; text-align:center; padding:30px; color:#ff4444;">
+            <div style="font-size:44px;">⚠️</div>
+            <p>Bağlantı hatası. Tekrar dene.</p>
+            <button onclick="openDailyCodePanel()" style="margin-top:10px; padding:10px 20px; background:#ff6b00; border:none; border-radius:8px; color:white; font-weight:bold; cursor:pointer;">🔄 Tekrar Dene</button>
+        </div>
+
+        <!-- STAGE 1: TEXT CODE -->
+        <div id="stage-1" style="display:none;">
+            <div class="stage-box">
+                <div class="stage-label">🔤 Aşama 1 — Metin Şifre</div>
+                <p style="color:#888; font-size:12px; margin-bottom:14px;">TikTok'ta paylaşılan günlük şifreyi girin</p>
+                <input type="text" id="text-code-input" class="code-input" placeholder="ŞİFRE" maxlength="20" autocomplete="off" autocorrect="off" autocapitalize="characters">
+                <br>
+                <button class="dc-submit-btn" onclick="checkTextCode()">DOĞRULA ✓</button>
+                <p id="text-code-msg" class="dc-err"></p>
+            </div>
+        </div>
+
+        <!-- STAGE 2: PATTERN LOCK -->
+        <div id="stage-2" style="display:none;">
+            <div class="stage-box">
+                <div class="stage-label">🔵 Aşama 2 — Desen Kilidi</div>
+                <p style="color:#888; font-size:12px; margin-bottom:12px;">TikTok'ta gösterilen deseni çizin</p>
+                <canvas id="pattern-canvas" width="270" height="270"></canvas>
+                <p style="color:#555; font-size:11px; margin-top:6px;">Noktalara dokunarak deseni takip edin</p>
+                <div style="display:flex; gap:10px; justify-content:center; margin-top:10px; flex-wrap:wrap;">
+                    <button class="dc-submit-btn" style="width:auto; padding:12px 24px;" onclick="checkPattern()">DOĞRULA ✓</button>
+                    <button onclick="resetPattern()" style="background:none; border:1px solid #444; color:#888; padding:12px 18px; border-radius:10px; cursor:pointer; font-size:13px;">↺ SİFIRLA</button>
+                </div>
+                <p id="pattern-msg" class="dc-err"></p>
+            </div>
+        </div>
+
+        <!-- STAGE 3: AI PHOTO -->
+        <div id="stage-3" style="display:none;">
+            <div class="stage-box">
+                <div class="stage-label">📷 Aşama 3 — AI Nesne Tanıma</div>
+                <p id="object-prompt" style="color:#ffcc00; font-size:17px; font-weight:bold; margin-bottom:12px;">Yükleniyor...</p>
+                <!-- Kamera modu -->
+                <div id="camera-mode">
+                    <video id="camera-video" autoplay playsinline muted></video>
+                    <canvas id="camera-canvas" width="224" height="224"></canvas>
+                    <br>
+                    <button class="photo-btn" id="capture-btn" onclick="captureAndAnalyze()">📸 FOTOĞRAF ÇEK ve ANALİZ ET</button>
+                </div>
+                <!-- Kamera yoksa yazarak geçiş -->
+                <div id="text-fallback-mode" style="display:none; margin-top:10px;">
+                    <p style="color:#aaa; font-size:13px; margin-bottom:10px;">📝 Kamera kullanılamıyor. Nesnenin adını Türkçe yaz:</p>
+                    <input id="object-text-input" class="code-input" type="text" placeholder="Nesne adını yaz..." autocomplete="off" style="letter-spacing:1px;">
+                    <button class="dc-submit-btn" onclick="checkObjectText()" style="margin-top:10px;">DOĞRULA ✓</button>
+                </div>
+                <p id="ai-result-msg" style="color:#aaa; font-size:13px; margin-top:10px; min-height:20px; white-space:pre-wrap;"></p>
+                <p id="photo-msg" class="dc-err"></p>
+            </div>
+        </div>
+
+        <!-- SUCCESS BANNER -->
+        <div class="reward-banner" id="reward-banner">
+            🎉 TEBRİKLER!<br>
+            250,000 PUAN KAZANDINIZ!<br>
+            <span style="font-size:14px; opacity:0.8;">Yarın yeni kod için TikTok'u takip et!</span>
+        </div>
+    </div>
+
+    <script>
+        // ═══════════════════════════════════════════════════════════
+        // ⚡ HETZNER SUNUCU AYARI — SADECE BU SATIRI DEĞİŞTİR!
+        // Sunucunu kurduktan sonra kendi IP adresini buraya yaz:
+        const SERVER_URL = 'https://glitchapp.duckdns.org';
+        // ═══════════════════════════════════════════════════════════
+
+        // ── URL'den referral kodu yakala ───────────────────────────
+        (function(){
+            const urlParams = new URLSearchParams(window.location.search);
+            const startParam = urlParams.get('tgWebAppStartParam') || urlParams.get('start') || '';
+            if(startParam.startsWith('REF_')){
+                const code = startParam.slice(4);
+                if(code && !localStorage.getItem('refCodeUsed')){
+                    localStorage.setItem('refCodeUsed', code);
+                }
+            }
+        })();
+
+        // ── TELEGRAM MINI APP ─────────────────────────────────────
+        const tg = window.Telegram?.WebApp;
+        if(tg){
+            tg.ready();
+            tg.expand(); // Tam ekran aç
+            tg.setHeaderColor('#050505');
+            tg.setBackgroundColor('#050505');
+            // Telegram kullanıcı adını al
+            if(tg.initDataUnsafe?.user){
+                const tgUser = tg.initDataUnsafe.user;
+                const tgName = tgUser.first_name + (tgUser.last_name ? ' '+tgUser.last_name : '');
+                if(!localStorage.getItem('playerName') && tgName){
+                    localStorage.setItem('playerName', tgName);
+                }
+            }
+        }
+
+        // ── STATE ──────────────────────────────────────────────────
+        let score        = parseFloat(localStorage.getItem('score'))  || 0;
+        let energy       = parseFloat(localStorage.getItem('energy')) || 100;
+        let boostTimers  = JSON.parse(localStorage.getItem('boostTimers'))  || { x2:0, x3:0, x6:0, inf:0 };
+        if(boostTimers.x6 === undefined) boostTimers.x6 = 0; // migration fix
+        let botActive    = localStorage.getItem('botActive') === 'true';
+        let ownedSkins   = JSON.parse(localStorage.getItem('ownedSkins'))   || [];
+        let equippedSkin = localStorage.getItem('equippedSkin') || null;
+        let completedTasks = JSON.parse(localStorage.getItem('completedTasks')) || [];
+        let friendStep   = parseInt(localStorage.getItem('friendStep'))   || 0;
+        let lastDailyTime= parseInt(localStorage.getItem('lastDailyTime'))|| 0;
+        let dailyStep    = parseInt(localStorage.getItem('dailyStep'))    || 0;
+        let loyaltyCount = parseInt(localStorage.getItem('loyaltyCount')) || 0;
+        let task30StartTime  = parseInt(localStorage.getItem('task30StartTime'))  || 0;
+        let task30LastReset  = parseInt(localStorage.getItem('task30LastReset'))  || 0;
+        let playerName   = localStorage.getItem('playerName') || "";
+
+        const rankNames    = ["NOOB","HUSTLER","MINER","GLITCHER","CYBERLORD"];
+        const dailyRewards = [5000,10000,16500,25000,37500,100000,250000];
+        const skinData     = [
+            {id:'skin1.png',n:'Athlet Capy',  p:125000},
+            {id:'skin2.png',n:'Worker Capy',  p:175000},
+            {id:'skin3.png',n:'Master Capy',  p:150000},
+            {id:'skin4.png',n:'Rich Capy',    p:250000},
+            {id:'skin5.png',n:'Glitch Skin',  p:500000}
+        ];
+
+        // ── OFFLINE PROGRESS CALCULATION ───────────────────────────
+        function applyOfflineProgress() {
+            const lastOnline = parseInt(localStorage.getItem('lastOnlineTime')) || Date.now();
+            const now = Date.now();
+            const offlineSecs = Math.max(0, Math.floor((now - lastOnline) / 1000));
+            if (offlineSecs > 5) {
+                // Energy recovery (0.15/sec)
+                energy = Math.min(100, energy + offlineSecs * 0.15);
+                // Boost countdown
+                if (boostTimers.x2  > 0) boostTimers.x2  = Math.max(0, boostTimers.x2  - offlineSecs);
+                if (boostTimers.x3  > 0) boostTimers.x3  = Math.max(0, boostTimers.x3  - offlineSecs);
+                if (boostTimers.x6  > 0) boostTimers.x6  = Math.max(0, boostTimers.x6  - offlineSecs);
+                if (boostTimers.inf > 0) boostTimers.inf = Math.max(0, boostTimers.inf - offlineSecs);
+                // Bot income
+                if (botActive) score += offlineSecs;
+                localStorage.setItem('energy', energy);
+                localStorage.setItem('boostTimers', JSON.stringify(boostTimers));
+                localStorage.setItem('score', score);
+            }
+            localStorage.setItem('lastOnlineTime', now);
+        }
+
+        // ── UI ─────────────────────────────────────────────────────
+        function getMyRankInfo() {
+            let level = Math.min(49, Math.floor(score / 200000));
+            return { full: rankNames[Math.floor(level/10)] + " " + ((level%10)+1), level };
+        }
+
+        function updateUI() {
+            const rank = getMyRankInfo();
+            document.getElementById('score').innerText          = Math.floor(score).toLocaleString();
+            document.getElementById('energy-bar-fill').style.width = energy + "%";
+            document.getElementById('energy-text').innerText    = Math.floor(energy) + " / 100";
+            document.getElementById('rank-badge').innerText     = rank.full;
+            const secs = Math.max(0, Math.ceil((100 - energy) / 0.15));
+            document.getElementById('energy-timer').innerText   = energy >= 100 ? "Full" : "Full in: " + formatTime(secs);
+            document.getElementById('capy-image').src           = equippedSkin || "noob.png";
+            let bTxt = "";
+            if (boostTimers.x2  > 0) bTxt += `2X: ${formatTime(boostTimers.x2)} | `;
+            if (boostTimers.x3  > 0) bTxt += `3X: ${formatTime(boostTimers.x3)} | `;
+            if (boostTimers.x6  > 0) bTxt += `6X: ${formatTime(boostTimers.x6)} | `;
+            if (boostTimers.inf > 0) bTxt += `INF: ${formatTime(boostTimers.inf)}`;
+            document.getElementById('boost-status').innerText = bTxt;
+            localStorage.setItem('score',  score);
+            localStorage.setItem('energy', energy);
+            localStorage.setItem('boostTimers', JSON.stringify(boostTimers));
+            localStorage.setItem('lastOnlineTime', Date.now());
+        }
+
+        async function syncScoreToGlobal() {
+            if (!playerName || score < 1) return;
+            try {
+                await fetch(`${SERVER_URL}/api/leaderboard`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username: playerName, score: Math.floor(score) })
+                });
+            } catch(e) {}
+        }
+
+        let _tapSyncCounter = 0;
+        function handleTap(e) {
+            if (energy >= 0.2 || boostTimers.inf > 0) {
+                let mult = boostTimers.inf > 0 ? 1 : boostTimers.x6 > 0 ? 6 : boostTimers.x3 > 0 ? 3 : boostTimers.x2 > 0 ? 2 : 1;
+                score += mult;
+                if (boostTimers.inf <= 0) energy -= 0.2;
+                createTapEffect(e.clientX, e.clientY, mult);
+                try { document.getElementById('click-snd').play(); } catch(err){}
+                // Her 50 tap'te anında sunucuya gönder
+                _tapSyncCounter += mult;
+                if (_tapSyncCounter >= 50) { _tapSyncCounter = 0; syncScoreToGlobal(); }
+                updateUI();
+            }
+        }
+
+        function createTapEffect(x,y,v) {
+            let el = document.createElement('div');
+            el.className='tap-effect'; el.innerText='+'+v;
+            el.style.left=x+'px'; el.style.top=y+'px';
+            document.body.appendChild(el);
+            setTimeout(()=>el.remove(), 700);
+        }
+
+        function openPanel(id) {
+            document.getElementById(id).style.display = 'block';
+            if (id==='shop-panel')       renderShop();
+            if (id==='daily-panel')      renderDaily();
+            if (id==='tasks-panel')      renderTasks();
+            if (id==='ref-panel')        renderFriends();
+            if (id==='map-panel')        renderMap();
+            if (id==='rank-panel')       { syncScoreToGlobal().then(()=>fetchGlobalLeaderboard()); }
+            if (id==='minigame-panel')   renderMiniGames();
+            if (id==='daily-code-panel') openDailyCodePanel();
+        }
+        function closePanel(id) { document.getElementById(id).style.display = 'none'; }
+        function playMiniGame() { openPanel('minigame-panel'); }
+
+        // ── LEADERBOARD ────────────────────────────────────────────
+        async function fetchGlobalLeaderboard(silent=false) {
+            const list = document.getElementById('leaderboard-list');
+            if(!silent) list.innerHTML = "<p style='text-align:center;padding:20px;color:#39ff14;'>⏳ Yükleniyor...</p>";
+            try {
+                const res = await fetch(`${SERVER_URL}/api/leaderboard`);
+                if (!res.ok) throw new Error(`Sunucu hatası: ${res.status}`);
+                const json = await res.json();
+                const data = json.data || [];
+                if (data.length === 0) {
+                    list.innerHTML = "<p style='text-align:center;color:#888;padding:30px;'>Henüz sıralamada kimse yok!<br>Oynamaya başla ve ilk sen gir!</p>";
+                    return;
+                }
+                const now = new Date(); const timeStr = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}:${String(now.getSeconds()).padStart(2,'0')}`;
+                let h = `<div style='text-align:center;margin-bottom:10px;'><b style='color:gold;'>🌍 REAL PLAYERS: ${data.length}</b><br><span style='color:#555;font-size:10px;'>Son güncelleme: ${timeStr} &nbsp;•&nbsp; <span style='color:#39ff14;cursor:pointer;' onclick='fetchGlobalLeaderboard()'>🔄 Yenile</span></span></div>`;
+                data.forEach((p,i) => {
+                    const isMe = p.username === playerName;
+                    const medal = i===0?'🥇':i===1?'🥈':i===2?'🥉':'👤';
+                    h += `<div class="item-card" style="${isMe?'border:2px solid #39ff14;background:#0a1f0a;':''}">
+                        <div style="display:flex;align-items:center;width:100%;">
+                            <div style="width:32px;font-weight:bold;color:${i<3?'#ffcc00':'#888'};">#${i+1}</div>
+                            <div style="font-size:22px;margin-right:12px;">${medal}</div>
+                            <div style="flex:1;"><b>${p.username}</b><br><small style="color:#00ff00;">${Math.floor(p.score).toLocaleString()} Pts</small></div>
+                            ${isMe?'<div style="background:#39ff14;color:black;font-size:10px;padding:2px 6px;border-radius:4px;font-weight:bold;">YOU</div>':''}
+                        </div></div>`;
+                });
+                list.innerHTML = h;
+            } catch(err) {
+                list.innerHTML = `<div style='text-align:center;padding:25px;'>
+                    <p style='color:#ff4444;font-size:16px;'>⚠️ Sunucuya bağlanılamadı</p>
+                    <p style='color:#666;font-size:11px;margin-top:8px;'>${err.message}</p>
+                    <p style='color:#555;font-size:10px;margin-top:10px;'>SERVER_URL'yi index.html'de güncellediğinden emin ol.</p>
+                    <button onclick="fetchGlobalLeaderboard()" style="margin-top:14px;padding:10px 20px;background:#f39c12;border:none;border-radius:8px;color:black;font-weight:bold;cursor:pointer;">🔄 Tekrar Dene</button>
+                </div>`;
+            }
+        }
+
+        function checkPlayerName() {
+            if (!playerName) {
+                let n = prompt("ENTER YOUR GLITCHER NAME (min 3 char):");
+                if (n && n.trim().length > 2) {
+                    playerName = n.trim();
+                    localStorage.setItem('playerName', playerName);
+                    syncScoreToGlobal();
+                }
+            }
+        }
+
+        // ── MINI GAMES ─────────────────────────────────────────────
+        // renderMiniGames defined below with ticket system
+
+        // ── SHOP ───────────────────────────────────────────────────
+        function renderShop() {
+            const bArr = [
+                {id:'fe', n:'Full Energy',      p:1500},
+                {id:'x2', n:'2x Click (1h)',    p:15000, dur:3600},
+                {id:'x3', n:'3x Click (30m)',   p:16000, dur:1800},
+                {id:'inf',n:'Infinite (15m)',   p:20000, dur:900},
+                {id:'bot',n:'Auto-Tap Bot',     p:100000}
+            ];
+            let h="";
+            bArr.forEach(b => {
+                const isA = (b.dur && boostTimers[b.id]>0)||(b.id==='bot'&&botActive);
+                h+=`<div class="item-card"><div><b>${b.n}</b><br><small>${b.p} Pts</small></div><button onclick="buyBoost('${b.id}',${b.p},${b.dur||0})" ${isA?'disabled':''}>${isA?'ACTIVE':'BUY'}</button></div>`;
+            });
+            document.getElementById('boost-market').innerHTML=h;
+            let sH="";
+            skinData.forEach(s => {
+                const owned=ownedSkins.includes(s.id);
+                sH+=`<div class="item-card"><div style="display:flex;align-items:center;"><img src="${s.id}" class="shop-img" onerror="this.src='noob.png'"><div><b>${s.n}</b><br><small>${s.p} Pts</small></div></div><button onclick="buySkin('${s.id}',${s.p})" ${owned?'disabled':''}>BUY</button></div>`;
+            });
+            document.getElementById('skin-market').innerHTML=sH;
+            renderInventory();
+        }
+        function buyBoost(id,p,dur) {
+            if(score>=p){
+                score-=p;
+                if(id==='fe') energy=100;
+                else if(id==='bot'){botActive=true;localStorage.setItem('botActive','true');}
+                else boostTimers[id]=dur;
+                try{document.getElementById('money-snd').play();}catch(e){}
+                updateUI(); renderShop(); syncScoreToGlobal();
+            }
+        }
+        function buySkin(id,p){
+            if(score>=p){score-=p;ownedSkins.push(id);localStorage.setItem('ownedSkins',JSON.stringify(ownedSkins));try{document.getElementById('money-snd').play();}catch(e){}updateUI();renderShop();syncScoreToGlobal();}
+        }
+        function renderInventory() {
+            let h="";
+            ownedSkins.forEach(id => {
+                const isEq=equippedSkin===id;
+                h+=`<div class="item-card"><img src="${id}" class="shop-img" onerror="this.src='noob.png'"><div style="flex:1"><b>SKIN</b></div><button onclick="equipSkin('${id}')">${isEq?'EQUIPPED':'EQUIP'}</button>${isEq?`<button style="background:#ff4444;margin-left:5px" onclick="equipSkin(null)">OFF</button>`:''}</div>`;
+            });
+            document.getElementById('inventory-list').innerHTML=h||"<p style='text-align:center;color:#555;'>Envanter boş</p>";
+        }
+        function equipSkin(id){equippedSkin=id;localStorage.setItem('equippedSkin',id||"");updateUI();renderInventory();}
+
+        // ── TASKS ──────────────────────────────────────────────────
+        function renderTasks() {
+            const q=[
+                {id:'tg_chat', n:'Chat on Telegram',      p:20000, l:'https://t.me/glitchBusiness'},
+                {id:'tk_follow',n:'Follow TikTok',         p:25000, l:'https://www.tiktok.com/@glitchbusiness1'},
+                {id:'x_news',   n:'See News on X',          p:25000, l:'https://x.com/muhammed_t52732'},
+                {id:'stay_30',  n:'30 Min Online Challenge',p:45000, special:'30min'},
+                {id:'weekly_ads',n:'Watch 5 Ads (Weekly)',  p:300000, special:'weekly_ads'}
+            ];
+            let h="";
+            q.forEach(t=>{
+                let done=completedTasks.includes(t.id),btn="GO",dis=done;
+                if(t.special==='30min'){
+                    let now=Date.now();
+                    if(now-task30LastReset<86400000){btn="WAIT 24H";dis=true;}
+                    else if(task30StartTime>0){let e=(now-task30StartTime)/1000;btn=e>=1800?"CLAIM":formatTime(1800-e);dis=e<1800;}
+                    else btn="START";
+                }
+                if(t.special==='weekly_ads'){
+                    const wDone=weeklyAdTaskDone();
+                    const cnt=getAdsThisWeek();
+                    if(wDone){btn="DONE";dis=true;}
+                    else{btn=`ADS: ${cnt}/5`;dis=false;}
+                    done=wDone;
+                }
+                h+=`<div class="item-card"><div><b>${t.n}</b><br><small>+${t.p} Pts ${t.special==='weekly_ads'?'<span style="color:#f1c40f;">(Weekly)</span>':''}</small></div><button onclick="doTask('${t.id}','${t.l||''}',${t.p})" ${dis?'disabled':''}>${done?'DONE':btn}</button></div>`;
+            });
+            document.getElementById('quest-list').innerHTML=h;
+            const links=[
+                {n:'Glitch Website',  l:'https://sites.google.com/view/glitch-capy/ana-sayfa'},
+                {n:'Follow on X',     l:'https://x.com/muhammed_t52732'},
+                {n:'Follow TikTok',   l:'https://www.tiktok.com/@glitchbusiness1'},
+                {n:'Telegram Channel',l:'https://t.me/glitchBusiness'}
+            ];
+            let sH="";
+            links.forEach(s=>{sH+=`<a href="${s.l}" target="_blank" class="item-card" style="text-decoration:none;color:white;"><b>${s.n}</b><span>➔</span></a>`;});
+            document.getElementById('social-list').innerHTML=sH;
+        }
+        function doTask(id,l,p){
+            if(id==='stay_30'){
+                if(task30StartTime===0){task30StartTime=Date.now();localStorage.setItem('task30StartTime',task30StartTime);}
+                else{score+=p;task30StartTime=0;task30LastReset=Date.now();localStorage.setItem('task30StartTime',0);localStorage.setItem('task30LastReset',task30LastReset);try{document.getElementById('win-snd').play();}catch(e){}}
+                updateUI();renderTasks();syncScoreToGlobal();
+            } else if(id==='weekly_ads'){
+                // Show a single ad, count toward weekly goal
+                showAd(6,'📺 Watching ad for weekly task...', ()=>{
+                    incrementAdsThisWeek();
+                    checkWeeklyAdTask();
+                    renderTasks();
+                });
+            } else {
+                window.open(l,'_blank');
+                if(!completedTasks.includes(id)){score+=p;completedTasks.push(id);localStorage.setItem('completedTasks',JSON.stringify(completedTasks));}
+                updateUI();renderTasks();syncScoreToGlobal();
+            }
+        }
+
+        // ── FRIENDS / REFERRAL ──────────────────────────────────────
+        let myRefCode = localStorage.getItem('myRefCode') || '';
+
+        async function renderFriends(){
+            if(playerName){
+                try {
+                    const refUsed = localStorage.getItem('refCodeUsed') || '';
+                    const r = await fetch(`${SERVER_URL}/api/referral/register`, {
+                        method:'POST', headers:{'Content-Type':'application/json'},
+                        body: JSON.stringify({ username: playerName, ref_code_used: refUsed })
+                    });
+                    const d = await r.json();
+                    if(d.ref_code){ myRefCode = d.ref_code; localStorage.setItem('myRefCode', myRefCode); }
+                    document.getElementById('ref-total').innerText   = d.total_referrals || 0;
+                    document.getElementById('ref-pending').innerText = d.unclaimed_rewards || 0;
+                    document.getElementById('claim-ref-btn').disabled = (d.unclaimed_rewards || 0) === 0;
+                } catch(e){ console.log('Referral error:', e); }
+            }
+            const link = `https://t.me/GlitchBusiness_bot?start=REF_${myRefCode}`;
+            document.getElementById('ref-link-box').innerText = link;
+        }
+
+        function copyRefLink(){
+            const link = `https://t.me/GlitchBusiness_bot?start=REF_${myRefCode}`;
+            navigator.clipboard.writeText(link).then(()=>{
+                document.getElementById('ref-msg').innerText = '✅ Link copied!';
+                setTimeout(()=>document.getElementById('ref-msg').innerText='', 2000);
+            });
+        }
+
+        function shareRefLink(){
+            const link = `https://t.me/GlitchBusiness_bot?start=REF_${myRefCode}`;
+            const text = encodeURIComponent(`🎮 Join me on GLITCH BUSINESS!\nTap, earn coins and compete!\n${link}`);
+            window.open(`https://t.me/share/url?url=${encodeURIComponent(link)}&text=${text}`, '_blank');
+        }
+
+        async function claimRefRewards(){
+            if(!playerName) return;
+            try {
+                const r = await fetch(`${SERVER_URL}/api/referral/claim`, {
+                    method:'POST', headers:{'Content-Type':'application/json'},
+                    body: JSON.stringify({ username: playerName })
+                });
+                const d = await r.json();
+                if(d.coins > 0){
+                    score += d.coins;
+                    updateUI(); syncScoreToGlobal();
+                    try{ document.getElementById('win-snd').play(); }catch(e){}
+                    document.getElementById('ref-msg').innerText = `🎉 +${d.coins.toLocaleString()} coins!`;
+                    document.getElementById('ref-msg').style.color = '#00ff00';
+                    renderFriends();
+                } else {
+                    document.getElementById('ref-msg').innerText = 'No rewards to claim yet.';
+                }
+            } catch(e){ document.getElementById('ref-msg').innerText = 'Error. Try again.'; }
+        }
+
+        // ── RANK MAP ───────────────────────────────────────────────
+        function renderMap(){
+            let h="",cur=getMyRankInfo().level;
+            for(let i=0;i<50;i++){
+                const rI=Math.floor(i/10),sL=(i%10)+1;
+                h+=`<div class="item-card" style="border-color:${i<=cur?'#00ff00':'#333'}"><b>${rankNames[rI]} ${sL}</b><span>${i<=cur?'✅':'🔒'}</span></div>`;
+            }
+            document.getElementById('roadmap-list').innerHTML=h;
+        }
+
+        // ── PROFILE & BADGES ───────────────────────────────────────
+        const BADGES = [
+            { id:'loyalty1',   icon:'🏅', name:'Loyalty\nBadge',     sub:'Complete 7-day cycle',      check:()=>loyaltyCount>=1  },
+            { id:'loyalty5',   icon:'💎', name:'Legend\nLoyal',       sub:'Complete 5× cycles',        check:()=>loyaltyCount>=5  },
+            { id:'loyalty10',  icon:'👑', name:'Champion\nLoyal',     sub:'Complete 10× cycles',       check:()=>loyaltyCount>=10 },
+            { id:'score100k',  icon:'💰', name:'Rich',                sub:'Reach 100,000 pts',          check:()=>score>=100000   },
+            { id:'score1m',    icon:'🤑', name:'Millionaire',         sub:'Reach 1,000,000 pts',        check:()=>score>=1000000  },
+            { id:'score10m',   icon:'🚀', name:'Mega Boss',           sub:'Reach 10,000,000 pts',       check:()=>score>=10000000 },
+            { id:'rank2',      icon:'⚡', name:'Hustler',             sub:'Reach HUSTLER rank',         check:()=>rankIdx>=1      },
+            { id:'rank4',      icon:'🌐', name:'Cyberlord',           sub:'Reach CYBERLORD rank',       check:()=>rankIdx>=4      },
+            { id:'minigame1',  icon:'🎮', name:'Game\nLover',         sub:'Play a mini game',           check:()=>parseInt(localStorage.getItem('totalGamesPlayed')||0)>=1 },
+            { id:'minigame5',  icon:'🏆', name:'Mini Game\nMaster',   sub:'Play 5 different games',     check:()=>parseInt(localStorage.getItem('totalGamesPlayed')||0)>=5 },
+            { id:'spin10',     icon:'🎡', name:'Lucky\nSpinner',      sub:'Spin the wheel 10 times',    check:()=>parseInt(localStorage.getItem('totalSpins')||0)>=10 },
+            { id:'dailycode1', icon:'🔐', name:'Code\nHunter',        sub:'Solve a daily code',         check:()=>parseInt(localStorage.getItem('totalDailyCodes')||0)>=1 },
+        ];
+        let rankIdx = 0;
+
+        function getRankIdx(){
+            const level = Math.min(49, Math.floor(score / 200000));
+            return Math.floor(level / 10);
+        }
+
+        function renderProfile(){
+            // Avatar
+            const skin = localStorage.getItem('equippedSkin') || 'noob.png';
+            document.getElementById('profile-avatar').src = skin;
+            // Name & rank
+            const name = playerName || 'Glitcher';
+            document.getElementById('profile-name').innerText = '👤 ' + name;
+            const ranks = ["NOOB","HUSTLER","MINER","GLITCHER","CYBERLORD"];
+            rankIdx = getRankIdx();
+            const rankInfo = getMyRankInfo();
+            const rb = document.getElementById('profile-rank-badge');
+            rb.innerText = rankInfo.full;
+            rb.style.background = ['#00ff00','#f39c12','#3498db','#9b59b6','#e74c3c'][rankIdx];
+            rb.style.color = rankIdx===0?'#000':'#fff';
+            // Stats
+            const totalSpins   = parseInt(localStorage.getItem('totalSpins')||0);
+            const totalCodes   = parseInt(localStorage.getItem('totalDailyCodes')||0);
+            const gamesPlayed  = parseInt(localStorage.getItem('totalGamesPlayed')||0);
+            const stats = [
+                ['💎 Total Score',       score.toLocaleString()],
+                ['🔥 Loyalty Cycles',    loyaltyCount + '× completed'],
+                ['📅 Daily Day',         'Day ' + (dailyStep+1) + ' / 7'],
+                ['🎡 Total Spins',        totalSpins],
+                ['🎮 Games Played',       gamesPlayed],
+                ['🔐 Daily Codes',        totalCodes + ' completed'],
+            ];
+            document.getElementById('profile-stats').innerHTML = stats.map(([l,v])=>
+                `<div class="profile-stat-row"><span class="profile-stat-label">${l}</span><span class="profile-stat-value">${v}</span></div>`
+            ).join('');
+            // Badges
+            document.getElementById('badge-grid').innerHTML = BADGES.map(b=>{
+                const earned = b.check();
+                const extra = (b.id==='loyalty1'||b.id==='loyalty5'||b.id==='loyalty10') && earned && loyaltyCount>0
+                    ? `<div style="color:#f1c40f;font-size:11px;font-weight:bold;margin-top:2px;">${loyaltyCount}×</div>` : '';
+                return `<div class="badge-card ${earned?'earned':'locked'}">
+                    <div class="badge-icon">${b.icon}</div>
+                    <div class="badge-name">${b.name.replace('\n','<br>')}</div>
+                    ${extra}
+                    <div class="badge-sub">${b.sub}</div>
+                </div>`;
+            }).join('');
+        }
+
+        // ── DAILY REWARDS ──────────────────────────────────────────
+        function renderDaily(){
+            let h="",now=Date.now(),can=(now-lastDailyTime)>=86400000;
+            for(let i=0;i<7;i++){
+                const done = (loyaltyCount > 0 && i < dailyStep) || (i < dailyStep);
+                const isDay7 = (i === 6);
+                h+=`<div class="day-box ${i===dailyStep?'active':''}" style="${done?'opacity:0.45;':''} ${isDay7?'border-color:#f1c40f;background:#1a1200;':''} position:relative;">
+                    ${isDay7?'<div style="position:absolute;top:-8px;right:-4px;font-size:16px;">⭐</div>':''}
+                    Day ${i+1}<br><b>${dailyRewards[i].toLocaleString()}</b>
+                    ${done?'<br><span style="color:#00ff00;font-size:11px;">✓</span>':''}
+                </div>`;
+            }
+            // Sadakat rozeti alanı
+            if(loyaltyCount > 0){
+                h += `<div style="grid-column:1/-1;margin-top:8px;background:linear-gradient(135deg,#1a0a00,#2a1500);border:2px solid #f1c40f;border-radius:14px;padding:12px;text-align:center;display:flex;align-items:center;justify-content:center;gap:12px;">
+                    <span style="font-size:28px;">🏅</span>
+                    <div>
+                        <div style="color:#f1c40f;font-weight:bold;font-size:15px;">LOYALTY BADGE</div>
+                        <div style="color:#fff;font-size:22px;font-weight:bold;text-shadow:0 0 12px #f1c40f;">${loyaltyCount}× Completed</div>
+                        <div style="color:#aaa;font-size:11px;">${loyaltyCount} weekly cycle${loyaltyCount>1?'s':''}</div>
+                    </div>
+                    <span style="font-size:28px;">🏅</span>
+                </div>`;
+            }
+            document.getElementById('daily-grid').innerHTML=h;
+            document.getElementById('claim-daily-btn').disabled=!can;
+            document.getElementById('daily-timer').innerText=can?"READY! 🎁":"Next in: "+formatTime((86400000-(now-lastDailyTime))/1000);
+        }
+        function claimDaily(){
+            const isDay7 = (dailyStep === 6);
+            score += dailyRewards[dailyStep];
+            lastDailyTime = Date.now();
+            dailyStep = (dailyStep + 1) % 7;
+            localStorage.setItem('lastDailyTime', lastDailyTime);
+            localStorage.setItem('dailyStep', dailyStep);
+            if(isDay7){
+                loyaltyCount++;
+                localStorage.setItem('loyaltyCount', loyaltyCount);
+                showLoyaltyPopup();
+            }
+            try{document.getElementById('win-snd').play();}catch(e){}
+            updateUI();
+            renderDaily();
+            syncScoreToGlobal();
+        }
+        function showLoyaltyPopup(){
+            const pop = document.getElementById('loyalty-popup');
+            document.getElementById('loyalty-pop-count').innerText = loyaltyCount + '×';
+            pop.style.display = 'flex';
+            setTimeout(()=>{ pop.style.display='none'; }, 4000);
+        }
+
+        function formatTime(s){const m=Math.floor(s/60),rs=Math.floor(s%60);return`${m<10?'0':''}${m}:${rs<10?'0':''}${rs}`;}
+
+        // ── TIMERS ─────────────────────────────────────────────────
+        setInterval(()=>{
+            if(energy<100) energy=Math.min(100,energy+0.15);
+            if(boostTimers.x2>0)  boostTimers.x2--;
+            if(boostTimers.x3>0)  boostTimers.x3--;
+            if(boostTimers.x6>0)  boostTimers.x6--;
+            if(boostTimers.inf>0) boostTimers.inf--;
+            if(botActive) score+=1;
+            updateUI();
+        },1000);
+        // Her 10 saniyede bir anlık puanı sunucuya gönder (düşüş de dahil)
+        setInterval(()=>syncScoreToGlobal(),10000);
+        // Rank paneli açıkken her 10 saniyede otomatik yenile
+        setInterval(()=>{
+            const panel = document.getElementById('rank-panel');
+            if(panel && panel.style.display !== 'none') fetchGlobalLeaderboard(true);
+        },10000);
+
+        window.onload = ()=>{
+            applyOfflineProgress();
+            checkDailyTickets();
+            updateUI();
+        };
+
+        // ==========================================================
+        // DAILY CODE CHALLENGE SYSTEM
+        // ==========================================================
+        let dailyChallenge = null;
+        let mobilenetModel  = null;
+        let cameraStream    = null;
+
+        // Pattern lock state
+        let patternPath     = [];
+        let patternDrawing  = false;
+        let patternDots     = [];
+        let patternCtx2d    = null;
+
+        function getTodayStr(){
+            const d=new Date();
+            return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+        }
+
+        async function openDailyCodePanel(){
+            // Reset all sub-sections
+            const ids=['dc-loading','dc-no-challenge','dc-already-done','dc-conn-error','stage-1','stage-2','stage-3','reward-banner'];
+            ids.forEach(id=>document.getElementById(id).style.display='none');
+            document.getElementById('dc-loading').style.display='block';
+            // Reset stage dots
+            for(let i=1;i<=3;i++){
+                const d=document.getElementById(`sdot-${i}`);
+                d.className='stage-dot'+(i===1?' active':'');
+                d.innerText=i;
+            }
+            document.getElementById('scon-1').style.background='#333';
+            document.getElementById('scon-2').style.background='#333';
+
+            // Already done today?
+            const todayStr=getTodayStr();
+            if(localStorage.getItem('dailyCodeDate')===todayStr){
+                document.getElementById('dc-loading').style.display='none';
+                document.getElementById('dc-already-done').style.display='block';
+                return;
+            }
+            // Fetch from Hetzner API
+            try{
+                const res=await fetch(`${SERVER_URL}/api/daily-challenge?date=${todayStr}`);
+                document.getElementById('dc-loading').style.display='none';
+                if(!res.ok){
+                    document.getElementById('dc-no-challenge').style.display='block';
+                    return;
+                }
+                const json=await res.json();
+                dailyChallenge=json.data;
+                showDCStage(1);
+            }catch(e){
+                document.getElementById('dc-loading').style.display='none';
+                document.getElementById('dc-conn-error').style.display='block';
+            }
+        }
+
+        function showDCStage(n){
+            document.getElementById('stage-1').style.display=n===1?'block':'none';
+            document.getElementById('stage-2').style.display=n===2?'block':'none';
+            document.getElementById('stage-3').style.display=n===3?'block':'none';
+            // Update dots & connectors
+            for(let i=1;i<=3;i++){
+                const dot=document.getElementById(`sdot-${i}`);
+                if(i<n){dot.className='stage-dot completed';dot.innerText='✓';}
+                else if(i===n){dot.className='stage-dot active';dot.innerText=i;}
+                else{dot.className='stage-dot';dot.innerText=i;}
+            }
+            if(n>1) document.getElementById('scon-1').style.background='#00ff00';
+            if(n>2) document.getElementById('scon-2').style.background='#00ff00';
+            if(n===2) initPatternLock();
+            if(n===3) initCamera();
+        }
+
+        // ── Stage 1: Text Code ─────────────────────────────────────
+        function checkTextCode(){
+            const input=document.getElementById('text-code-input').value.trim().toUpperCase();
+            const expected=(dailyChallenge.text_code||'').toUpperCase().trim();
+            const msg=document.getElementById('text-code-msg');
+            if(!input){msg.innerText='Şifre girin!';return;}
+            if(input===expected){
+                msg.className='dc-ok';msg.innerText='✅ Doğru! Sıradaki aşama...';
+                setTimeout(()=>showDCStage(2),900);
+            }else{
+                msg.className='dc-err';msg.innerText='❌ Yanlış şifre, tekrar dene!';
+                document.getElementById('text-code-input').value='';
+            }
+        }
+        document.addEventListener('keydown',e=>{
+            if(e.key==='Enter'&&document.getElementById('stage-1').style.display==='block') checkTextCode();
+        });
+
+        // ── Stage 2: Pattern Lock ──────────────────────────────────
+        function initPatternLock(){
+            patternPath=[];patternDrawing=false;patternDots=[];
+            const canvas=document.getElementById('pattern-canvas');
+            patternCtx2d=canvas.getContext('2d');
+            const size=canvas.width,pad=size*0.17,step=(size-pad*2)/2;
+            for(let r=0;r<3;r++) for(let c=0;c<3;c++)
+                patternDots.push({id:r*3+c,x:pad+c*step,y:pad+r*step});
+            drawPatternState(null);
+            // Remove old listeners then re-add
+            const c=canvas.cloneNode(false);
+            canvas.parentNode.replaceChild(c,canvas);
+            const nc=document.getElementById('pattern-canvas');
+            // Reassign ctx since canvas was replaced
+            patternCtx2d=nc.getContext('2d');
+            // Recalculate dots (same formula, nc.width same)
+            patternDots=[];
+            for(let r=0;r<3;r++) for(let c2=0;c2<3;c2++)
+                patternDots.push({id:r*3+c2,x:pad+c2*step,y:pad+r*step});
+            nc.addEventListener('touchstart',onPT,{passive:false});
+            nc.addEventListener('touchmove', onPM,{passive:false});
+            nc.addEventListener('touchend',  onPE);
+            nc.addEventListener('mousedown',onPMD);
+            nc.addEventListener('mousemove',onPMV);
+            nc.addEventListener('mouseup',  onPE);
+            drawPatternState(null);
+        }
+
+        function getCP(e,canvas){
+            const r=canvas.getBoundingClientRect(),sx=canvas.width/r.width,sy=canvas.height/r.height;
+            const cx=e.touches?e.touches[0].clientX:e.clientX,cy=e.touches?e.touches[0].clientY:e.clientY;
+            return{x:(cx-r.left)*sx,y:(cy-r.top)*sy};
+        }
+        function nearDot(x,y){
+            for(const d of patternDots){const dx=d.x-x,dy=d.y-y;if(Math.sqrt(dx*dx+dy*dy)<28)return d;}return null;
+        }
+        function onPT(e){e.preventDefault();patternDrawing=true;const p=getCP(e,e.target),d=nearDot(p.x,p.y);if(d&&!patternPath.includes(d.id)){patternPath=[d.id];}drawPatternState(p);}
+        function onPMD(e){patternDrawing=true;const p=getCP(e,e.target),d=nearDot(p.x,p.y);if(d&&!patternPath.includes(d.id)){patternPath=[d.id];}drawPatternState(p);}
+        function onPM(e){e.preventDefault();if(!patternDrawing)return;const p=getCP(e,e.target),d=nearDot(p.x,p.y);if(d&&!patternPath.includes(d.id))patternPath.push(d.id);drawPatternState(p);}
+        function onPMV(e){if(!patternDrawing)return;const p=getCP(e,e.target),d=nearDot(p.x,p.y);if(d&&!patternPath.includes(d.id))patternPath.push(d.id);drawPatternState(p);}
+        function onPE(){patternDrawing=false;drawPatternState(null);}
+
+        function drawPatternState(curPos){
+            const canvas=document.getElementById('pattern-canvas');
+            if(!canvas)return;
+            const ctx=canvas.getContext('2d');
+            ctx.clearRect(0,0,canvas.width,canvas.height);
+            // Lines between selected dots
+            if(patternPath.length>0){
+                ctx.strokeStyle='rgba(0,180,255,0.65)';ctx.lineWidth=5;ctx.lineCap='round';ctx.lineJoin='round';
+                ctx.beginPath();
+                const s=patternDots.find(d=>d.id===patternPath[0]);
+                if(s){ctx.moveTo(s.x,s.y);}
+                for(let i=1;i<patternPath.length;i++){const d=patternDots.find(x=>x.id===patternPath[i]);if(d)ctx.lineTo(d.x,d.y);}
+                if(curPos&&patternDrawing)ctx.lineTo(curPos.x,curPos.y);
+                ctx.stroke();
+            }
+            // Dots
+            patternDots.forEach(dot=>{
+                const sel=patternPath.includes(dot.id);
+                ctx.beginPath();ctx.arc(dot.x,dot.y,sel?20:13,0,Math.PI*2);
+                ctx.fillStyle=sel?'rgba(0,100,200,0.85)':'rgba(30,30,60,0.9)';ctx.fill();
+                ctx.strokeStyle=sel?'#00d4ff':'#3a3a6a';ctx.lineWidth=2;ctx.stroke();
+                if(sel){ctx.beginPath();ctx.arc(dot.x,dot.y,8,0,Math.PI*2);ctx.fillStyle='#ffffff';ctx.fill();}
+            });
+        }
+
+        function resetPattern(){
+            patternPath=[];patternDrawing=false;
+            drawPatternState(null);
+            document.getElementById('pattern-msg').innerText='';
+        }
+
+        function checkPattern(){
+            if(patternPath.length<3){document.getElementById('pattern-msg').innerText='❌ En az 3 nokta seçin!';return;}
+            let expected=[];
+            try{expected=JSON.parse(dailyChallenge.pattern_code||'[]');}catch(e){}
+            const msg=document.getElementById('pattern-msg');
+            if(JSON.stringify(patternPath)===JSON.stringify(expected)){
+                msg.className='dc-ok';msg.innerText='✅ Doğru desen!';
+                setTimeout(()=>showDCStage(3),900);
+            }else{
+                msg.className='dc-err';msg.innerText='❌ Yanlış desen, tekrar dene!';
+                resetPattern();
+            }
+        }
+
+        // ── Stage 3: AI Object Recognition ────────────────────────
+        async function initCamera(){
+            const objName=dailyChallenge.object_display||dailyChallenge.object_name||'Nesne';
+            document.getElementById('object-prompt').innerText=`📸 "${objName.toUpperCase()}" fotoğrafını çek!`;
+            document.getElementById('ai-result-msg').innerText='📡 Kamera açılıyor...';
+            document.getElementById('capture-btn').disabled=false;
+            const hasCamera = !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia);
+            if(!hasCamera){
+                document.getElementById('camera-mode').style.display='none';
+                document.getElementById('text-fallback-mode').style.display='block';
+                document.getElementById('ai-result-msg').innerText='📝 Kamera bulunamadı, yazarak devam et.';
+                return;
+            }
+            const video = document.getElementById('camera-video');
+            async function tryGetCamera(constraints){
+                cameraStream = await navigator.mediaDevices.getUserMedia(constraints);
+                video.srcObject = cameraStream;
+                // Telegram WebApp'te autoplay çalışmayabilir — explicit play() gerekli
+                video.onloadedmetadata = function(){ video.play().catch(()=>{}); };
+                // zaten yüklendiyse hemen çal
+                if(video.readyState >= 2) video.play().catch(()=>{});
+            }
+            try{
+                // Önce arka kamerayı dene
+                await tryGetCamera({video:{facingMode:{exact:'environment'}},audio:false});
+                document.getElementById('ai-result-msg').innerText='✅ Kamera hazır! Nesneyi kameraya göster ve fotoğraf çek.';
+            }catch(e1){
+                try{
+                    // Arka kamera başarısız — herhangi bir kamerayı dene
+                    await tryGetCamera({video:true,audio:false});
+                    document.getElementById('ai-result-msg').innerText='✅ Kamera hazır! Nesneyi kameraya göster ve fotoğraf çek.';
+                }catch(e2){
+                    // Hiç kamera açılamadı — metin moduna geç
+                    document.getElementById('camera-mode').style.display='none';
+                    document.getElementById('text-fallback-mode').style.display='block';
+                    document.getElementById('ai-result-msg').innerText='📝 Kamera açılamadı, yazarak devam edebilirsin.';
+                }
+            }
+        }
+
+        function checkObjectText(){
+            const input=document.getElementById('object-text-input').value.trim().toLowerCase();
+            if(!input){document.getElementById('ai-result-msg').innerText='⚠️ Bir şey yaz!';return;}
+            const rawLabels=(dailyChallenge.object_labels||'')+','+(dailyChallenge.object_name||'')+','+(dailyChallenge.object_display||'');
+            const keywords=rawLabels.toLowerCase().split(',').map(s=>s.trim().replace(/[^a-zğüşıöçÇÖŞİĞÜ]/g,'')).filter(Boolean);
+            const matched=keywords.some(kw=>kw && input.includes(kw));
+            if(matched){
+                document.getElementById('ai-result-msg').innerText='✅ Doğru!';
+                setTimeout(()=>completeDailyCode(),1000);
+            }else{
+                document.getElementById('ai-result-msg').innerText='❌ Eşleşmedi. Tekrar dene!';
+            }
+        }
+
+        function stopCamera(){
+            if(cameraStream){cameraStream.getTracks().forEach(t=>t.stop());cameraStream=null;}
+        }
+
+        function loadScript(src){
+            return new Promise((res,rej)=>{
+                if(document.querySelector(`script[src="${src}"]`)){res();return;}
+                const s=document.createElement('script');s.src=src;s.onload=res;s.onerror=rej;
+                document.head.appendChild(s);
+            });
+        }
+
+        async function captureAndAnalyze(){
+            const video=document.getElementById('camera-video');
+            const canvas=document.getElementById('camera-canvas');
+            const ctx=canvas.getContext('2d');
+            const aiMsg=document.getElementById('ai-result-msg');
+            const captureBtn=document.getElementById('capture-btn');
+            if(!video.srcObject){aiMsg.innerText='⚠️ Kamera açık değil!';return;}
+            captureBtn.disabled=true;
+            aiMsg.innerText='📷 Fotoğraf çekiliyor...';
+            // Draw frame
+            ctx.drawImage(video,0,0,224,224);
+            try{
+                if(!mobilenetModel){
+                    aiMsg.innerText='📥 AI modeli yükleniyor... (ilk seferinde biraz sürer)';
+                    await loadScript('https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.17.0/dist/tf.min.js');
+                    await loadScript('https://cdn.jsdelivr.net/npm/@tensorflow-models/mobilenet@2.1.0/dist/mobilenet.min.js');
+                    aiMsg.innerText='🧠 Model hazırlanıyor...';
+                    mobilenetModel=await mobilenet.load({version:2,alpha:1.0});
+                }
+                aiMsg.innerText='🔍 Nesne tanınıyor...';
+                const predictions=await mobilenetModel.classify(canvas);
+                // Get target keywords
+                const rawLabels=(dailyChallenge.object_labels||dailyChallenge.object_name||'');
+                const targetKws=rawLabels.toLowerCase().split(',').map(s=>s.trim()).filter(Boolean);
+                let matched=false;
+                for(const pred of predictions){
+                    const pl=pred.className.toLowerCase();
+                    for(const kw of targetKws){if(pl.includes(kw)){matched=true;break;}}
+                    if(matched)break;
+                }
+                const topLabel=predictions[0]?.className||'Bilinmiyor';
+                const topConf=predictions[0]?.probability?Math.round(predictions[0].probability*100)+'%':'';
+                if(matched){
+                    aiMsg.innerText=`✅ Doğru! Algılanan: ${topLabel} (${topConf})`;
+                    document.getElementById('photo-msg').innerText='';
+                    setTimeout(()=>completeDailyCode(),1200);
+                }else{
+                    aiMsg.innerText=`❌ Eşleşmedi.\nAlgılanan: ${topLabel} (${topConf})\n\nNesneyi daha yakın ve iyi aydınlatılmış göster.`;
+                    captureBtn.disabled=false;
+                }
+            }catch(err){
+                aiMsg.innerText='⚠️ AI hatası: '+err.message;
+                captureBtn.disabled=false;
+            }
+        }
+
+        function completeDailyCode(){
+            stopCamera();
+            localStorage.setItem('dailyCodeDate',getTodayStr());
+            const tc = parseInt(localStorage.getItem('totalDailyCodes')||0)+1;
+            localStorage.setItem('totalDailyCodes', tc);
+            score+=250000;
+            ['stage-1','stage-2','stage-3'].forEach(id=>document.getElementById(id).style.display='none');
+            document.getElementById('reward-banner').style.display='block';
+            for(let i=1;i<=3;i++){const d=document.getElementById(`sdot-${i}`);d.className='stage-dot completed';d.innerText='✓';}
+            document.getElementById('scon-1').style.background='#00ff00';
+            document.getElementById('scon-2').style.background='#00ff00';
+            try{document.getElementById('win-snd').play();}catch(e){}
+            updateUI();syncScoreToGlobal();
+        }
+
+        // ══════════════════════════════════════════════
+        // 💾 SAVE DATA (generic)
+        // ══════════════════════════════════════════════
+        function saveData(){
+            localStorage.setItem('score', score);
+            localStorage.setItem('energy', energy);
+            localStorage.setItem('boostTimers', JSON.stringify(boostTimers));
+            localStorage.setItem('gameTickets', gameTickets);
+        }
+
+        // ══════════════════════════════════════════════
+        // 🎟️ TICKET SYSTEM
+        // ══════════════════════════════════════════════
+        let gameTickets = parseInt(localStorage.getItem('gameTickets')) || 0;
+        let extraSpinsAvailable = parseInt(localStorage.getItem('extraSpinsAvailable')) || 0;
+
+        // Weekly ad tracking
+        function getWeekKey(){
+            const d=new Date(); const jan1=new Date(d.getFullYear(),0,1);
+            const wk=Math.ceil(((d-jan1)/86400000+jan1.getDay()+1)/7);
+            return `${d.getFullYear()}-W${wk}`;
+        }
+        function getAdsThisWeek(){ return parseInt(localStorage.getItem('adsWeek_'+getWeekKey())||'0'); }
+        function incrementAdsThisWeek(){ const k='adsWeek_'+getWeekKey(); localStorage.setItem(k,(getAdsThisWeek()+1).toString()); }
+        function weeklyAdTaskDone(){ return localStorage.getItem('weeklyAdTask_'+getWeekKey())==='1'; }
+
+        function checkDailyTickets(){
+            const today = getTodayStr();
+            const lastT = localStorage.getItem('lastTicketDate') || '';
+            if(lastT !== today){
+                gameTickets += 5;
+                localStorage.setItem('lastTicketDate', today);
+                localStorage.setItem('gameTickets', gameTickets);
+            }
+        }
+
+        function getTickets(){ return gameTickets; }
+
+        function addTickets(n){
+            gameTickets += n;
+            localStorage.setItem('gameTickets', gameTickets);
+        }
+
+        function useTicket(){
+            if(gameTickets <= 0) return false;
+            gameTickets--;
+            localStorage.setItem('gameTickets', gameTickets);
+            return true;
+        }
+
+        function updateTicketDisplay(){
+            const el = document.getElementById('ticket-count-display');
+            if(el) el.innerText = gameTickets;
+        }
+
+        function playGame(id){
+            if(!useTicket()){
+                // Flash ticket badge red and show error inside panel
+                const badge = document.getElementById('ticket-count-badge');
+                if(badge){ badge.style.borderColor='#ff4444'; badge.style.color='#ff4444'; setTimeout(()=>{badge.style.borderColor='#ffcc44';badge.style.color='#ffcc44';},1500); }
+                const panel = document.getElementById('minigame-panel');
+                if(!panel.querySelector('.no-ticket-msg')){
+                    const msg = document.createElement('div');
+                    msg.className = 'no-ticket-msg';
+                    msg.innerText = '❌ No tickets! Buy more in the shop below or come back tomorrow.';
+                    msg.style.cssText = 'color:#ff4444;text-align:center;font-weight:bold;font-size:13px;padding:10px;background:#1a0000;border-radius:10px;margin:8px 0;';
+                    const list = document.getElementById('minigame-list');
+                    if(list) list.prepend(msg);
+                    setTimeout(()=>msg.remove(), 3000);
+                }
+                updateTicketDisplay();
+                return;
+            }
+            updateTicketDisplay();
+            // Mini oyun sayacını artır
+            const tg = parseInt(localStorage.getItem('totalGamesPlayed')||0)+1;
+            localStorage.setItem('totalGamesPlayed', tg);
+            window.location.href = `game${id}/index.html`;
+        }
+
+        function renderMiniGames(){
+            checkPlayerName();
+            checkDailyTickets();
+            updateTicketDisplay();
+            const games = [
+                {id:1, name:"Apple Catcher",  reward:"30 Pts / Apple",      icon:"🍎"},
+                {id:2, name:"Capy Runner",     reward:"Coin → Main Score",   icon:"🏃"},
+                {id:3, name:"Glitch Blast",    reward:"Score → Main Score",  icon:"🧠"},
+                {id:4, name:"Mining Digger",   reward:"Gem → Main Score",    icon:"💎"},
+                {id:5, name:"Flappy Capy",     reward:"500 Pts / Pipe",      icon:"🦸"}
+            ];
+            let h="";
+            games.forEach(g => {
+                h += `<div class="item-card">
+                    <div style="display:flex;align-items:center;">
+                        <div style="font-size:30px;margin-right:14px;">${g.icon}</div>
+                        <div><b>${g.name}</b><br><small style="color:#00ff00;">${g.reward}</small></div>
+                    </div>
+                    <button onclick="playGame(${g.id})">▶ PLAY</button>
+                </div>`;
+            });
+            document.getElementById('minigame-list').innerHTML = h;
+            renderTicketShop();
+        }
+
+        function renderTicketShop(){
+            const adItems = [
+                { label:'Watch 1 Ad',   sub:'→ +3 Tickets',  reward:3,  adCount:1,  type:'ad' },
+                { label:'Watch 2 Ads',  sub:'→ +5 Tickets',  reward:5,  adCount:2,  type:'ad' },
+                { label:'Watch 3 Ads',  sub:'→ +10 Tickets', reward:10, adCount:3,  type:'ad' },
+            ];
+            const ptItems = [
+                { label:'250,000 Pts',  sub:'→ +3 Tickets',  reward:3,  cost:250000,  type:'pts' },
+                { label:'500,000 Pts',  sub:'→ +10 Tickets', reward:10, cost:500000,  type:'pts' },
+                { label:'750,000 Pts',  sub:'→ +15 Tickets', reward:15, cost:750000,  type:'pts' },
+            ];
+            let h = '<div style="margin-bottom:10px;color:#888;font-size:11px;text-align:center;">📺 WATCH ADS</div>';
+            adItems.forEach((item, i) => {
+                h += `<div class="ticket-shop-row">
+                    <div class="ts-info"><b>${item.label}</b><small>${item.sub}</small></div>
+                    <button onclick="buyTicketsWithAds(${item.adCount},${item.reward})">WATCH</button>
+                </div>`;
+            });
+            h += '<div style="margin:12px 0 10px;color:#888;font-size:11px;text-align:center;">💰 BUY WITH POINTS</div>';
+            ptItems.forEach(item => {
+                const canBuy = score >= item.cost;
+                h += `<div class="ticket-shop-row">
+                    <div class="ts-info"><b>${item.label}</b><small>${item.sub}</small></div>
+                    <button class="pts-btn" onclick="buyTicketsWithPoints(${item.cost},${item.reward})" ${canBuy?'':'disabled'}>${canBuy?'BUY':'NEED MORE'}</button>
+                </div>`;
+            });
+            document.getElementById('ticket-shop-list').innerHTML = h;
+        }
+
+        function buyTicketsWithPoints(cost, reward){
+            if(score < cost){
+                alert('Not enough points!');
+                return;
+            }
+            score -= cost;
+            addTickets(reward);
+            try{ document.getElementById('money-snd').play(); }catch(e){}
+            updateUI();
+            updateTicketDisplay();
+            renderTicketShop();
+            syncScoreToGlobal();
+        }
+
+        // ── AD SYSTEM ────────────────────────────────────────────────
+        let adCallback = null;
+        let adTimerInterval = null;
+        let adDuration = 5;
+
+        // ── GOOGLE IMA SDK ────────────────────────────────────────────
+        // Test VAST tag — AdSense onayı gelince buraya gerçek tag gelecek
+        const VAST_TAG = 'https://pubads.g.doubleclick.net/gampad/ads?iu=/21775744923/external/single_preroll_skippable&sz=640x480&ciu_szs=300x250,728x90&gdfp_req=1&output=vast&unviewed_position_start=1&env=vp&impl=s&correlator=';
+
+        let imaDisplayContainer = null;
+        let imaAdsLoader = null;
+        let imaAdsManager = null;
+        let imaReady = false;
+
+        function initIMA(){
+            try {
+                if(typeof google === 'undefined' || !google.ima) return false;
+                const videoEl  = document.getElementById('ad-video-el');
+                const imaEl    = document.getElementById('ima-container');
+                if(!videoEl || !imaEl) return false;
+                imaDisplayContainer = new google.ima.AdDisplayContainer(imaEl, videoEl);
+                imaAdsLoader = new google.ima.AdsLoader(imaDisplayContainer);
+                imaAdsLoader.addEventListener(google.ima.AdsManagerLoadedEvent.Type.ADS_MANAGER_LOADED, onIMALoaded, false);
+                imaAdsLoader.addEventListener(google.ima.AdErrorEvent.Type.AD_ERROR, onIMAError, false);
+                imaReady = true;
+                return true;
+            } catch(e){ return false; }
+        }
+
+        function triggerMonetagAd(){
+            const loadMsg = document.getElementById('ad-loading-msg');
+            if(loadMsg) loadMsg.style.display = 'block';
+            try {
+                if(!imaReady && !initIMA()){
+                    // IMA yüklenemedi — sayaç çalışsın, süre bitince ödül ver
+                    if(loadMsg) loadMsg.innerText = '📺 Ad loading...';
+                    return;
+                }
+                imaDisplayContainer.initialize();
+                const req = new google.ima.AdsRequest();
+                req.adTagUrl = VAST_TAG + Math.floor(Math.random()*1e9);
+                req.linearAdSlotWidth  = 300;
+                req.linearAdSlotHeight = 180;
+                req.nonLinearAdSlotWidth  = 300;
+                req.nonLinearAdSlotHeight = 100;
+                imaAdsLoader.requestAds(req);
+                if(loadMsg) loadMsg.innerText = '📺 Loading ad...';
+            } catch(e){
+                if(loadMsg) loadMsg.innerText = '📺 Ad loading...';
+            }
+        }
+
+        function onIMALoaded(e){
+            try {
+                const loadMsg = document.getElementById('ad-loading-msg');
+                if(loadMsg) loadMsg.style.display = 'none';
+                const videoEl = document.getElementById('ad-video-el');
+                imaAdsManager = e.getAdsManager(videoEl);
+                imaAdsManager.addEventListener(google.ima.AdErrorEvent.Type.AD_ERROR,      onIMAError,    false);
+                imaAdsManager.addEventListener(google.ima.AdEvent.Type.COMPLETE,           onIMADone,     false);
+                imaAdsManager.addEventListener(google.ima.AdEvent.Type.SKIPPED,            onIMADone,     false);
+                imaAdsManager.addEventListener(google.ima.AdEvent.Type.ALL_ADS_COMPLETED,  onIMADone,     false);
+                imaAdsManager.init(300, 180, google.ima.ViewMode.NORMAL);
+                imaAdsManager.start();
+                // Sayacı gizle — IMA kendi kontrolünü yapıyor
+                const cdEl = document.getElementById('ad-timer-ring');
+                if(cdEl) cdEl.style.opacity = '0.3';
+            } catch(e){ onIMAError(e); }
+        }
+
+        function onIMADone(){
+            destroyIMA();
+            // Sayaç bitmediyse de ödülü ver
+            if(adTimerInterval){ clearInterval(adTimerInterval); adTimerInterval = null; }
+            document.getElementById('ad-skip-btn').style.display = 'block';
+            document.getElementById('ad-timer-num').innerText = '✓';
+            document.getElementById('ad-ring-fill').style.stroke = '#00ff00';
+        }
+
+        function onIMAError(e){
+            destroyIMA();
+            // Hata olursa sayaç devam eder, süre bitince ödül verilir
+            const loadMsg = document.getElementById('ad-loading-msg');
+            if(loadMsg){ loadMsg.style.display = 'block'; loadMsg.innerText = '📺 Ad unavailable — please wait...'; }
+        }
+
+        function destroyIMA(){
+            try { if(imaAdsManager){ imaAdsManager.destroy(); imaAdsManager = null; } } catch(e){}
+            imaReady = false;
+        }
+
+        function resetAdIframe(){
+            destroyIMA();
+            const videoEl = document.getElementById('ad-video-el');
+            if(videoEl){ videoEl.pause(); videoEl.src = ''; }
+            const loadMsg = document.getElementById('ad-loading-msg');
+            if(loadMsg){ loadMsg.style.display = 'block'; loadMsg.innerText = '📺 Loading ad...'; }
+            const ring = document.getElementById('ad-timer-ring');
+            if(ring) ring.style.opacity = '1';
+        }
+
+        function showAd(durationSec, rewardLabel, onFinish){
+            adCallback = onFinish;
+            adDuration = durationSec;
+            document.getElementById('ad-reward-preview').innerText = rewardLabel;
+            document.getElementById('ad-skip-btn').style.display = 'none';
+            document.getElementById('ad-timer-num').innerText = durationSec;
+            const ring = document.getElementById('ad-ring-fill');
+            ring.style.strokeDashoffset = '0';
+            ring.style.stroke = '#f1c40f';
+            document.getElementById('ad-modal').style.display = 'flex';
+            // Gerçek Monetag reklamını tetikle
+            triggerMonetagAd();
+            let remaining = durationSec;
+            if(adTimerInterval) clearInterval(adTimerInterval);
+            adTimerInterval = setInterval(()=>{
+                remaining--;
+                document.getElementById('ad-timer-num').innerText = remaining;
+                const pct = remaining / durationSec;
+                ring.style.strokeDashoffset = String(251 * (1 - pct));
+                if(remaining <= 0){
+                    clearInterval(adTimerInterval);
+                    document.getElementById('ad-skip-btn').style.display = 'block';
+                    document.getElementById('ad-timer-num').innerText = '✓';
+                    ring.style.stroke = '#00ff00';
+                }
+            }, 1000);
+        }
+
+        function adFinished(){
+            document.getElementById('ad-modal').style.display = 'none';
+            const ring = document.getElementById('ad-ring-fill');
+            ring.style.stroke = '#f1c40f';
+            resetAdIframe();
+            const cb = adCallback;
+            adCallback = null;
+            if(cb){ cb(); }
+        }
+
+        // Ad batch purchase (watch N ads one-by-one)
+        let adBatchRemaining = 0;
+        let adBatchReward = 0;
+        let adBatchSource = '';
+
+        function buyTicketsWithAds(adCount, reward){
+            adBatchRemaining = adCount;
+            adBatchReward = reward;
+            adBatchSource = 'tickets';
+            runNextAdInBatch();
+        }
+
+        function runNextAdInBatch(){
+            if(adBatchRemaining <= 0){
+                // All ads watched
+                if(adBatchSource === 'tickets'){
+                    addTickets(adBatchReward);
+                    incrementAdsThisWeek();
+                    checkWeeklyAdTask();
+                    updateTicketDisplay();
+                    renderTicketShop();
+                    try{ document.getElementById('win-snd').play(); }catch(e){}
+                    alert(`🎟️ +${adBatchReward} Tickets added!`);
+                } else if(adBatchSource === 'extraspin'){
+                    extraSpinsAvailable += adBatchReward;
+                    localStorage.setItem('extraSpinsAvailable', extraSpinsAvailable);
+                    incrementAdsThisWeek();
+                    checkWeeklyAdTask();
+                    updateExtraSpinSection();
+                    try{ document.getElementById('win-snd').play(); }catch(e){}
+                }
+                return;
+            }
+            adBatchRemaining--;
+            const totalWatched = (adBatchReward === 3 && adBatchRemaining === 0 && adBatchSource === 'tickets') ? 1 :
+                                 (adBatchReward === 5) ? 2 : 3;
+            showAd(6, `🎟️ Watch all ads to get ${adBatchReward} Tickets`, ()=>{
+                runNextAdInBatch();
+            });
+        }
+
+        function watchAdForExtraSpin(){
+            if(getRemainingSpinMs() <= 0){
+                alert('Your free spin is ready! Use it first.');
+                return;
+            }
+            if(getAdSpinsRemaining() <= 0){
+                alert('No ad spins left this 6-hour period. Come back later!');
+                return;
+            }
+            showAd(8, '🎰 Watch ad → Get 1 Extra Spin!', ()=>{
+                incrementAdsThisWeek();
+                checkWeeklyAdTask();
+                // Spin immediately after ad
+                spinWheel(true);
+            });
+        }
+
+        function updateExtraSpinSection(){
+            const rem = getRemainingSpinMs();
+            const section = document.getElementById('extra-spin-section');
+            const spinBtnGo = document.getElementById('spin-btn-go');
+            if(!section) return;
+
+            if(rem > 0){
+                // Cooldown aktif — free spin bitti
+                section.style.display = 'block';
+                const adRem = getAdSpinsRemaining();
+                // Spin butonu: extra spin varsa aktif
+                if(adRem > 0 && spinBtnGo){
+                    spinBtnGo.disabled = false;
+                    spinBtnGo.textContent = `🎰 SPIN!`;
+                    spinBtnGo.style.background = 'linear-gradient(135deg,#f1c40f 0%,#ff6b00 100%)';
+                } else if(spinBtnGo){
+                    spinBtnGo.disabled = true;
+                    spinBtnGo.textContent = '⏳ No spins left';
+                    spinBtnGo.style.background = '';
+                }
+                // 3 reklam slotu — 2 hak, 3. kilitli
+                const slots = [0,1,2].map(i => {
+                    if(i < MAX_AD_SPINS){
+                        const used = (MAX_AD_SPINS - adRem) > i;
+                        return used
+                            ? `<div style="background:#0d0d0d;border:1px solid #222;border-radius:12px;padding:10px 14px;display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+                                <span style="color:#555;font-size:13px;">📺 Ad Spin ${i+1} — Used ✓</span>
+                              </div>`
+                            : `<div style="background:#1a1200;border:1px solid #f1c40f55;border-radius:12px;padding:10px 14px;display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+                                <div><b style="font-size:13px;">📺 Watch Ad → Spin Now!</b><br><small style="color:#888;font-size:11px;">Ad spin ${i+1} of ${MAX_AD_SPINS}</small></div>
+                                <button onclick="watchAdForExtraSpin()" style="background:linear-gradient(135deg,#f1c40f,#e67e22);border:none;padding:8px 14px;border-radius:10px;font-weight:bold;color:#000;cursor:pointer;font-size:12px;">WATCH</button>
+                              </div>`;
+                    } else {
+                        return `<div style="background:#0d0d0d;border:1px solid #222;border-radius:12px;padding:10px 14px;display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;opacity:0.5;">
+                            <span style="color:#444;font-size:13px;">🔒 Bonus Slot — Locked</span>
+                          </div>`;
+                    }
+                }).join('');
+                section.innerHTML = `<div style="padding-top:4px;">${slots}</div>`;
+            } else {
+                // Cooldown bitti — free spin hazır
+                section.style.display = 'none';
+                if(spinBtnGo){
+                    spinBtnGo.disabled = false;
+                    spinBtnGo.style.background = '';
+                    spinBtnGo.textContent = '🎰 SPIN!';
+                }
+            }
+        }
+
+        // ── WEEKLY AD TASK ────────────────────────────────────────────
+        function checkWeeklyAdTask(){
+            if(weeklyAdTaskDone()) return;
+            if(getAdsThisWeek() >= 5){
+                score += 300000;
+                localStorage.setItem('weeklyAdTask_'+getWeekKey(), '1');
+                try{ document.getElementById('win-snd').play(); }catch(e){}
+                updateUI(); syncScoreToGlobal();
+                alert('🎉 Weekly Task Complete!\n+300,000 Points for watching 5 ads this week!');
+            }
+        }
+
+        // ══════════════════════════════════════════════
+        // 🎡 SPIN WHEEL
+        // ══════════════════════════════════════════════
+        const WHEEL_SEGMENTS = [
+            { label:'Small\nPoints', emoji:'🎯', fill:'#2e2e2e', stroke:'#999999', type:'small_points',  weight:20 },
+            { label:'SKIP',          emoji:'💀', fill:'#4a0808', stroke:'#ff5555', type:'pass',           weight:15 },
+            { label:'Medium\nPoints',emoji:'💎', fill:'#061545', stroke:'#5599ff', type:'medium_points',  weight:10 },
+            { label:'Full\nEnergy',  emoji:'⚡', fill:'#063520', stroke:'#44ff88', type:'full_energy',    weight:8  },
+            { label:'Small\nPoints', emoji:'🎯', fill:'#2e2e2e', stroke:'#999999', type:'small_points',  weight:20 },
+            { label:'Mystery\nBox',  emoji:'🎁', fill:'#28004a', stroke:'#cc66ff', type:'mystery',        weight:7  },
+            { label:'JACKPOT',       emoji:'🌟', fill:'#3a2800', stroke:'#ffcc44', type:'big_points',     weight:3  },
+            { label:'6x Boost',      emoji:'🚀', fill:'#063035', stroke:'#44eeff', type:'boost',          weight:6  },
+            { label:'Small\nPoints', emoji:'🎯', fill:'#2e2e2e', stroke:'#999999', type:'small_points',  weight:20 },
+            { label:'SKIP',          emoji:'💀', fill:'#4a0808', stroke:'#ff5555', type:'pass',           weight:15 },
+            { label:'5 Tickets',     emoji:'🎮', fill:'#2a2200', stroke:'#ffcc44', type:'tickets',        weight:9  },
+            { label:'Medium\nPoints',emoji:'💎', fill:'#061545', stroke:'#5599ff', type:'medium_points',  weight:10 },
+        ];
+
+        const SPIN_COOLDOWN_MS = 6 * 60 * 60 * 1000; // 6 saat
+        const MAX_AD_SPINS = 2; // 6 saatte max 2 reklam hakkı
+        let wheelAngle = 0;
+        let wheelSpinning = false;
+        let spinCountdownInterval = null;
+        let currentSpinIsExtra = false; // free spin mi extra spin mi
+
+        function initSpinWheel(){
+            const canvas = document.getElementById('wheel-canvas');
+            const size = Math.min(window.innerWidth - 44, 290);
+            canvas.width = size; canvas.height = size;
+            drawWheel(wheelAngle);
+            updateSpinCooldown();
+        }
+
+        function drawWheel(angle){
+            const canvas = document.getElementById('wheel-canvas');
+            if(!canvas) return;
+            const ctx = canvas.getContext('2d');
+            const cx = canvas.width/2, cy = canvas.height/2;
+            const r = cx - 8;
+            const n = WHEEL_SEGMENTS.length;
+            const arc = (2*Math.PI)/n;
+            ctx.clearRect(0,0,canvas.width,canvas.height);
+
+            // 1) Draw all segment fills first
+            WHEEL_SEGMENTS.forEach((seg, i) => {
+                const start = angle + i*arc - Math.PI/2;
+                const end   = start + arc;
+                ctx.beginPath();
+                ctx.moveTo(cx, cy);
+                ctx.arc(cx, cy, r, start, end);
+                ctx.closePath();
+                ctx.fillStyle = seg.fill;
+                ctx.fill();
+                // Spoke lines
+                ctx.beginPath();
+                ctx.moveTo(cx, cy);
+                ctx.lineTo(cx + r*Math.cos(start), cy + r*Math.sin(start));
+                ctx.strokeStyle = '#000';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+            });
+
+            // 2) Outer arc colored border per segment
+            WHEEL_SEGMENTS.forEach((seg, i) => {
+                const start = angle + i*arc - Math.PI/2;
+                const end   = start + arc;
+                ctx.beginPath();
+                ctx.arc(cx, cy, r, start, end);
+                ctx.strokeStyle = seg.stroke;
+                ctx.lineWidth = 3;
+                ctx.stroke();
+            });
+
+            // 3) Text & emoji
+            WHEEL_SEGMENTS.forEach((seg, i) => {
+                const midA = angle + i*arc - Math.PI/2 + arc/2;
+                ctx.save();
+                ctx.translate(cx, cy);
+                ctx.rotate(midA);
+                // Emoji
+                ctx.font = '17px serif';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(seg.emoji, r*0.74, 0);
+                // Label
+                ctx.font = 'bold 8.5px Segoe UI';
+                ctx.fillStyle = seg.stroke;
+                const lines = seg.label.split('\n');
+                lines.forEach((ln, li) => {
+                    ctx.fillText(ln, r*0.45, -6 + li*11);
+                });
+                ctx.restore();
+            });
+
+            // 4) Outer golden ring
+            ctx.beginPath();
+            ctx.arc(cx, cy, r+1, 0, 2*Math.PI);
+            ctx.strokeStyle = '#f1c40f';
+            ctx.lineWidth = 5;
+            ctx.shadowColor = '#f1c40f';
+            ctx.shadowBlur = 14;
+            ctx.stroke();
+            ctx.shadowBlur = 0;
+
+            // 5) Center hub
+            const hubR = 20;
+            ctx.beginPath();
+            ctx.arc(cx, cy, hubR+3, 0, 2*Math.PI);
+            ctx.fillStyle = '#0a0a0a';
+            ctx.fill();
+            const hubGrad = ctx.createRadialGradient(cx-6,cy-6,0,cx,cy,hubR);
+            hubGrad.addColorStop(0,'#ffee88');
+            hubGrad.addColorStop(1,'#e67e22');
+            ctx.beginPath();
+            ctx.arc(cx, cy, hubR, 0, 2*Math.PI);
+            ctx.fillStyle = hubGrad;
+            ctx.shadowColor = '#f1c40f';
+            ctx.shadowBlur = 10;
+            ctx.fill();
+            ctx.shadowBlur = 0;
+            ctx.strokeStyle = 'rgba(255,255,255,0.4)';
+            ctx.lineWidth = 1.5;
+            ctx.stroke();
+        }
+
+        function getWeightedSegment(){
+            const total = WHEEL_SEGMENTS.reduce((s,g)=>s+g.weight,0);
+            let r = Math.random()*total;
+            for(let i=0;i<WHEEL_SEGMENTS.length;i++){ r-=WHEEL_SEGMENTS[i].weight; if(r<=0)return i; }
+            return 0;
+        }
+
+        function getRemainingSpinMs(){
+            const last = parseInt(localStorage.getItem('lastSpinTimestamp')||'0');
+            if(!last) return 0;
+            return Math.max(0, SPIN_COOLDOWN_MS - (Date.now()-last));
+        }
+
+        // Ad spin quota: kaç reklam hakkı kullanıldı bu 6h döneminde
+        function getAdSpinsUsed(){
+            if(getRemainingSpinMs() <= 0) return 0; // dönem bitti, sıfırla
+            return parseInt(localStorage.getItem('adSpinsUsed')||'0');
+        }
+        function getAdSpinsRemaining(){ return Math.max(0, MAX_AD_SPINS - getAdSpinsUsed()); }
+        function consumeAdSpin(){
+            const used = getAdSpinsUsed() + 1;
+            localStorage.setItem('adSpinsUsed', used);
+        }
+
+        function formatCountdown(ms){
+            const h = Math.floor(ms/3600000);
+            const m = Math.floor((ms%3600000)/60000);
+            const s = Math.floor((ms%60000)/1000);
+            return `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+        }
+
+        function startSpinCountdownTick(){
+            if(spinCountdownInterval) clearInterval(spinCountdownInterval);
+            spinCountdownInterval = setInterval(()=>{
+                const rem = getRemainingSpinMs();
+                const cdEl = document.getElementById('spin-countdown');
+                const mainEl = document.getElementById('spin-main-timer');
+                const btn = document.getElementById('spin-btn-go');
+                const spinBtn = document.getElementById('spin-btn');
+                if(rem <= 0){
+                    clearInterval(spinCountdownInterval);
+                    if(cdEl){ cdEl.style.display='none'; }
+                    if(btn){ btn.disabled=false; btn.style.background=''; btn.textContent='🎰 SPIN!'; }
+                    if(mainEl){ mainEl.innerText=''; }
+                    if(spinBtn){ spinBtn.classList.add('ready'); }
+                    document.getElementById('spin-cooldown').innerText='🎯 Free spin ready!';
+                    updateExtraSpinSection();
+                } else {
+                    const fmt = formatCountdown(rem);
+                    if(cdEl){ cdEl.style.display='block'; cdEl.innerText=fmt; }
+                    if(mainEl){ mainEl.innerText=fmt; }
+                    if(spinBtn){ spinBtn.classList.remove('ready'); }
+                }
+            }, 1000);
+        }
+
+        function spinWheel(isExtra){
+            if(wheelSpinning) return;
+            isExtra = !!isExtra;
+            // Spin sayacını artır
+            const ts = parseInt(localStorage.getItem('totalSpins')||0)+1;
+            localStorage.setItem('totalSpins', ts);
+            const rem = getRemainingSpinMs();
+
+            if(!isExtra){
+                // FREE SPIN — cooldown kontrolü
+                if(rem > 0){
+                    document.getElementById('spin-cooldown').innerText='⏳ Spin not ready yet!';
+                    return;
+                }
+            } else {
+                // EXTRA SPIN — reklam hakkı kontrolü
+                if(getAdSpinsRemaining() <= 0){
+                    document.getElementById('spin-cooldown').innerText='❌ No ad spins left this period!';
+                    return;
+                }
+                consumeAdSpin();
+                updateExtraSpinSection();
+            }
+
+            currentSpinIsExtra = isExtra;
+            wheelSpinning = true;
+            document.getElementById('spin-btn-go').disabled = true;
+            document.getElementById('spin-result-text').innerText = '🎰 Spinning...';
+            document.getElementById('spin-result-text').style.color = '#aaa';
+
+            const targetIdx = getWeightedSegment();
+            const arc = (2*Math.PI)/WHEEL_SEGMENTS.length;
+            const targetAngle = -targetIdx*arc - 0.5*arc;
+            const spins = (7 + Math.floor(Math.random()*4)) * 2 * Math.PI;
+            const finalAngle = targetAngle + spins;
+            const startAngle = wheelAngle;
+            const duration = 5000 + Math.random()*1000;
+            const startTime = performance.now();
+
+            function easeOut(t){ return 1 - Math.pow(1-t, 4.5); }
+            function animateSpin(now){
+                const t = Math.min((now-startTime)/duration, 1);
+                wheelAngle = startAngle + (finalAngle-startAngle)*easeOut(t);
+                drawWheel(wheelAngle);
+                if(t<1){ requestAnimationFrame(animateSpin); }
+                else {
+                    wheelAngle = ((targetAngle % (2*Math.PI)) + 2*Math.PI) % (2*Math.PI);
+                    drawWheel(wheelAngle);
+                    wheelSpinning = false;
+                    // Sadece FREE spin cooldown timer'ı sıfırlar
+                    if(!currentSpinIsExtra){
+                        localStorage.setItem('lastSpinTimestamp', Date.now().toString());
+                        localStorage.setItem('adSpinsUsed', '0'); // yeni dönem
+                    }
+                    applySpinReward(targetIdx);
+                    updateSpinCooldown();
+                }
+            }
+            requestAnimationFrame(animateSpin);
+        }
+
+        function applySpinReward(idx){
+            const seg = WHEEL_SEGMENTS[idx];
+            let msg='', color='#f1c40f';
+            switch(seg.type){
+                case 'small_points':{
+                    const pct=0.01+Math.random()*0.04;
+                    const g=Math.max(1000,Math.floor(score*pct));
+                    score+=g; msg=`🎯 +${g.toLocaleString()} Points!`; color='#aaa'; break;
+                }
+                case 'medium_points':{ score+=100000; msg='💎 +100,000 Points!'; color='#4488ff'; break; }
+                case 'big_points':{ score+=1000000; msg='🌟 JACKPOT! +1,000,000 Points!'; color='#ffaa00'; break; }
+                case 'full_energy':{ energy=100; msg='⚡ Energy fully restored!'; color='#00ff44'; break; }
+                case 'boost':{ boostTimers.x6=3600; msg='🚀 6x Boost active for 1 hour!'; color='#00ffff'; break; }
+                case 'tickets':{
+                    addTickets(5);
+                    updateTicketDisplay();
+                    msg='🎮 You got 5 Game Tickets!'; color='#ffcc00'; break;
+                }
+                case 'mystery':{
+                    const roll=Math.random();
+                    if(roll<0.4){score+=500000;msg='🎁 Mystery Box: +500,000 Points!';color='#cc00ff';}
+                    else if(roll<0.7){score+=250000;msg='🎁 Mystery Box: +250,000 Points!';color='#cc00ff';}
+                    else{score+=1500000;msg='🎁 MEGA JACKPOT! +1,500,000 Points!';color='#ff00ff';}
+                    break;
+                }
+                case 'pass':{ msg="💀 No luck today! Come back tomorrow."; color='#ff4444'; break; }
+            }
+            document.getElementById('spin-result-text').innerText=msg;
+            document.getElementById('spin-result-text').style.color=color;
+            try{ document.getElementById(seg.type==='pass'?'click-snd':'win-snd').play(); }catch(e){}
+            updateUI(); saveData(); syncScoreToGlobal();
+        }
+
+        function updateSpinCooldown(){
+            const rem = getRemainingSpinMs();
+            const btn = document.getElementById('spin-btn-go');
+            const spinBtn = document.getElementById('spin-btn');
+            const cdEl = document.getElementById('spin-countdown');
+            const mainEl = document.getElementById('spin-main-timer');
+            if(rem > 0){
+                if(spinBtn){ spinBtn.classList.remove('ready'); }
+                if(cdEl){ cdEl.style.display='block'; cdEl.innerText=formatCountdown(rem); }
+                if(mainEl){ mainEl.innerText=formatCountdown(rem); }
+                const adRem = getAdSpinsRemaining();
+                document.getElementById('spin-cooldown').innerText = adRem > 0
+                    ? `⏳ Free spin in: — ${adRem} ad spin(s) available`
+                    : '⏳ Next free spin in:';
+                startSpinCountdownTick();
+            } else {
+                if(btn){ btn.disabled=false; btn.style.background=''; btn.textContent='🎰 SPIN!'; }
+                if(spinBtn){ spinBtn.classList.add('ready'); }
+                if(cdEl){ cdEl.style.display='none'; }
+                if(mainEl){ mainEl.innerText=''; }
+                document.getElementById('spin-cooldown').innerText='🎯 You have 1 free spin!';
+            }
+            updateExtraSpinSection();
+        }
+    </script>
+</body>
+</html>
