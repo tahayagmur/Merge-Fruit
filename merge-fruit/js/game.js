@@ -45,6 +45,23 @@ var WALL_T = 60;
 // ── SES SİSTEMİ ──────────────────────────────────────────────────
 var audioCtx = null;
 var isMuted  = (localStorage.getItem('mf_muted') === '1');
+var audioUnlocked = false;
+
+function unlockAudio() {
+    if (audioUnlocked) return;
+    try {
+        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+        // Sessiz bir ses çal — tarayıcı kilidini açar
+        var buf = audioCtx.createBuffer(1, 1, 22050);
+        var src = audioCtx.createBufferSource();
+        src.buffer = buf; src.connect(audioCtx.destination); src.start(0);
+        audioUnlocked = true;
+    } catch(e) {}
+}
+// İlk tıklamada AudioContext'i aç
+document.addEventListener('click',     unlockAudio, { once: false });
+document.addEventListener('touchstart',unlockAudio, { once: false });
 
 function getAudioCtx() {
     if (!audioCtx) {
@@ -56,38 +73,45 @@ function getAudioCtx() {
 function playTone(freq, type, dur, vol, delay) {
     if (isMuted) return;
     var ac = getAudioCtx(); if (!ac) return;
+    if (ac.state === 'suspended') { ac.resume(); return; }
     try {
         var t  = ac.currentTime + (delay || 0);
         var o  = ac.createOscillator();
         var g  = ac.createGain();
-        o.connect(g); g.connect(ac.destination);
+        // Compressor ekle — sesi daha belirgin yapar
+        var comp = ac.createDynamicsCompressor();
+        o.connect(g); g.connect(comp); comp.connect(ac.destination);
         o.type = type || 'sine';
         o.frequency.setValueAtTime(freq, t);
-        g.gain.setValueAtTime(vol || 0.25, t);
+        g.gain.setValueAtTime(Math.min(vol || 0.4, 0.8), t);
         g.gain.exponentialRampToValueAtTime(0.001, t + (dur || 0.2));
-        o.start(t); o.stop(t + (dur || 0.2));
+        o.start(t); o.stop(t + (dur || 0.2) + 0.05);
     } catch(e) {}
 }
 function playMergeSound(level) {
-    var f = 220 + level * 70;
-    playTone(f,       'sine',     0.12, 0.3);
-    playTone(f * 1.5, 'sine',     0.09, 0.15, 0.06);
+    var f = 260 + level * 80;
+    playTone(f,       'sine',     0.15, 0.5);
+    playTone(f * 1.5, 'triangle', 0.12, 0.3, 0.07);
 }
 function playDropSound() {
-    playTone(130, 'sine', 0.07, 0.12);
+    playTone(180, 'sine', 0.08, 0.3);
+    playTone(120, 'sine', 0.06, 0.2, 0.04);
 }
 function playGameOverSound() {
-    playTone(330, 'sawtooth', 0.25, 0.35);
-    playTone(220, 'sawtooth', 0.25, 0.3,  0.18);
-    playTone(150, 'sawtooth', 0.4,  0.3,  0.36);
+    playTone(440, 'sawtooth', 0.3, 0.5);
+    playTone(330, 'sawtooth', 0.3, 0.4, 0.2);
+    playTone(220, 'sawtooth', 0.5, 0.4, 0.4);
+    playTone(150, 'sawtooth', 0.6, 0.35, 0.65);
 }
 function playWatermelonSound() {
-    [523, 659, 784, 1047].forEach(function(f, i) {
-        playTone(f, 'sine', 0.35, 0.4, i * 0.09);
+    [523, 659, 784, 880, 1047].forEach(function(f, i) {
+        playTone(f, 'sine', 0.4, 0.5, i * 0.1);
     });
 }
 function playComboSound(count) {
-    playTone(380 + count * 90, 'triangle', 0.18, 0.35);
+    var f = 400 + count * 100;
+    playTone(f,       'triangle', 0.2, 0.5);
+    playTone(f * 1.2, 'sine',     0.15, 0.3, 0.08);
 }
 
 // ── EN İYİ SKOR ──────────────────────────────────────────────────
