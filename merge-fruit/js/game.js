@@ -42,6 +42,100 @@ var gameLoopId = null;
 var lastTime   = 0;
 var WALL_T = 60;
 
+// ── SES SİSTEMİ ──────────────────────────────────────────────────
+var audioCtx = null;
+var isMuted  = (localStorage.getItem('mf_muted') === '1');
+
+function getAudioCtx() {
+    if (!audioCtx) {
+        try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e) {}
+    }
+    if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+    return audioCtx;
+}
+function playTone(freq, type, dur, vol, delay) {
+    if (isMuted) return;
+    var ac = getAudioCtx(); if (!ac) return;
+    try {
+        var t  = ac.currentTime + (delay || 0);
+        var o  = ac.createOscillator();
+        var g  = ac.createGain();
+        o.connect(g); g.connect(ac.destination);
+        o.type = type || 'sine';
+        o.frequency.setValueAtTime(freq, t);
+        g.gain.setValueAtTime(vol || 0.25, t);
+        g.gain.exponentialRampToValueAtTime(0.001, t + (dur || 0.2));
+        o.start(t); o.stop(t + (dur || 0.2));
+    } catch(e) {}
+}
+function playMergeSound(level) {
+    var f = 220 + level * 70;
+    playTone(f,       'sine',     0.12, 0.3);
+    playTone(f * 1.5, 'sine',     0.09, 0.15, 0.06);
+}
+function playDropSound() {
+    playTone(130, 'sine', 0.07, 0.12);
+}
+function playGameOverSound() {
+    playTone(330, 'sawtooth', 0.25, 0.35);
+    playTone(220, 'sawtooth', 0.25, 0.3,  0.18);
+    playTone(150, 'sawtooth', 0.4,  0.3,  0.36);
+}
+function playWatermelonSound() {
+    [523, 659, 784, 1047].forEach(function(f, i) {
+        playTone(f, 'sine', 0.35, 0.4, i * 0.09);
+    });
+}
+function playComboSound(count) {
+    playTone(380 + count * 90, 'triangle', 0.18, 0.35);
+}
+
+// ── EN İYİ SKOR ──────────────────────────────────────────────────
+var bestScore = parseInt(localStorage.getItem('mf_best') || '0', 10);
+function updateBestScore() {
+    if (score > bestScore) {
+        bestScore = score;
+        localStorage.setItem('mf_best', bestScore);
+        return true;
+    }
+    return false;
+}
+function refreshBestScoreUI() {
+    var el = $('best-score-header');
+    if (el) el.innerText = bestScore;
+}
+
+// ── COMBO SİSTEMİ ─────────────────────────────────────────────────
+var comboCount    = 0;
+var lastMergeTime = 0;
+var COMBO_TIMEOUT = 2200;
+var mergeFlashes  = [];
+
+function showComboDisplay(text) {
+    var el = $('combo-display');
+    if (!el) return;
+    el.textContent = text;
+    el.classList.remove('hidden');
+    void el.offsetWidth;
+    el.style.animation = 'none';
+    void el.offsetWidth;
+    el.style.animation = '';
+    el.classList.remove('hidden');
+    setTimeout(function() { el.classList.add('hidden'); }, 900);
+}
+
+// ── TUTORIAL ──────────────────────────────────────────────────────
+var hasSeenTutorial = !!localStorage.getItem('mf_tutorial');
+function showTutorial() {
+    if (hasSeenTutorial) return;
+    var el = $('tutorial-overlay');
+    if (!el) return;
+    el.classList.remove('hidden');
+    setTimeout(function() { el.classList.add('hidden'); }, 3200);
+    localStorage.setItem('mf_tutorial', '1');
+    hasSeenTutorial = true;
+}
+
 // ── DOM ─────────────────────────────────────────────────────────
 function $(id){ return document.getElementById(id); }
 var scoreDisplay    = $('score-display');
@@ -184,6 +278,7 @@ function handlePointerDrop(e) {
     if (isDropping || isGameOver || !isGameStarted || bombMode) return;
     if (e) e.preventDefault();
     isDropping = true;
+    playDropSound();
     var cfg = FRUITS[nextFruitLevel];
     var body = Bodies.circle(previewX, 50, cfg.radius, {
         restitution:0.2, friction:0.1,
@@ -219,7 +314,40 @@ function handleCollisions(event) {
         Body.setVelocity(nb, { x:(Math.random()-.5)*2, y:(Math.random()-.5)*2 });
         toAdd.push(nb);
         coins += 5; saveGameState(); updateHUDs();
-        updateScore(score + cfg.score);
+
+        // Combo sistemi
+        var now = Date.now();
+        if (now - lastMergeTime < COMBO_TIMEOUT) { comboCount++; } else { comboCount = 1; }
+        lastMergeTime = now;
+        var multiplier = comboCount >= 6 ? 4 : comboCount >= 4 ? 3 : comboCount >= 2 ? 2 : 1;
+        var points = cfg.score * multiplier;
+        updateScore(score + points);
+
+        // Combo göster
+        if (comboCount >= 2) {
+            playComboSound(comboCount);
+            if      (comboCount >= 6) showComboDisplay('🔥 x4 COMBO!');
+            else if (comboCount >= 4) showComboDisplay('⚡ x3 COMBO!');
+            else                      showComboDisplay('✨ x2 COMBO!');
+        }
+
+        // Merge sesi
+        playMergeSound(lvl);
+
+        // Birleşme flash efekti
+        mergeFlashes.push({ x:nx, y:ny, r:cfg.radius*1.8, life:1, color:cfg.color });
+
+        // Karpuz özel animasyon
+        if (lvl === FRUITS.length - 1) {
+            playWatermelonSound();
+            for (var w = 0; w < 30; w++) {
+                var a = Math.random()*Math.PI*2, s = Math.random()*9+4;
+                particles.push({ x:nx, y:ny, vx:Math.cos(a)*s, vy:Math.sin(a)*s,
+                    color: w%2===0 ? '#00cc00' : '#ff3366',
+                    life:1.5, decay:0.02, radius:Math.random()*7+3 });
+            }
+        }
+
         spawnParticles(nx, ny, cfg.color);
         triggerShake();
     }
@@ -261,7 +389,14 @@ function checkGameOver() {
 }
 function triggerGameOver() {
     isGameOver = true;
+    playGameOverSound();
     finalScoreEl.innerText = score;
+    var isNewBest = updateBestScore();
+    var bestLine = $('best-score-line');
+    if (bestLine) {
+        bestLine.innerText = isNewBest ? '🏆 YENİ REKORsun! En İyi: ' + bestScore : '🥇 En İyi Skorun: ' + bestScore;
+    }
+    refreshBestScoreUI();
     modal.classList.remove('hidden');
     playerNameInput.focus();
 }
@@ -312,11 +447,26 @@ function renderLoop(time) {
     // Parcaciklar
     for (var j = particles.length - 1; j >= 0; j--) {
         var p = particles[j];
-        ctx.save(); ctx.globalAlpha = p.life;
+        ctx.save(); ctx.globalAlpha = p.life > 1 ? 1 : p.life;
         ctx.beginPath(); ctx.arc(p.x, p.y, p.radius, 0, Math.PI*2);
         ctx.fillStyle = p.color; ctx.fill(); ctx.restore();
         p.x += p.vx; p.y += p.vy; p.vy += 0.2; p.life -= p.decay;
         if (p.life <= 0) particles.splice(j, 1);
+    }
+
+    // Merge flash efektleri
+    for (var k = mergeFlashes.length - 1; k >= 0; k--) {
+        var fl = mergeFlashes[k];
+        ctx.save();
+        ctx.globalAlpha = fl.life * 0.6;
+        ctx.beginPath();
+        ctx.arc(fl.x, fl.y, fl.r * (2 - fl.life), 0, Math.PI*2);
+        ctx.strokeStyle = fl.color;
+        ctx.lineWidth = 4 * fl.life;
+        ctx.stroke();
+        ctx.restore();
+        fl.life -= 0.08;
+        if (fl.life <= 0) mergeFlashes.splice(k, 1);
     }
 }
 
@@ -325,6 +475,7 @@ function restartGame() {
     Composite.clear(world);
     createBoundaries();
     score = 0; updateScore(0);
+    comboCount = 0; lastMergeTime = 0; mergeFlashes = [];
     isGameOver = false; isDropping = false; bombMode = false; particles = [];
     $('btn-bomb').style.outline = '';
     modal.classList.add('hidden');
@@ -418,14 +569,25 @@ playBtn.addEventListener('click', function() {
     mainMenu.classList.add('hidden');
     canvasContainer.classList.remove('hidden');
     inGameHeader.classList.remove('hidden');
-    var rect = canvasContainer.getBoundingClientRect();
-    if (rect.width > 0 && rect.height > 0) {
-        width = rect.width; height = rect.height;
-        canvas.width = width; canvas.height = height;
-        ctx.imageSmoothingEnabled = true;
+
+    // offsetWidth/offsetHeight layout'u zorlar — senkron ve güvenilir
+    try {
+        var cw = gameContainer.offsetWidth  || 400;
+        var hh = inGameHeader.offsetHeight  || 80;
+        var ch = gameContainer.offsetHeight || 700;
+        width  = cw;
+        height = Math.max(ch - hh, 300);
+    } catch(e) {
+        width = 400; height = 580;
     }
+    canvas.width  = width;
+    canvas.height = height;
+    ctx.imageSmoothingEnabled = true;
+
     restartGame();
     isGameStarted = true;
+    showTutorial();
+    refreshBestScoreUI();
 });
 
 restartBtn.addEventListener('click', function() {
@@ -490,7 +652,19 @@ document.querySelectorAll('.buy-ad-btn, .store-buy-ad').forEach(function(btn) {
     btn.addEventListener('click', function(){ showRewardedAd(btn.dataset.type, BOOST_NAMES[btn.dataset.type] || btn.dataset.type); });
 });
 
+
+// ── MUTE BUTONU ───────────────────────────────────────────────────
+var muteBtn = $('mute-btn');
+if (muteBtn) {
+    muteBtn.innerText = isMuted ? '🔇' : '🔊';
+    muteBtn.addEventListener('click', function() {
+        isMuted = !isMuted;
+        localStorage.setItem('mf_muted', isMuted ? '1' : '0');
+        muteBtn.innerText = isMuted ? '🔇' : '🔊';
+        if (!isMuted) getAudioCtx(); // AudioContext'i başlat
+    });
+}
+
 if (typeof adConfig === 'function') adConfig({ preloadAdBreaks:'on', sound:'on' });
 
-// ── BASLAT ───────────────────────────────────────────────────────
 initGame();
