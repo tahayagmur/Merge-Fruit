@@ -7,7 +7,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css?v=17">
+    <link rel="stylesheet" href="style.css?v=20">
     <!-- Google AdSense – H5 Games Ad Placement API -->
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3066824413621209" crossorigin="anonymous"></script>
     <script>
@@ -26,27 +26,34 @@
         <!-- In-Game Header -->
         <div class="ui-header hidden" id="in-game-header">
             <div class="score-board glass-panel">
-                <span class="label">SKOR</span>
+                <span class="label" id="score-lbl">SCORE</span>
                 <span id="score-display">0</span>
-                <span class="label" style="font-size:0.6rem;margin-top:2px;">EN İYİ: <span id="best-score-header">0</span></span>
+                <span class="label" style="font-size:0.6rem;margin-top:2px;"><span id="best-lbl">BEST</span>: <span id="best-score-header">0</span></span>
             </div>
             <div class="coin-board glass-panel">
-                <span class="label">COIN</span>
+                <span class="label" id="coin-lbl">COIN</span>
                 <div style="display:flex;align-items:center;gap:5px;font-weight:800;font-size:1.2rem;color:#fce043">
                     🪙 <span id="coin-display">0</span>
                 </div>
             </div>
             <div class="next-item-panel glass-panel">
-                <span class="label">SIRADAKİ</span>
+                <span class="label" id="next-lbl">NEXT</span>
                 <div id="next-item-display"></div>
             </div>
-            <button id="mute-btn" class="mute-btn" title="Ses Aç/Kapat">🔊</button>
+            <div class="lives-board glass-panel hidden" id="lives-board">
+                <span class="label" id="lives-lbl">LIVES</span>
+                <span id="lives-display">❤️❤️❤️</span>
+            </div>
+            <div class="timer-board glass-panel hidden" id="timer-board">
+                <span class="label" id="timer-lbl">TIME</span>
+                <span id="timer-display">90</span>
+            </div>
         </div>
 
         <!-- Tutorial Overlay -->
         <div id="tutorial-overlay" class="tutorial-overlay hidden">
             <div class="tutorial-arrow">⬇</div>
-            <p class="tutorial-text">Meyveleri düşür, birleştir!</p>
+            <p class="tutorial-text" id="tutorial-text">Drop &amp; merge to win!</p>
         </div>
 
         <!-- Combo Display -->
@@ -57,19 +64,19 @@
             <div id="game-over-line"></div>
             <!-- Boost HUD -->
             <div id="boost-hud">
-                <div class="boost-btn" id="btn-shake" title="Sarsıntı">
+                <div class="boost-btn" id="btn-shake" title="Shake">
                     <span class="boost-icon">🫨</span>
                     <span class="boost-count" id="count-shake">0</span>
                 </div>
-                <div class="boost-btn" id="btn-bomb" title="Bomba">
+                <div class="boost-btn" id="btn-bomb" title="Bomb">
                     <span class="boost-icon">💣</span>
                     <span class="boost-count" id="count-bomb">0</span>
                 </div>
-                <div class="boost-btn" id="btn-swap" title="Dönüştürücü">
+                <div class="boost-btn" id="btn-swap" title="Swap">
                     <span class="boost-icon">🔄</span>
                     <span class="boost-count" id="count-swap">0</span>
                 </div>
-                <div class="boost-btn" id="btn-upgrade" title="Seviye Atlama">
+                <div class="boost-btn" id="btn-upgrade" title="Upgrade">
                     <span class="boost-icon">⭐</span>
                     <span class="boost-count" id="count-upgrade">0</span>
                 </div>
@@ -80,9 +87,66 @@
         <div id="main-menu" class="overlay">
             <div class="menu-content glass-panel">
                 <h1 style="font-size:3rem;margin-bottom:10px;color:var(--primary);text-shadow:0 2px 10px rgba(0,0,0,0.5);">SUIKA</h1>
-                <h2 style="font-size:1.5rem;margin-bottom:30px;color:var(--secondary);">Meyve Birleştirme</h2>
-                <button id="play-btn" class="primary-btn" style="font-size:1.5rem;padding:20px;">▶ OYNA</button>
-                <button id="store-btn" class="secondary-btn" style="font-size:1.2rem;">🛒 MAĞAZA</button>
+                <h2 style="font-size:1.5rem;margin-bottom:30px;color:var(--secondary);">Merge Fruit</h2>
+                <button id="play-btn" class="primary-btn" style="font-size:1.5rem;padding:20px;">▶ PLAY</button>
+                <button id="theme-btn" class="secondary-btn" style="font-size:1rem;">🍎 Fruit Theme</button>
+                <button id="store-btn" class="secondary-btn" style="font-size:1.2rem;">🛒 STORE</button>
+                <button id="settings-btn" class="secondary-btn" style="font-size:1rem;">⚙️ SETTINGS</button>
+            </div>
+        </div>
+
+        <!-- Mode Select Screen -->
+        <div id="mode-select" class="overlay hidden">
+            <div class="mode-select-panel glass-panel">
+                <h2 id="mode-select-h" style="margin-bottom:20px;font-size:1.6rem;">SELECT MODE</h2>
+                <button class="mode-btn" id="mode-normal">
+                    <span class="mode-icon">🎮</span>
+                    <div class="mode-info">
+                        <span class="mode-name" id="mn-normal">Normal</span>
+                        <span class="mode-desc" id="md-normal-desc">Classic endless game</span>
+                    </div>
+                </button>
+                <button class="mode-btn" id="mode-speed">
+                    <span class="mode-icon">⚡</span>
+                    <div class="mode-info">
+                        <span class="mode-name" id="mn-speed">Speed Mode</span>
+                        <span class="mode-desc" id="md-speed-desc">Auto-drops and speeds up!</span>
+                    </div>
+                </button>
+                <button class="mode-btn" id="mode-survival">
+                    <span class="mode-icon">❤️</span>
+                    <div class="mode-info">
+                        <span class="mode-name" id="mn-survival">Survival</span>
+                        <span class="mode-desc" id="md-survival-desc">3 lives — be careful!</span>
+                    </div>
+                </button>
+                <button class="mode-btn" id="mode-time">
+                    <span class="mode-icon">⏱️</span>
+                    <div class="mode-info">
+                        <span class="mode-name" id="mn-time">Time Mode</span>
+                        <span class="mode-desc" id="md-time-desc">Max score in 90 seconds!</span>
+                    </div>
+                </button>
+                <button id="mode-back-btn" class="secondary-btn" style="margin-top:10px;">← Back</button>
+            </div>
+        </div>
+
+        <!-- Settings Menu -->
+        <div id="settings-menu" class="overlay hidden">
+            <div class="settings-panel glass-panel">
+                <h2 id="settings-title">SETTINGS</h2>
+                <div class="settings-row">
+                    <span class="settings-label" id="settings-sound-lbl">Sound</span>
+                    <button id="mute-btn" class="toggle-btn">🔊 On</button>
+                </div>
+                <div class="settings-row">
+                    <span class="settings-label" id="settings-lang-lbl">Language</span>
+                    <div class="lang-btns">
+                        <button class="lang-btn" data-lang="tr">🇹🇷 TR</button>
+                        <button class="lang-btn" data-lang="en">🇬🇧 EN</button>
+                    </div>
+                </div>
+                <button id="settings-back-btn" class="secondary-btn" style="margin-top:24px;">← Back</button>
             </div>
         </div>
 
@@ -93,13 +157,13 @@
                 <!-- Store Header -->
                 <div class="store-header">
                     <div class="store-title-row">
-                        <span class="store-title-text">MAĞAZA</span>
+                        <span class="store-title-text" id="store-title-txt">STORE</span>
                         <div class="store-coin-badge">
                             <span class="store-coin-icon">🪙</span>
                             <span id="store-coin-display">0</span>
                         </div>
                     </div>
-                    <p class="store-subtitle">Boost satın al, oyunu kolaylaştır!</p>
+                    <p class="store-subtitle" id="store-sub-txt">Buy boosts to help your game!</p>
                 </div>
 
                 <!-- Store Items -->
@@ -112,13 +176,13 @@
                         </div>
                         <div class="store-card-body">
                             <div class="store-card-top">
-                                <span class="store-card-name">Sarsıntı</span>
+                                <span class="store-card-name">Shake</span>
                                 <span class="store-card-owned" id="store-count-shake-badge">×0</span>
                             </div>
-                            <p class="store-card-desc">Tüm meyveleri rastgele karıştırır</p>
+                            <p class="store-card-desc">Shuffles all fruits randomly</p>
                             <div class="store-card-actions">
                                 <button class="buy-coin-btn store-buy-coin" data-type="shake" data-price="300">🪙 300</button>
-                                <button class="buy-ad-btn store-buy-ad" data-type="shake">📺 Ücretsiz</button>
+                                <button class="buy-ad-btn store-buy-ad" data-type="shake">📺 Free</button>
                             </div>
                         </div>
                     </div>
@@ -130,13 +194,13 @@
                         </div>
                         <div class="store-card-body">
                             <div class="store-card-top">
-                                <span class="store-card-name">Bomba</span>
+                                <span class="store-card-name">Bomb</span>
                                 <span class="store-card-owned" id="store-count-bomb-badge">×0</span>
                             </div>
-                            <p class="store-card-desc">Seçilen meyveyi yok eder</p>
+                            <p class="store-card-desc">Destroys the selected fruit</p>
                             <div class="store-card-actions">
                                 <button class="buy-coin-btn store-buy-coin" data-type="bomb" data-price="500">🪙 500</button>
-                                <button class="buy-ad-btn store-buy-ad" data-type="bomb">📺 Ücretsiz</button>
+                                <button class="buy-ad-btn store-buy-ad" data-type="bomb">📺 Free</button>
                             </div>
                         </div>
                     </div>
@@ -148,13 +212,13 @@
                         </div>
                         <div class="store-card-body">
                             <div class="store-card-top">
-                                <span class="store-card-name">Dönüştürücü</span>
+                                <span class="store-card-name">Swap</span>
                                 <span class="store-card-owned" id="store-count-swap-badge">×0</span>
                             </div>
-                            <p class="store-card-desc">Eldeki meyveyi değiştirir</p>
+                            <p class="store-card-desc">Changes the held fruit</p>
                             <div class="store-card-actions">
                                 <button class="buy-coin-btn store-buy-coin" data-type="swap" data-price="400">🪙 400</button>
-                                <button class="buy-ad-btn store-buy-ad" data-type="swap">📺 Ücretsiz</button>
+                                <button class="buy-ad-btn store-buy-ad" data-type="swap">📺 Free</button>
                             </div>
                         </div>
                     </div>
@@ -166,13 +230,13 @@
                         </div>
                         <div class="store-card-body">
                             <div class="store-card-top">
-                                <span class="store-card-name">Seviye Atlama</span>
+                                <span class="store-card-name">Upgrade</span>
                                 <span class="store-card-owned" id="store-count-upgrade-badge">×0</span>
                             </div>
-                            <p class="store-card-desc">Atılacak meyveyi bir üst seviyeye çıkarır</p>
+                            <p class="store-card-desc">Levels up the next fruit</p>
                             <div class="store-card-actions">
                                 <button class="buy-coin-btn store-buy-coin" data-type="upgrade" data-price="600">🪙 600</button>
-                                <button class="buy-ad-btn store-buy-ad" data-type="upgrade">📺 Ücretsiz</button>
+                                <button class="buy-ad-btn store-buy-ad" data-type="upgrade">📺 Free</button>
                             </div>
                         </div>
                     </div>
@@ -181,8 +245,8 @@
 
                 <!-- Store Footer -->
                 <div class="store-footer">
-                    <button id="store-return-btn" class="primary-btn" style="display:none;">← Oyuna Dön</button>
-                    <button id="store-back-btn" class="secondary-btn">✕ Kapat</button>
+                    <button id="store-return-btn" class="primary-btn" style="display:none;">← Back to Game</button>
+                    <button id="store-back-btn" class="secondary-btn">✕ Close</button>
                 </div>
 
             </div>
@@ -191,16 +255,16 @@
         <!-- Game Over Modal -->
         <div id="game-over-modal" class="modal hidden">
             <div class="modal-content glass-panel">
-                <h2>OYUN BİTTİ!</h2>
-                <p>Skorun: <span id="final-score">0</span></p>
+                <h2 id="game-over-title">GAME OVER!</h2>
+                <p><span id="score-line-lbl">Score:</span> <span id="final-score">0</span></p>
                 <p id="best-score-line" style="font-size:0.9rem;color:#fce043;margin-top:-8px;"></p>
                 <div class="input-group">
-                    <input type="text" id="player-name" placeholder="Adını gir..." maxlength="20">
+                    <input type="text" id="player-name" placeholder="Enter name..." maxlength="20">
                 </div>
-                <button id="save-score-btn" class="primary-btn">SKORU KAYDET</button>
-                <button id="restart-btn" class="secondary-btn">🏠 ANA MENÜ</button>
+                <button id="save-score-btn" class="primary-btn">SAVE SCORE</button>
+                <button id="restart-btn" class="secondary-btn">🏠 MAIN MENU</button>
                 <div class="leaderboard">
-                    <h3>🏆 EN İYİ SKORLAR</h3>
+                    <h3 id="lb-title">🏆 TOP SCORES</h3>
                     <ul id="leaderboard-list"></ul>
                 </div>
             </div>
@@ -209,28 +273,28 @@
         <!-- Ad Overlay -->
         <div id="ad-overlay" class="hidden">
             <div id="ad-state-loading" class="ad-state">
-                <h3>📺 Reklam Yükleniyor...</h3>
-                <p>Lütfen bekleyin</p>
+                <h3>📺 Loading Ad...</h3>
+                <p>Please wait</p>
             </div>
             <div id="ad-state-watching" class="ad-state" style="display:none;">
-                <h3>📺 Reklam İzleniyor</h3>
-                <p>Boost kazanmak için izleyin</p>
+                <h3>📺 Watching Ad</h3>
+                <p>Watch to earn a boost</p>
                 <div class="ad-progress-bar"><div id="ad-progress-fill"></div></div>
             </div>
             <div id="ad-state-reward" class="ad-state" style="display:none;">
-                <h3>🎉 Tebrikler!</h3>
+                <h3>🎉 Congrats!</h3>
                 <p id="ad-reward-text"></p>
             </div>
             <div id="ad-state-error" class="ad-state" style="display:none;">
-                <h3>⚠️ Reklam Yüklenemedi</h3>
-                <p>Lütfen daha sonra tekrar deneyin</p>
-                <button id="ad-close-btn">Kapat</button>
+                <h3>⚠️ Ad Failed</h3>
+                <p>Please try again later</p>
+                <button id="ad-close-btn">Close</button>
             </div>
         </div>
 
     </div><!-- /#game-container -->
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.19.0/matter.min.js"></script>
-    <script src="js/game.js?v=17"></script>
+    <script src="js/game.js?v=20"></script>
 </body>
 </html>
