@@ -67,8 +67,6 @@ body.deepsea-theme {
 body.deepsea-theme #game-container {
     background: 
         radial-gradient(circle at top, rgba(0, 150, 255, 0.25) 0%, transparent 60%),
-        repeating-linear-gradient(20deg, rgba(0, 200, 255, 0.03) 0%, rgba(0, 200, 255, 0.03) 2px, transparent 2px, transparent 30px),
-        repeating-linear-gradient(-15deg, rgba(255, 255, 255, 0.02) 0%, rgba(255, 255, 255, 0.02) 3px, transparent 3px, transparent 45px),
         linear-gradient(to bottom, #002b5e 0%, #041020 45%, #010205 100%);
     box-shadow: 0 0 40px rgba(0, 150, 255, 0.2);
 }
