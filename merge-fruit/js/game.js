@@ -671,8 +671,9 @@ function drawItem(cfg, cx, cy, r, centered) {
             var maxDim = Math.max(w, h);
             // Dairesel fiziksel gövdenin yarıçapını, canlının en geniş noktasını kapsayacak şekilde dinamik ayarlıyoruz.
             // maxDim, tam olarak çap (2*r) olacak şekilde ölçeklenir.
-            var drawW = (w / maxDim) * r * 2;
-            var drawH = (h / maxDim) * r * 2;
+            var scale = cfg.imgScale || 1.25; // Görsellerdeki şeffaf boşlukları dengelemek için varsayılan 1.25 ölçek
+            var drawW = (w / maxDim) * r * 2 * scale;
+            var drawH = (h / maxDim) * r * 2 * scale;
             if (centered) ctx.drawImage(cfg.img, -drawW/2, -drawH/2, drawW, drawH);
             else          ctx.drawImage(cfg.img, cx - drawW/2, cy - drawH/2, drawW, drawH);
         } else {
