@@ -57,6 +57,45 @@ body {
     display: flex;
     flex-direction: column;
     overflow: hidden;
+    transition: background 0.5s, box-shadow 0.5s;
+}
+
+/* ── THEME OVERRIDES ─────────────────────────────────────────────── */
+body.deepsea-theme {
+    background: #02010a;
+}
+body.deepsea-theme #game-container {
+    background: radial-gradient(circle at bottom, #0a1128 0%, #010409 100%);
+    box-shadow: 0 0 40px rgba(0, 150, 255, 0.2);
+}
+body.deepsea-theme .glass-panel {
+    background: rgba(0, 20, 40, 0.5);
+    border-color: rgba(0, 150, 255, 0.3);
+}
+body.deepsea-theme .primary-btn {
+    background: linear-gradient(45deg, #0055ff, #00ccff);
+    box-shadow: 0 4px 15px rgba(0, 150, 255, 0.4);
+}
+body.deepsea-theme .modal h2,
+body.deepsea-theme .store-title-text,
+body.deepsea-theme #mode-select-h,
+body.deepsea-theme #settings-title {
+    background: linear-gradient(90deg, #0055ff, #00ccff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: #00ccff; /* fallback */
+}
+body.deepsea-theme #score-display {
+    background: linear-gradient(to right, #ffffff, #00ccff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+body.deepsea-theme #final-score, body.deepsea-theme .boost-count {
+    color: #00ccff;
+    text-shadow: 0 1px 4px rgba(0,0,0,0.8);
+}
+body.deepsea-theme .bg-shape {
+    display: none !important;
 }
 
 @media (min-width: 500px) {

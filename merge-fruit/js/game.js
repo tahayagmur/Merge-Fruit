@@ -24,6 +24,27 @@ FRUITS.forEach(function(f) {
     if (f.imgSource) { f.img = new Image(); f.img.src = f.imgSource; }
 });
 
+// ── DEEP SEA TANIMLARI ──────────────────────────────────────────
+const DEEPSEA = [
+    { level:0,  label:'Plankton',      emoji:'🦠', color:'#00ff00', radius:22,  score:2,    isDeepSea:true, imgSource:'assets/images/ds_1.png' },
+    { level:1,  label:'Karides',       emoji:'🦐', color:'#ff00ff', radius:30,  score:4,    isDeepSea:true, imgSource:'assets/images/ds_2.png' },
+    { level:2,  label:'Denizanasi',    emoji:'🪼', color:'#0088ff', radius:40,  score:8,    isDeepSea:true, imgSource:'assets/images/ds_3.png' },
+    { level:3,  label:'Mercan',        emoji:'🪸', color:'#ff8800', radius:52,  score:16,   isDeepSea:true, imgSource:'assets/images/ds_4.png' },
+    { level:4,  label:'Istiridye',     emoji:'🦪', color:'#ffffff', radius:64,  score:32,   isDeepSea:true, imgSource:'assets/images/ds_5.png' },
+    { level:5,  label:'Fener Baligi',  emoji:'🐡', color:'#88ff00', radius:76,  score:64,   isDeepSea:true, imgSource:'assets/images/ds_6.png' },
+    { level:6,  label:'Yilan Baligi',  emoji:'🐍', color:'#00ffff', radius:88,  score:128,  isDeepSea:true, imgSource:'assets/images/ds_7.png' },
+    { level:7,  label:'Murekkep',      emoji:'🦑', color:'#8888ff', radius:88,  score:256,  isDeepSea:true, imgSource:'assets/images/ds_8.png' },
+    { level:8,  label:'Deniz Ati',     emoji:'🐉', color:'#ffd700', radius:126, score:512,  isDeepSea:true, imgSource:'assets/images/ds_9.png' },
+    { level:9,  label:'Amfora',        emoji:'🏺', color:'#0044ff', radius:135, score:1024, isDeepSea:true, imgSource:'assets/images/ds_10.png' },
+    { level:10, label:'Vatoz',         emoji:'🐟', color:'#aa00ff', radius:158, score:2048, isDeepSea:true, imgSource:'assets/images/ds_11.png' },
+    { level:11, label:'Kaplumbaga',    emoji:'🐢', color:'#00ffaa', radius:175, score:4096, isDeepSea:true, imgSource:'assets/images/ds_12.png' },
+    { level:12, label:'Kapi',          emoji:'⛩️', color:'#aaaaaa', radius:195, score:8192, isDeepSea:true, imgSource:'assets/images/ds_13.png' },
+    { level:13, label:'Kalp',          emoji:'❤️', color:'#ff0044', radius:220, score:16384,isDeepSea:true, imgSource:'assets/images/ds_14.png' }
+];
+DEEPSEA.forEach(function(s) {
+    if (s.imgSource) { s.img = new Image(); s.img.src = s.imgSource; }
+});
+
 // ── TAŞ GÖRSELİ ÜRETİMİ ─────────────────────────────────────────
 function drawStonePattern(oc, stone, cx, cy, r) {
     oc.save();
@@ -307,7 +328,7 @@ var LANG = localStorage.getItem('mf_lang') || ((navigator.language||'').startsWi
 var STRINGS = {
     tr: {
         play:'▶ OYNA', storeBtn:'🛒 MAĞAZA', settingsBtn:'⚙️ AYARLAR',
-        themeLabel:['🍎 Meyve Teması','🪨 Taş Teması'],
+        themeLabel:['🍎 Meyve Teması','🪨 Taş Teması', '🌊 Derin Deniz Teması'],
         modeTitle:'MOD SEÇ',
         modeNormal:'Normal',      modeNormalDesc:'Klasik sonsuz oyun',
         modeSpeed:'Hız Modu',     modeSpeedDesc:'Otomatik düşüyor, hızlanıyor!',
@@ -330,7 +351,7 @@ var STRINGS = {
     },
     en: {
         play:'▶ PLAY', storeBtn:'🛒 STORE', settingsBtn:'⚙️ SETTINGS',
-        themeLabel:['🍎 Fruit Theme','🪨 Stone Theme'],
+        themeLabel:['🍎 Fruit Theme','🪨 Stone Theme', '🌊 Deep Sea Theme'],
         modeTitle:'SELECT MODE',
         modeNormal:'Normal',    modeNormalDesc:'Classic endless game',
         modeSpeed:'Speed Mode', modeSpeedDesc:'Auto-drops and speeds up!',
@@ -391,7 +412,10 @@ function applyLanguage(lang) {
     var muteEl = $('mute-btn');
     if (muteEl) muteEl.innerText = isMuted ? s.soundOff : s.soundOn;
     var themeEl = $('theme-btn');
-    if (themeEl) themeEl.innerText = s.themeLabel[currentTheme === 'fruits' ? 0 : 1];
+    if (themeEl) {
+        var tIdx = currentTheme === 'fruits' ? 0 : (currentTheme === 'stones' ? 1 : 2);
+        themeEl.innerText = s.themeLabel[tIdx];
+    }
     var np = $('player-name'); if(np) np.placeholder = s.namePlaceholder;
     document.querySelectorAll('.lang-btn').forEach(function(b){ b.classList.toggle('active', b.dataset.lang===lang); });
 }
@@ -569,7 +593,10 @@ function handleCollisions(event) {
             playWatermelonSound();
             for(var w=0;w<30;w++){
                 var a=Math.random()*Math.PI*2, spd=Math.random()*9+4;
-                var pc=cfg.isStone?(w%2===0?cfg.hi:cfg.sh):(w%2===0?'#00cc00':'#ff3366');
+                var pc = '#ff3366';
+                if(cfg.isStone) pc = (w%2===0?cfg.hi:cfg.sh);
+                else if(cfg.isDeepSea) pc = (w%2===0?cfg.color:'#ffffff');
+                else pc = (w%2===0?'#00cc00':'#ff3366');
                 particles.push({x:nx,y:ny,vx:Math.cos(a)*spd,vy:Math.sin(a)*spd,color:pc,life:1.5,decay:0.02,radius:Math.random()*7+3});
             }
         }
@@ -637,6 +664,25 @@ function drawStone(cfg, x, y, r) { // Fallback (görsel yüklenmediyse)
     ctx.beginPath(); ctx.arc(x,y,r,0,Math.PI*2); ctx.strokeStyle='rgba(255,255,255,0.2)'; ctx.lineWidth=1.5; ctx.stroke();
 }
 function drawItem(cfg, cx, cy, r, centered) {
+    if (cfg.isDeepSea) {
+        if (cfg.img && cfg.img.complete && cfg.img.naturalWidth > 0) {
+            var w = cfg.img.naturalWidth;
+            var h = cfg.img.naturalHeight;
+            var maxDim = Math.max(w, h);
+            // Dairesel fiziksel gövdenin yarıçapını, canlının en geniş noktasını kapsayacak şekilde dinamik ayarlıyoruz.
+            // maxDim, tam olarak çap (2*r) olacak şekilde ölçeklenir.
+            var drawW = (w / maxDim) * r * 2;
+            var drawH = (h / maxDim) * r * 2;
+            if (centered) ctx.drawImage(cfg.img, -drawW/2, -drawH/2, drawW, drawH);
+            else          ctx.drawImage(cfg.img, cx - drawW/2, cy - drawH/2, drawW, drawH);
+        } else {
+            // Yüklenene kadar fallback olarak nokta çiz
+            ctx.beginPath(); ctx.arc(centered?0:cx, centered?0:cy, r, 0, Math.PI*2); 
+            ctx.fillStyle = cfg.color; ctx.fill();
+        }
+        return;
+    }
+    
     var dr=r*(cfg.imgScale||1.0);
     if(cfg.img&&cfg.img.complete&&cfg.img.naturalWidth>0){
         if(centered) ctx.drawImage(cfg.img,-dr,-dr,dr*2,dr*2);
@@ -817,10 +863,23 @@ if(modeBackBtn) modeBackBtn.addEventListener('click', function(){ if(modeSelectE
 var themeBtn=$('theme-btn');
 if(themeBtn){
     themeBtn.addEventListener('click', function(){
-        currentTheme = currentTheme==='fruits'?'stones':'fruits';
-        ITEMS = currentTheme==='fruits'?FRUITS:STONES;
-        var s=STRINGS[LANG]||STRINGS.en;
-        themeBtn.innerText = s.themeLabel[currentTheme==='fruits'?0:1]; // mevcut tema adı
+        if (currentTheme === 'fruits') {
+            currentTheme = 'stones';
+            ITEMS = STONES;
+        } else if (currentTheme === 'stones') {
+            currentTheme = 'deepsea';
+            ITEMS = DEEPSEA;
+        } else {
+            currentTheme = 'fruits';
+            ITEMS = FRUITS;
+        }
+        var s = STRINGS[LANG] || STRINGS.en;
+        var tIdx = currentTheme === 'fruits' ? 0 : (currentTheme === 'stones' ? 1 : 2);
+        themeBtn.innerText = s.themeLabel[tIdx];
+        
+        // Tema değişiminde arkaplanı ayarla
+        document.body.className = currentTheme + '-theme';
+        
         if(isGameStarted){ setNextFruit(); createPreviewFruit(); }
     });
 }
