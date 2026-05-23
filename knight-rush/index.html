@@ -1,0 +1,740 @@
+<!DOCTYPE html><html lang="tr"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"><title>KNİGHT RUSH</title>
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.179.1/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.179.1/examples/jsm/"}}</script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;user-select:none;-webkit-user-select:none;touch-action:none;font-family:Arial,sans-serif;}
+body{width:100vw;height:100vh;overflow:hidden;display:flex;justify-content:center;align-items:center;background:radial-gradient(circle at top,#142344 0%,#05070f 55%,#000 100%);}
+#gameContainer{position:relative;width:min(100vw,56.25vh);height:min(100vh,177.77vw);aspect-ratio:9/16;overflow:hidden;border-radius:26px;background:#030712;border:2px solid rgba(0,255,255,0.18);box-shadow:0 0 50px rgba(0,255,255,0.12),inset 0 0 30px rgba(255,255,255,0.03);}
+canvas{display:block;}
+.floatingText{position:absolute;transform:translate(-50%,-50%);pointer-events:none;white-space:nowrap;font-weight:bold;text-shadow:0 0 12px rgba(255,255,255,0.8);}
+#gateLabel{color:#5de1ff;font-size:30px;}#castleHP{color:#ff5d5d;font-size:28px;}
+#playerHP{position:absolute;left:50%;bottom:12px;transform:translateX(-50%);color:#00ffb7;font-size:24px;font-weight:900;text-shadow:0 0 12px #00ffb7;z-index:10;}
+#bossHP{position:absolute;top:76px;left:50%;transform:translateX(-50%);color:#ff4444;font-size:28px;font-weight:900;display:none;text-shadow:0 0 14px #ff0000;z-index:10;}
+#goldUI{position:absolute;top:12px;right:12px;z-index:25;padding:12px 16px;color:#ffd54f;font-size:22px;font-weight:900;text-shadow:0 0 6px rgba(0,0,0,0.8);}
+.overlay{position:absolute;inset:0;display:flex;justify-content:center;align-items:center;z-index:50;background:url('backgraund.png?v=2') center/cover no-repeat;}
+.menuPanel{width:95%;max-height:95%;overflow-y:auto;padding:20px 10px;}
+.mainTitle{font-size:42px;font-weight:900;text-align:center;color:#66f7ff;text-shadow:0 0 12px #00ffff,0 0 28px rgba(0,255,255,0.6);margin-bottom:20px;}
+.shopWallet{text-align:center;color:#ffd54f;font-size:24px;font-weight:900;margin-bottom:15px;padding:8px;background:rgba(255,215,0,0.1);border-radius:12px;border:1px dashed rgba(255,215,0,0.3);}
+.sectionTitle{color:white;text-align:center;font-size:20px;letter-spacing:2px;margin:18px 0;}
+.menuButtons{display:flex;flex-direction:column;align-items:center;gap:16px;}
+.menuBtn{border:none;border-radius:18px;padding:16px 32px;font-size:22px;font-weight:900;color:white;cursor:pointer;transition:0.22s;}
+.menuBtn:hover{transform:scale(1.03);}
+.easy{background:linear-gradient(135deg,#00d98b,#00a86b);}.medium{background:linear-gradient(135deg,#00bfff,#006eff);}.hard{background:linear-gradient(135deg,#ff4343,#a50000);}
+.shopBtn{background:linear-gradient(135deg,#ffc400,#ff9100);}
+.screen{position:absolute;inset:0;z-index:60;display:none;justify-content:center;align-items:center;flex-direction:column;background:rgba(0,0,0,0.88);}
+.screenText{font-size:58px;font-weight:900;margin-bottom:24px;}
+#winText{color:#00ffbf;text-shadow:0 0 22px #00ffbf;}#loseText{color:#ff5555;text-shadow:0 0 22px #ff5555;}
+.restartBtn{border:none;border-radius:16px;padding:18px 30px;font-size:22px;font-weight:900;color:white;cursor:pointer;background:#00bfff;}
+#shopPanel{display:none;z-index:80;}
+.shopCard{margin-top:14px;padding:16px;border-radius:18px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);display:flex;justify-content:space-between;align-items:center;gap:12px;}
+.shopInfo{flex:1;}
+.shopCard h3{color:#ffffff;margin-bottom:6px;font-size:18px;font-weight:900;text-shadow:1px 1px 3px #000, 0 0 8px #000;}
+.shopCard p{color:#f0f8ff;margin-bottom:10px;font-size:14px;line-height:1.4;font-weight:bold;text-shadow:1px 1px 3px #000, 0 0 8px #000;}
+.buyBtn{border:none;background:transparent;cursor:pointer;flex-shrink:0;}
+.inventoryPanel{margin-top:20px;padding:16px;border-radius:18px;background:rgba(0,255,255,0.03);border:1px solid rgba(0,255,255,0.15);}
+.inventoryPanel h4{color:#66f7ff;font-size:16px;text-align:center;margin-bottom:10px;}
+.inventoryGrid{display:flex;justify-content:space-around;gap:10px;}
+.inventoryItem{background:rgba(0,0,0,0.4);padding:10px;border-radius:12px;text-align:center;flex:1;}
+.inventoryItem .itemName{color:#fff;font-size:12px;font-weight:bold;}.inventoryItem .itemCount{color:#00ffb7;font-size:18px;font-weight:900;margin-top:4px;}
+.closeBtn{margin-top:16px;width:100%;border:none;border-radius:16px;padding:16px;background:#ff5252;color:white;font-size:18px;font-weight:900;cursor:pointer;}
+#boostContainer{position:absolute;left:12px;bottom:56px;z-index:20;display:flex;flex-direction:column;gap:12px;}
+.boostBtn{display:flex;align-items:center;gap:8px;min-width:auto;border:none;border-radius:16px;padding:8px 14px;color:white;font-size:22px;font-weight:900;cursor:pointer;transition:0.2s;background:rgba(0,0,0,0.4);border:1px solid rgba(255,255,255,0.15);backdrop-filter:blur(4px);}
+.boostBtn:hover{transform:scale(1.05);}
+.boostIcon{width:42px;height:42px;object-fit:contain;}
+.boostCount{text-shadow: 0 0 6px rgba(0,0,0,0.8);}
+.disabledBoost{cursor:not-allowed;}
+#freezeOverlay{position:absolute;inset:0;pointer-events:none;z-index:15;background:rgba(100,180,255,0.25);display:none;}
+#loadingScreen{position:absolute;inset:0;display:flex;justify-content:center;align-items:center;z-index:100;background:linear-gradient(to bottom,rgba(0,0,0,0.92),rgba(2,6,16,0.98));}
+.loadingBar{width:100%;height:8px;background:rgba(255,255,255,0.1);border-radius:8px;overflow:hidden;margin-top:18px;}
+.loadingBarFill{height:100%;background:linear-gradient(90deg,#00ffb7,#00bfff);border-radius:8px;transition:width 0.3s;width:0%;}
+#loadingPercent{color:#00ffb7;font-size:20px;font-weight:900;text-align:center;margin-top:10px;}
+#loadingStatus{color:#8ecfdf;font-size:13px;text-align:center;margin-top:6px;}
+</style>
+</head>
+<body>
+<div id="gameContainer">
+  <div id="freezeOverlay"></div>
+  <div id="goldUI">GOLD: 0</div>
+  <div id="gateLabel" class="floatingText">X5</div>
+  <div id="castleHP" class="floatingText">300</div>
+  <div id="playerHP">HP: 50</div>
+  <div id="bossHP">BOSS: 60</div>
+  <div id="boostContainer">
+    <button id="freezeButton" class="boostBtn freezeBtn">
+      <img src="frozenboost.png" class="boostIcon" style="transform: scale(2.4); margin-left: -42px; margin-right: 24px;" alt="Ice">
+      <span id="freezeCountLabel" class="boostCount">0</span>
+    </button>
+    <button id="frenzyButton" class="boostBtn frenzyBtn">
+      <img src="mermıboost.png" class="boostIcon" style="margin-left: -14px; margin-right: -4px;" alt="Mega">
+      <span id="frenzyCountLabel" class="boostCount">0</span>
+    </button>
+  </div>
+  <div id="loadingScreen">
+    <div class="menuPanel" style="text-align:center">
+      <div class="mainTitle" style="font-size:34px">LOADING</div>
+      <p style="color:#8ecfdf;font-size:15px;margin-top:8px">Preparing knight model...</p>
+      <div class="loadingBar"><div class="loadingBarFill" id="loadingBarFill"></div></div>
+      <div id="loadingPercent">0%</div><div id="loadingStatus">Waiting...</div>
+    </div>
+  </div>
+  <div id="mainMenu" class="overlay" style="display:none; align-items:flex-end; padding-bottom:12vh;">
+    <div class="menuButtons" style="width:100%;">
+      <button class="menuBtn difficultyBtn" data-mode="easy" style="background:transparent; padding:0; line-height:0;"><img src="easy.png" style="height:70px; transform:scale(2.3); pointer-events:none;" alt="EASY"></button>
+      <button class="menuBtn difficultyBtn" data-mode="medium" style="background:transparent; padding:0; line-height:0;"><img src="medium.png" style="height:70px; transform:scale(2.3); pointer-events:none;" alt="MEDIUM"></button>
+      <button class="menuBtn difficultyBtn" data-mode="hard" style="background:transparent; padding:0; line-height:0;"><img src="hard.png" style="height:70px; transform:scale(2.3); pointer-events:none;" alt="HARD"></button>
+      <button id="openShopBtn" class="menuBtn shopBtn" style="background:transparent; padding:0; line-height:0;"><img src="store.png" style="height:70px; transform:scale(2.3); pointer-events:none;" alt="STORE"></button>
+    </div>
+  </div>
+  <div id="shopPanel" class="overlay">
+    <div class="menuPanel">
+      <div id="shopWallet" class="shopWallet">WALLET: 0 GOLD</div>
+      <div class="shopCard"><div class="shopInfo"><h3 id="labelFireRate">FIRE RATE (Lv.0)</h3><p id="descFireRate"></p></div><button id="buyFireRate" class="buyBtn" style="padding:0; line-height:0;"><img src="buy.png?v=2" style="height:60px; transform:scale(2.8); margin-right:24px; pointer-events:none;" alt="BUY"></button></div>
+      <div class="shopCard"><div class="shopInfo"><h3 id="labelMobSpeed">MOB SPEED (Lv.0)</h3><p id="descMobSpeed"></p></div><button id="buyMobSpeed" class="buyBtn" style="padding:0; line-height:0;"><img src="buy.png?v=2" style="height:60px; transform:scale(2.8); margin-right:24px; pointer-events:none;" alt="BUY"></button></div>
+      <div class="shopCard"><div class="shopInfo"><h3>ICE BOMB</h3><p>Price: 300 Gold — Freezes all enemies for 4 sec.</p></div><button id="buyFreeze" class="buyBtn" style="padding:0; line-height:0;"><img src="buy.png?v=2" style="height:60px; transform:scale(2.8); margin-right:24px; pointer-events:none;" alt="BUY"></button></div>
+      <div class="shopCard"><div class="shopInfo"><h3>MEGA FIRE</h3><p>Price: 450 Gold — 5 sec ultra-fast firing.</p></div><button id="buyFrenzy" class="buyBtn" style="padding:0; line-height:0;"><img src="buy.png?v=2" style="height:60px; transform:scale(2.8); margin-right:24px; pointer-events:none;" alt="BUY"></button></div>
+      <div class="inventoryPanel"><h4>MY INVENTORY</h4>
+        <div class="inventoryGrid">
+          <div class="inventoryItem"><div class="itemName">Ice Bomb</div><div id="invFreezeCount" class="itemCount">0</div></div>
+          <div class="inventoryItem"><div class="itemName">Mega Fire</div><div id="invFrenzyCount" class="itemCount">0</div></div>
+        </div>
+      </div>
+      <button id="closeShopBtn" class="closeBtn" style="background:transparent; padding:0; line-height:0; text-align:center;"><img src="back.png" style="height:70px; transform:scale(2.5); pointer-events:none;" alt="BACK"></button>
+    </div>
+  </div>
+  <div id="winScreen" class="screen"><div id="winText" class="screenText">YOU WIN!</div><button class="restartBtn menuReturnBtn" style="background:transparent; padding:0; line-height:0;"><img src="maınmenu.png" style="height:70px; transform:scale(2.5); pointer-events:none;" alt="Main Menu"></button></div>
+  <div id="loseScreen" class="screen"><div id="loseText" class="screenText">YOU LOSE!</div><button class="restartBtn menuReturnBtn" style="background:transparent; padding:0; line-height:0;"><img src="maınmenu.png" style="height:70px; transform:scale(2.5); pointer-events:none;" alt="Main Menu"></button></div>
+</div>
+
+<script type="module">
+import * as THREE from 'three';
+import { FBXLoader }      from 'three/addons/loaders/FBXLoader.js';
+import { GLTFLoader }     from 'three/addons/loaders/GLTFLoader.js';
+import * as SkeletonUtils from 'three/addons/utils/SkeletonUtils.js';
+
+const container=document.getElementById("gameContainer");
+const goldUI=document.getElementById("goldUI"),shopWallet=document.getElementById("shopWallet");
+const gateLabel=document.getElementById("gateLabel"),castleHPLabel=document.getElementById("castleHP");
+const playerHPLabel=document.getElementById("playerHP"),bossHPLabel=document.getElementById("bossHP");
+const freezeButton=document.getElementById("freezeButton"),frenzyButton=document.getElementById("frenzyButton");
+const freezeOverlay=document.getElementById("freezeOverlay"),mainMenu=document.getElementById("mainMenu");
+const shopPanel=document.getElementById("shopPanel"),winScreen=document.getElementById("winScreen"),loseScreen=document.getElementById("loseScreen");
+const labelFireRate=document.getElementById("labelFireRate"),descFireRate=document.getElementById("descFireRate");
+const labelMobSpeed=document.getElementById("labelMobSpeed"),descMobSpeed=document.getElementById("descMobSpeed");
+const invFreezeCount=document.getElementById("invFreezeCount"),invFrenzyCount=document.getElementById("invFrenzyCount");
+const loadingScreen=document.getElementById("loadingScreen"),loadingBarFill=document.getElementById("loadingBarFill");
+const loadingPercent=document.getElementById("loadingPercent"),loadingStatus=document.getElementById("loadingStatus");
+
+// ── MÜZİKLER ─────────────────────────────────────────────────────────────────
+const menuMusic = new Audio('menusong.mp3'); menuMusic.loop = true;
+const storeMusic = new Audio('storesong.mp3'); storeMusic.loop = true;
+function playMenuMusic() { storeMusic.pause(); storeMusic.currentTime=0; menuMusic.play().catch(e=>{}); }
+function playStoreMusic() { menuMusic.pause(); storeMusic.play().catch(e=>{}); }
+function stopAllMusic() { menuMusic.pause(); storeMusic.pause(); }
+
+let audioCtx, fireSoundBuffer;
+async function initFireAudio() {
+    if(audioCtx) return;
+    try {
+        const C = window.AudioContext || window.webkitAudioContext;
+        audioCtx = new C();
+        const res = await fetch('firesound.mp3');
+        fireSoundBuffer = await audioCtx.decodeAudioData(await res.arrayBuffer());
+    } catch(e) { console.warn("Fire ses yüklenemedi", e); }
+}
+function playFireSound() {
+    if(!audioCtx || !fireSoundBuffer) return;
+    if(audioCtx.state === 'suspended') audioCtx.resume();
+    const src = audioCtx.createBufferSource();
+    src.buffer = fireSoundBuffer;
+    const gain = audioCtx.createGain();
+    gain.gain.value = 0.4;
+    src.connect(gain);
+    gain.connect(audioCtx.destination);
+    src.start(0);
+    src.stop(audioCtx.currentTime + 1.5);
+}
+
+document.body.addEventListener('click', () => {
+    initFireAudio();
+    if(mainMenu.style.display === 'flex' && shopPanel.style.display !== 'flex' && menuMusic.paused && !gameStarted) {
+        playMenuMusic();
+    }
+});
+
+// ── EKONOMİ ──────────────────────────────────────────────────────────────────
+let gold=parseInt(localStorage.getItem("mob_gold"))||0;
+let fireRateLevel=parseInt(localStorage.getItem("fireRateLevel"))||0;
+let mobSpeedLevel=parseInt(localStorage.getItem("mobSpeedLevel"))||0;
+let freezeCount=parseInt(localStorage.getItem("freezeCount"))||0;
+let frenzyCount=parseInt(localStorage.getItem("frenzyCount"))||0;
+let castleGoldCounter=0;
+function getFireRatePrice(){return Math.floor(500*Math.pow(1.5,fireRateLevel));}
+function getMobSpeedPrice(){return Math.floor(400*Math.pow(1.5,mobSpeedLevel));}
+function playCoinSound(){try{const C=window.AudioContext||window.webkitAudioContext;if(!C)return;const c=new C(),o=c.createOscillator(),g=c.createGain();o.type='sine';o.frequency.setValueAtTime(587,c.currentTime);g.gain.setValueAtTime(0.1,c.currentTime);g.gain.exponentialRampToValueAtTime(0.01,c.currentTime+0.05);o.connect(g);g.connect(c.destination);o.start();o.stop(c.currentTime+0.05);}catch(e){}}
+function saveEconomy(){localStorage.setItem("mob_gold",gold);localStorage.setItem("fireRateLevel",fireRateLevel);localStorage.setItem("mobSpeedLevel",mobSpeedLevel);localStorage.setItem("freezeCount",freezeCount);localStorage.setItem("frenzyCount",frenzyCount);}
+function updateEconomyUI(){
+    goldUI.innerHTML=`<img src="gold.png" style="width:44px;height:44px;object-fit:contain;vertical-align:middle;"> <span style="vertical-align:middle;">${gold}</span>`;
+    shopWallet.innerHTML=`WALLET: ${gold} <img src="gold.png" style="width:44px;height:44px;object-fit:contain;vertical-align:middle;">`;
+    document.getElementById("freezeCountLabel").innerText=freezeCount;
+    document.getElementById("frenzyCountLabel").innerText=frenzyCount;
+    invFreezeCount.innerText=freezeCount;invFrenzyCount.innerText=frenzyCount;
+    labelFireRate.innerText="FIRE RATE (Lv."+fireRateLevel+")";
+    if(fireRateLevel>=5){descFireRate.innerHTML="MAXIMUM LEVEL";document.getElementById("buyFireRate").style.display="none";}
+    else{descFireRate.innerHTML="Price: "+getFireRatePrice()+" Gold<br>Cannon fires faster. Max: 5";document.getElementById("buyFireRate").style.display="block";}
+    labelMobSpeed.innerText="MOB SPEED (Lv."+mobSpeedLevel+")";
+    if(mobSpeedLevel>=10){descMobSpeed.innerHTML="MAXIMUM LEVEL";document.getElementById("buyMobSpeed").style.display="none";}
+    else{descMobSpeed.innerHTML="Price: "+getMobSpeedPrice()+" Gold<br>Projectiles travel faster. Max: 10";document.getElementById("buyMobSpeed").style.display="block";}
+    freezeButton.classList.toggle("disabledBoost",freezeCount<=0);
+    frenzyButton.classList.toggle("disabledBoost",frenzyCount<=0);
+}
+updateEconomyUI();
+
+// ── SABITLER ─────────────────────────────────────────────────────────────────
+const TARGET_KNIGHT_HEIGHT = 3.6; // birim (kamera alanında)
+const GATE_MULTIPLIER = 5;
+function getPlayerMobSpeed(){return 1.2+(mobSpeedLevel*0.25);}
+function getPlayerFireInterval(){return frenzyMode?80:Math.max(120,380-(fireRateLevel*50));}
+
+// loadAssets sonrası doldurulur
+let knightTemplate=null;      // kaynak FBX sahnesi
+let knightClipRun=null;       // koşu animasyon klibi
+let knightSpawnY=0.55;
+let knightAutoScale=0.01;
+
+let bossTemplate=null;        // boss FBX sahnesi
+let bossClipRun=null;         // boss koşu klibi
+let bossSpawnY=0.55;
+let bossAutoScale=0.01;
+
+let castleMesh=null;          // low_poly_castle.glb sahnesi
+let cannonballTemplate=null;  // cannonball.glb şablonu
+let cannonballScale=1.0;      // gülle boyutu (loadAssets'te hesaplanır)
+let cannonModel=null;         // cannon.glb modeli (silah)
+
+// ── MODEL YÜKLEYİCİ ──────────────────────────────────────────────────────────
+function setLoadUI(p,m){loadingBarFill.style.width=p+'%';loadingPercent.innerText=Math.round(p)+'%';loadingStatus.innerText=m;}
+
+
+
+async function loadAssets(){
+    const fl=new FBXLoader();
+    setLoadUI(0,'Loading realbetter.fbx...');
+    const fbx=await new Promise((r,j)=>fl.load('realbetter.fbx',r,
+        x=>{if(x.total)setLoadUI(x.loaded/x.total*95,'Loading model...');},j));
+
+    knightTemplate=fbx;
+
+    // Koşu animasyonunu al (ilk klip)
+    if(fbx.animations&&fbx.animations.length>0){
+        knightClipRun=fbx.animations[0];
+
+        // ── ROOT MOTION'I KALDIR ─────────────────────────────────────────────
+        // FBX animasyonu kök kemiğin pozisyonunu da hareket ettirir.
+        // Döngü bitince pozisyon sıfırlanarak "ışınlanma" efekti oluşur.
+        // Hareketi tamamen kod (vx/vz) ile kontrol etmek için .position
+        // track'lerini animasyondan çıkarıyoruz — sadece rotasyon kalıyor.
+        knightClipRun.tracks=knightClipRun.tracks.filter(track=>
+            !track.name.endsWith('.position')
+        );
+
+        // ── SMOOTH LOOP: son kareyi kırp ─────────────────────────────────────
+        // FBX'lerde döngü başı ve sonu aynı karededir → loop sınırında "tik" olur.
+        // Son keyframe'i her track'ten kaldırarak yumuşak döngü elde edilir.
+        knightClipRun.tracks.forEach(track=>{
+            const n=track.times.length;
+            if(n>1){
+                const vs=track.getValueSize();
+                const newTimes=new Float32Array(n-1);
+                newTimes.set(track.times.subarray(0,n-1));
+                const newValues=new Float32Array((n-1)*vs);
+                newValues.set(track.values.subarray(0,(n-1)*vs));
+                track.times=newTimes;
+                track.values=newValues;
+            }
+        });
+        knightClipRun.resetDuration();
+
+        console.log('Animasyon klibi:', knightClipRun.name, '| süre:', knightClipRun.duration.toFixed(2)+'s');
+    } else {
+        console.warn('Animasyon bulunamadı!');
+    }
+
+    // Material — FBX içindeki texture'ları koru, yoksa varsayılan metal şövalye rengi
+    knightTemplate.traverse(c=>{
+        if(c.isMesh||c.isSkinnedMesh){
+            if(!c.material||!c.material.map){
+                c.material=new THREE.MeshStandardMaterial({color:0x8899aa,metalness:0.8,roughness:0.25,side:THREE.DoubleSide});
+            }
+            c.castShadow=false;
+            c.receiveShadow=false;
+            c.frustumCulled=false;
+        }
+    });
+
+    // Scale hesapla: önce scale=1 ile bbox ölç
+    knightTemplate.scale.setScalar(1);
+    knightTemplate.rotation.set(0, 0, 0);
+    knightTemplate.updateWorldMatrix(true, true);
+
+    const box=new THREE.Box3().setFromObject(knightTemplate);
+    const realH=box.getSize(new THREE.Vector3()).y;
+    knightAutoScale = realH > 0 ? TARGET_KNIGHT_HEIGHT / realH : 0.01;
+    console.log('FBX gerçek yüksekliği:', realH.toFixed(2), '→ scale:', knightAutoScale.toFixed(5));
+
+    knightTemplate.scale.setScalar(knightAutoScale);
+    knightTemplate.updateWorldMatrix(true, true);
+
+    const box2=new THREE.Box3().setFromObject(knightTemplate);
+    knightSpawnY = -box2.min.y + 0.02;
+    console.log('Spawn Y:', knightSpawnY.toFixed(3));
+
+    // ── BOSS MODELİ: Slow Run.fbx ────────────────────────────────────────
+    setLoadUI(96,'Loading Slow Run.fbx...');
+    const fbxBoss=await new Promise((r,j)=>fl.load('Slow Run.fbx',r,
+        x=>{if(x.total)setLoadUI(96+x.loaded/x.total*3,'Boss model...');},j));
+
+    bossTemplate=fbxBoss;
+
+    if(fbxBoss.animations&&fbxBoss.animations.length>0){
+        bossClipRun=fbxBoss.animations[0];
+        // Root motion kaldır
+        bossClipRun.tracks=bossClipRun.tracks.filter(t=>!t.name.endsWith('.position'));
+        // Son kareyi kırp (smooth loop)
+        bossClipRun.tracks.forEach(track=>{
+            const n=track.times.length;
+            if(n>1){
+                const vs=track.getValueSize();
+                const nt=new Float32Array(n-1); nt.set(track.times.subarray(0,n-1)); track.times=nt;
+                const nv=new Float32Array((n-1)*vs); nv.set(track.values.subarray(0,(n-1)*vs)); track.values=nv;
+            }
+        });
+        bossClipRun.resetDuration();
+        console.log('Boss animasyonu:', bossClipRun.name, bossClipRun.duration.toFixed(2)+'s');
+    }
+
+    // Boss material
+    bossTemplate.traverse(c=>{
+        if(c.isMesh||c.isSkinnedMesh){
+            if(!c.material||!c.material.map){
+                c.material=new THREE.MeshStandardMaterial({color:0xcc2200,emissive:0x550000,metalness:0.8,roughness:0.2,side:THREE.DoubleSide});
+            }
+            c.castShadow=false; c.receiveShadow=false; c.frustumCulled=false;
+        }
+    });
+
+    // Boss scale
+    bossTemplate.scale.setScalar(1);
+    bossTemplate.rotation.set(0,0,0);
+    bossTemplate.updateWorldMatrix(true,true);
+    const bboxB=new THREE.Box3().setFromObject(bossTemplate);
+    const realHB=bboxB.getSize(new THREE.Vector3()).y;
+    bossAutoScale = realHB>0 ? (TARGET_KNIGHT_HEIGHT*1.8)/realHB : 0.01; // boss şövalyeden %80 büyük
+    bossTemplate.scale.setScalar(bossAutoScale);
+    bossTemplate.updateWorldMatrix(true,true);
+    const bboxB2=new THREE.Box3().setFromObject(bossTemplate);
+    bossSpawnY = -bboxB2.min.y + 0.02;
+    console.log('Boss spawnY:', bossSpawnY.toFixed(3));
+
+    // ── KALE MODELİ: low_poly_castle.glb ────────────────────────────────────
+    setLoadUI(99,'Loading castle model...');
+    const gl=new GLTFLoader();
+    const gltfCastle=await new Promise((r,j)=>gl.load('low_poly_castle.glb',r,null,j));
+    castleMesh=gltfCastle.scene;
+
+    // Kale materyallerini koru, frustumCulled kapat
+    castleMesh.traverse(c=>{
+        if(c.isMesh){
+            c.castShadow=false;
+            c.receiveShadow=false;
+            c.frustumCulled=false;
+        }
+    });
+
+    // Boyut: castle (7×7×7 küpün yerini alsın) → hedef yükseklik ~14 birim
+    castleMesh.scale.setScalar(1);
+    castleMesh.updateWorldMatrix(true,true);
+    const cbox=new THREE.Box3().setFromObject(castleMesh);
+    const castleRealH=cbox.getSize(new THREE.Vector3()).y;
+    const castleTargetH=14;
+    const castleScale= castleRealH>0 ? castleTargetH/castleRealH : 1;
+    castleMesh.scale.setScalar(castleScale);
+    castleMesh.updateWorldMatrix(true,true);
+
+    // Ayakları zemine oturt
+    const cbox2=new THREE.Box3().setFromObject(castleMesh);
+    const castleBaseY=-cbox2.min.y*castleScale;
+    castleMesh.position.set(castle.position.x, castleBaseY, castle.position.z - 15);
+    scene.add(castleMesh);
+    console.log('Kale yüklendi | scale:', castleScale.toFixed(3), '| baseY:', castleBaseY.toFixed(2));
+
+    // ── CANNONBALL (GÜLLE) ───────────────────────────────────────────────
+    setLoadUI(98,'Loading cannonball...');
+    const gltfBall=await new Promise((r,j)=>gl.load('cannonball.glb',r,null,j));
+    cannonballTemplate=gltfBall.scene;
+    cannonballTemplate.traverse(c=>{
+        if(c.isMesh){ c.frustumCulled=false; c.castShadow=false; c.receiveShadow=false; }
+    });
+    cannonballTemplate.scale.setScalar(1);
+    cannonballTemplate.updateWorldMatrix(true,true);
+    const ballBox=new THREE.Box3().setFromObject(cannonballTemplate);
+    const ballMax=Math.max(...ballBox.getSize(new THREE.Vector3()).toArray());
+    cannonballScale = ballMax>0 ? 1.0/ballMax : 1.0;
+    console.log('Gülle scale:', cannonballScale.toFixed(4));
+
+    // ── CANNON (TOP) ───────────────────────────────────────────────────
+    setLoadUI(99,'Loading cannon...');
+    const gltfCannon=await new Promise((r,j)=>gl.load('cannon.glb',r,null,j));
+    cannonModel=gltfCannon.scene;
+    cannonModel.traverse(c=>{
+        if(c.isMesh){ c.frustumCulled=false; c.castShadow=false; c.receiveShadow=false; }
+    });
+    // Topu sahneye boyutlandırarak ekle — hedef yükseklik ~3 birim
+    cannonModel.scale.setScalar(1);
+    cannonModel.updateWorldMatrix(true,true);
+    const canBox=new THREE.Box3().setFromObject(cannonModel);
+    const canH=canBox.getSize(new THREE.Vector3()).y;
+    const canScale = canH>0 ? 3.0/canH : 1;
+    cannonModel.scale.setScalar(canScale);
+    // Top namlusu öne baksın (-Z), top kaidesinin üzerine otur
+    cannonModel.rotation.set(0, Math.PI, 0);
+    cannonModel.position.set(0, 0, 0);
+    console.log('Cannon scale:', canScale.toFixed(4));
+
+    setLoadUI(100,'Ready!');
+    await new Promise(r=>setTimeout(r,200));
+    for(let i=0;i<20;i++) enemyPool.push(createEnemyMob());
+    loadingScreen.style.display='none';
+    mainMenu.style.display='flex';
+    playMenuMusic();
+}
+
+// ── SAHNE ────────────────────────────────────────────────────────────────────
+const scene=new THREE.Scene();
+const renderer=new THREE.WebGLRenderer({antialias:false,alpha:true,powerPreference:'high-performance'});
+renderer.setPixelRatio(1);renderer.setSize(container.clientWidth,container.clientHeight);
+container.appendChild(renderer.domElement);
+const camera=new THREE.PerspectiveCamera(60,container.clientWidth/container.clientHeight,0.1,500);
+camera.position.set(0,18,25);camera.lookAt(0,0,-60);
+
+// Işıklandırmayı gündüze göre uyarla
+scene.add(new THREE.AmbientLight(0xffffff,1.0));
+const dl=new THREE.DirectionalLight(0xffffff,1.8);
+dl.position.set(10,20,12);
+scene.add(dl);
+const dl2=new THREE.DirectionalLight(0x88aaff,0.6);dl2.position.set(-5,10,-10);scene.add(dl2);
+
+const skyTex = new THREE.TextureLoader().load('sky1.jpg');
+skyTex.colorSpace = THREE.SRGBColorSpace;
+skyTex.mapping = THREE.EquirectangularReflectionMapping;
+scene.background = skyTex;
+
+const tl=new THREE.TextureLoader();
+const dirtTex=tl.load('toprak.jpg');
+dirtTex.colorSpace=THREE.SRGBColorSpace;
+const floorMat=new THREE.MeshStandardMaterial({map:dirtTex,roughness:1.0,metalness:0.0});
+const segCount=8,segLen=170/segCount;
+for(let i=0;i<segCount;i++){
+    const seg=new THREE.Mesh(new THREE.PlaneGeometry(18,segLen),floorMat);
+    seg.rotation.x=-Math.PI/2;
+    seg.position.z=20-(segLen/2)-(i*segLen);
+    scene.add(seg);
+}
+
+
+// Top (cannon) grubu — cannon.glb loadAssets'ten sonra eklenir
+const cg=new THREE.Group();scene.add(cg);
+cg.position.set(0,0,6);
+
+const gate=new THREE.Mesh(new THREE.BoxGeometry(4.8,3,1),new THREE.MeshStandardMaterial({color:0x00aaff,transparent:true,opacity:0.42,emissive:0x004466}));
+gate.position.set(0,1.5,-28);scene.add(gate);
+// castle: konum referansı olarak tutulur (görünmez), asıl görsel castleMesh ile sağlanır
+const castle=new THREE.Object3D();
+castle.position.set(0,0,-120);
+scene.add(castle);
+
+// ── OYUN DEĞİŞKENLERİ ────────────────────────────────────────────────────────
+let gameStarted=false,castleHP=300,playerHP=50;
+let enemySpawnInterval=700,enemySpeed=0.18,bossHPValue=60,gateMoveSpeed=0.0018;
+let frozen=false,frenzyMode=false,currentDifficulty='medium';
+
+// ── OYUNCU MERMİLERİ ─────────────────────────────────────────────────────────
+const mobPool=[],activeMobs=[];
+
+function createPlayerMob(){
+    const c=cannonballTemplate.clone();
+    c.scale.setScalar(cannonballScale);
+    c.rotation.set(0, 0, 0);
+    c.visible=false;
+    c.traverse(ch=>{ if(ch.isMesh) ch.frustumCulled=false; });
+    scene.add(c);
+    return{mesh:c, active:false, hasMultiplied:false};
+}
+
+
+
+function getPlayerMob(){const m=mobPool.length?mobPool.pop():createPlayerMob();m.active=true;m.hasMultiplied=false;m.mesh.visible=true;activeMobs.push(m);return m;}
+function releasePlayerMob(m){m.active=false;m.mesh.visible=false;const i=activeMobs.indexOf(m);if(i!==-1)activeMobs.splice(i,1);mobPool.push(m);}
+function spawnPlayerMob(){
+    const m=getPlayerMob();
+    m.mesh.position.set(cg.position.x, 2.5, cg.position.z-3.8);
+    playFireSound();
+    return m;
+}
+
+// ── DÜŞMAN (ŞÖVALYE) ─────────────────────────────────────────────────────────
+const enemyPool=[],activeEnemies=[];
+
+function createEnemyMob(){
+    const c=SkeletonUtils.clone(knightTemplate);
+    c.visible=false;
+    c.scale.setScalar(knightAutoScale);
+    c.rotation.set(0, 0, 0);
+    scene.add(c);
+
+    c.traverse(ch=>{
+        if(ch.isMesh||ch.isSkinnedMesh){
+            ch.frustumCulled=false;
+            ch.visible=true;
+        }
+    });
+
+    // AnimationMixer — her şövalye kendi mixer'ı ile animasyon oynatır
+    const mixer=new THREE.AnimationMixer(c);
+    let action=null;
+    if(knightClipRun){
+        action=mixer.clipAction(knightClipRun);
+        action.play();
+    }
+
+    return{mesh:c, mixer, action, active:false, vx:0, vz:0, speed:0};
+}
+
+function getEnemyMob(){
+    const e=enemyPool.length?enemyPool.pop():createEnemyMob();
+    e.active=true;
+    e.mesh.visible=true;
+    e.mesh.traverse(ch=>{ if(ch.isMesh||ch.isSkinnedMesh) ch.visible=true; });
+    if(e.action){ e.action.reset(); e.action.play(); }
+    activeEnemies.push(e);
+    return e;
+}
+function releaseEnemyMob(e){
+    e.active=false; e.mesh.visible=false;
+    if(e.action) e.action.stop();
+    const i=activeEnemies.indexOf(e);if(i!==-1)activeEnemies.splice(i,1);
+    enemyPool.push(e);
+}
+
+function spawnEnemyMob(){
+    const e=getEnemyMob();
+    const sx=(Math.random()-0.5)*12;
+    e.mesh.rotation.set(0, 0, 0);
+    e.mesh.position.set(sx, knightSpawnY, castle.position.z + 6);
+
+    const tx=(Math.random()-0.5)*6;
+    const dx=tx-sx, dz=125, len=Math.sqrt(dx*dx+dz*dz);
+    e.speed = enemySpeed;
+    e.vx = (dx/len)*enemySpeed;
+    e.vz = (dz/len)*enemySpeed;
+    return e;
+}
+
+// ── BOSS ─────────────────────────────────────────────────────────────────────
+// Boss mesh/mixer/action — loadAssets bittikten sonra initBoss() ile kurulur
+const boss={active:false,hp:60,vx:0,vz:0,mesh:null,mixer:null,action:null};
+
+function initBoss(){
+    const c=SkeletonUtils.clone(bossTemplate);
+    c.scale.setScalar(bossAutoScale);
+    c.rotation.set(0,0,0);
+    c.visible=false;
+    c.traverse(ch=>{ if(ch.isMesh||ch.isSkinnedMesh){ch.frustumCulled=false;} });
+    scene.add(c);
+    boss.mesh=c;
+    boss.mixer=new THREE.AnimationMixer(c);
+    if(bossClipRun){
+        boss.action=boss.mixer.clipAction(bossClipRun);
+    }
+}
+
+function spawnBoss(){
+    if(boss.active||!boss.mesh)return;
+    boss.active=true;boss.hp=bossHPValue;
+    boss.mesh.visible=true;
+    boss.mesh.traverse(ch=>{if(ch.isMesh||ch.isSkinnedMesh)ch.visible=true;});
+    boss.mesh.position.set((Math.random()-0.5)*6, bossSpawnY, castle.position.z+6);
+    boss.mesh.rotation.set(0,0,0);
+    if(boss.action){boss.action.reset();boss.action.play();}
+    const dx=cg.position.x-boss.mesh.position.x,dz=125,len=Math.sqrt(dx*dx+dz*dz);
+    boss.vx=(dx/len)*enemySpeed*0.2;boss.vz=(dz/len)*enemySpeed*0.4;
+    bossHPLabel.style.display='block';bossHPLabel.innerText='BOSS: '+boss.hp;
+}
+function destroyBoss(){
+    boss.active=false;
+    if(boss.mesh) boss.mesh.visible=false;
+    if(boss.action) boss.action.stop();
+    bossHPLabel.style.display='none';
+    gold+=20;saveEconomy();updateEconomyUI();
+}
+
+function setDifficulty(m){
+    currentDifficulty=m;
+    if(m==='easy')  {enemySpawnInterval=1020;enemySpeed=0.138;bossHPValue=35; gateMoveSpeed=0.00115;}
+    if(m==='medium'){enemySpawnInterval=595; enemySpeed=0.207;bossHPValue=69; gateMoveSpeed=0.00207;}
+    if(m==='hard')  {enemySpawnInterval=340; enemySpeed=0.276;bossHPValue=138;gateMoveSpeed=0.00322;}
+    castleHP=1000;playerHP=50;
+    castleHPLabel.innerText=castleHP; playerHPLabel.innerText='HP: '+playerHP;
+}
+
+// ── BUTONLAR ─────────────────────────────────────────────────────────────────
+document.querySelectorAll('.difficultyBtn').forEach(b=>b.addEventListener('click',()=>{
+    setDifficulty(b.dataset.mode);mainMenu.style.display='none';gameStarted=true;
+    stopAllMusic();
+    const n=performance.now();lastPlayerShot=n;lastEnemyShot=n;lastBossSpawn=n;
+}));
+document.getElementById('openShopBtn').onclick=()=>{updateEconomyUI();shopPanel.style.display='flex';playStoreMusic();};
+document.getElementById('closeShopBtn').onclick=()=>{shopPanel.style.display='none';playMenuMusic();};
+document.getElementById('buyFireRate').onclick=()=>{const p=getFireRatePrice();if(gold>=p&&fireRateLevel<5){gold-=p;fireRateLevel++;playCoinSound();saveEconomy();updateEconomyUI();}};
+document.getElementById('buyMobSpeed').onclick=()=>{const p=getMobSpeedPrice();if(gold>=p&&mobSpeedLevel<10){gold-=p;mobSpeedLevel++;playCoinSound();saveEconomy();updateEconomyUI();}};
+document.getElementById('buyFreeze').onclick=()=>{if(gold>=300){gold-=300;freezeCount++;playCoinSound();saveEconomy();updateEconomyUI();}};
+document.getElementById('buyFrenzy').onclick=()=>{if(gold>=450){gold-=450;frenzyCount++;playCoinSound();saveEconomy();updateEconomyUI();}};
+freezeButton.onclick=()=>{
+    if(freezeCount<=0||!gameStarted||frozen)return;
+    freezeCount--;saveEconomy();updateEconomyUI();frozen=true;freezeOverlay.style.display='block';
+    activeEnemies.forEach(e=>{e.mesh.visible=true;});
+    setTimeout(()=>{frozen=false;freezeOverlay.style.display='none';},4000);
+};
+frenzyButton.onclick=()=>{if(frenzyCount<=0||!gameStarted||frenzyMode)return;frenzyCount--;saveEconomy();updateEconomyUI();frenzyMode=true;setTimeout(()=>{frenzyMode=false;},5000);};
+function backToMenu(){
+    gameStarted=false;frozen=false;frenzyMode=false;freezeOverlay.style.display='none';castleGoldCounter=0;
+    while(activeMobs.length)releasePlayerMob(activeMobs[0]);
+    while(activeEnemies.length)releaseEnemyMob(activeEnemies[0]);
+    boss.active=false;
+    if(boss.mesh) boss.mesh.visible=false;
+    if(boss.action) boss.action.stop();
+    bossHPLabel.style.display='none';
+    winScreen.style.display='none';loseScreen.style.display='none';mainMenu.style.display='flex';
+    playMenuMusic();
+}
+document.querySelectorAll('.menuReturnBtn').forEach(b=>{b.onclick=backToMenu;});
+
+const pointer={x:0};
+function setPointer(cx){const r=container.getBoundingClientRect();pointer.x=((cx-r.left)/r.width-0.5)*14;}
+window.addEventListener('mousemove',e=>setPointer(e.clientX));
+window.addEventListener('touchmove',e=>{if(e.touches.length)setPointer(e.touches[0].clientX);},{passive:false});
+function projectToScreen(p,el){const v=p.clone().project(camera);el.style.left=((v.x*0.5+0.5)*container.clientWidth)+'px';el.style.top=((-v.y*0.5+0.5)*container.clientHeight)+'px';}
+function endGameWin(){gameStarted=false;winScreen.style.display='flex';}
+function endGameLose(){gameStarted=false;loseScreen.style.display='flex';}
+
+// ── ANİMASYON DÖNGÜSÜ ────────────────────────────────────────────────────────
+let lastPlayerShot=0,lastEnemyShot=0,lastBossSpawn=0,lastFrameTime=0;
+const bossInterval=25000;
+
+function animate(time){
+    requestAnimationFrame(animate);
+    const delta=lastFrameTime>0?Math.min((time-lastFrameTime)/1000,0.1):0;
+    lastFrameTime=time;
+
+    cg.position.x+=(pointer.x-cg.position.x)*0.15;
+    cg.position.x=THREE.MathUtils.clamp(cg.position.x,-6.5,6.5);
+    gate.position.x=Math.sin(time*gateMoveSpeed)*4.5;
+
+    if(gameStarted){
+        if(time-lastPlayerShot>getPlayerFireInterval()){lastPlayerShot=time;spawnPlayerMob();}
+        if(frozen){lastEnemyShot=time;lastBossSpawn=time;}
+        else{
+            if(time-lastEnemyShot>enemySpawnInterval){lastEnemyShot=time;spawnEnemyMob();}
+            if(time-lastBossSpawn>bossInterval){lastBossSpawn=time;spawnBoss();}
+        }
+    }
+
+    // ── DÜŞMANLAR ────────────────────────────────────────────────────────────
+    for(let i=activeEnemies.length-1;i>=0;i--){
+        const e=activeEnemies[i];
+        if(!frozen){
+            e.mesh.position.x+=e.vx;
+            e.mesh.position.z+=e.vz;
+            if(e.mixer) e.mixer.update(delta); // gerçek animasyon güncelle
+        }
+        if(e.mesh.position.z>10){
+            releaseEnemyMob(e);
+            if(gameStarted){playerHP=Math.max(0,playerHP-1);playerHPLabel.innerText='HP: '+playerHP;if(playerHP<=0)endGameLose();}
+            continue;
+        }
+        for(let j=activeMobs.length-1;j>=0;j--){
+            const m=activeMobs[j];
+            const dx=e.mesh.position.x-m.mesh.position.x;
+            const dz=e.mesh.position.z-m.mesh.position.z;
+            if(dx*dx+dz*dz<0.6){releasePlayerMob(m);releaseEnemyMob(e);break;}
+        }
+    }
+
+    // ── MERMİLER ─────────────────────────────────────────────────────────────
+    const mspd=getPlayerMobSpeed();
+    for(let i=activeMobs.length-1;i>=0;i--){
+        const m=activeMobs[i];
+        if(!frozen) m.mesh.position.z-=mspd;
+        if(m.mesh.position.y>0.32) m.mesh.position.y=Math.max(0.32,m.mesh.position.y-0.05);
+
+        if(!m.hasMultiplied&&
+            m.mesh.position.z<gate.position.z+0.7&&m.mesh.position.z>gate.position.z-0.7&&
+            Math.abs(m.mesh.position.x-gate.position.x)<2.4){
+            m.hasMultiplied=true;
+            for(let k=1;k<GATE_MULTIPLIER;k++){
+                const sp=getPlayerMob();
+                sp.mesh.position.set(m.mesh.position.x+(Math.random()-0.5)*1.5,0.32,m.mesh.position.z);
+                sp.hasMultiplied=true;
+            }
+        }
+        if(m.mesh.position.z<castle.position.z+3.5){
+            releasePlayerMob(m);castleHP--;castleGoldCounter++;
+            if(castleGoldCounter>=8){castleGoldCounter=0;gold+=5;saveEconomy();updateEconomyUI();playCoinSound();}
+            castleHPLabel.innerText=castleHP;
+            if(castleHP<=0){endGameWin();continue;}
+            continue;
+        }
+        if(m.mesh.position.z<castle.position.z-10) releasePlayerMob(m);
+    }
+
+    // ── BOSS ─────────────────────────────────────────────────────────────────
+    if(boss.active&&boss.mesh){
+        if(!frozen){
+            boss.mesh.position.x+=boss.vx;
+            boss.mesh.position.z+=boss.vz;
+            if(boss.mixer) boss.mixer.update(delta);
+        }
+        if(boss.mesh.position.z>10){
+            destroyBoss();
+            if(gameStarted){playerHP=Math.max(0,playerHP-5);playerHPLabel.innerText='HP: '+playerHP;if(playerHP<=0)endGameLose();}
+        }
+        for(let j=activeMobs.length-1;j>=0;j--){
+            const m=activeMobs[j];
+            const dx=boss.mesh.position.x-m.mesh.position.x;
+            const dz=boss.mesh.position.z-m.mesh.position.z;
+            if(dx*dx+dz*dz<7){
+                releasePlayerMob(m);boss.hp--;
+                bossHPLabel.innerText='BOSS: '+boss.hp;
+                if(boss.hp<=0){destroyBoss();break;}
+            }
+        }
+    }
+
+    // ── ETİKETLER ────────────────────────────────────────────────────────────
+    if(gameStarted){
+        projectToScreen(gate.position,gateLabel);
+        projectToScreen(new THREE.Vector3(castle.position.x, 18, castle.position.z),castleHPLabel);
+    }
+
+    renderer.render(scene,camera);
+}
+
+requestAnimationFrame(animate);
+loadAssets().then(()=>{
+    // Cannon modeli cg grubuna ekle (loadAssets tamamlandıktan sonra)
+    if(cannonModel){ cg.add(cannonModel); }
+    // Gülle havuzunu doldur
+    for(let i=0;i<300;i++) mobPool.push(createPlayerMob());
+    initBoss();
+});
+</script>
+</body>
+</html>
