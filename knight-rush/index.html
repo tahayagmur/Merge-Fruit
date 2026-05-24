@@ -19,7 +19,14 @@ canvas{display:block;}
 .menuBtn{border:none;border-radius:18px;padding:16px 32px;font-size:22px;font-weight:900;color:white;cursor:pointer;transition:0.22s;}
 .menuBtn:hover{transform:scale(1.03);}
 .easy{background:linear-gradient(135deg,#00d98b,#00a86b);}.medium{background:linear-gradient(135deg,#00bfff,#006eff);}.hard{background:linear-gradient(135deg,#ff4343,#a50000);}
+.career{background:linear-gradient(135deg,#8a2be2,#4b0082);box-shadow:0 0 15px rgba(138,43,226,0.6);}
 .shopBtn{background:linear-gradient(135deg,#ffc400,#ff9100);}
+#careerPanel{display:none;z-index:80;}
+.careerGrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(65px,1fr));gap:12px;margin-top:20px;}
+.levelBtn{background:url('level.png') center/110% auto no-repeat;background-color:transparent;border:none;border-radius:12px;padding:12px;font-size:20px;font-weight:900;color:white;cursor:pointer;transition:0.2s;text-shadow:1px 1px 3px #000, 0 0 8px #000;}
+.levelBtn.locked{filter:grayscale(100%) brightness(0.6) opacity(0.6);cursor:not-allowed;}
+.levelBtn.unlocked{box-shadow:none;}
+.levelBtn.unlocked:hover{transform:scale(1.08);}
 .screen{position:absolute;inset:0;z-index:60;display:none;justify-content:center;align-items:center;flex-direction:column;background:rgba(0,0,0,0.88);}
 .screenText{font-size:58px;font-weight:900;margin-bottom:24px;}
 #winText{color:#00ffbf;text-shadow:0 0 22px #00ffbf;}#loseText{color:#ff5555;text-shadow:0 0 22px #ff5555;}
@@ -52,6 +59,7 @@ canvas{display:block;}
 </head>
 <body>
 <div id="gameContainer">
+  <button id="ingameBackBtn" class="menuReturnBtn" style="position:absolute; top:12px; left:12px; z-index:25; display:none; background:transparent; border:none; padding:0; cursor:pointer;"><img src="back.png" style="height:80px; pointer-events:none;" alt="BACK"></button>
   <div id="freezeOverlay"></div>
   <div id="goldUI">GOLD: 0</div>
   <div id="gateLabel" class="floatingText">X5</div>
@@ -67,6 +75,10 @@ canvas{display:block;}
       <img src="mermıboost.png" class="boostIcon" style="margin-left: -14px; margin-right: -4px;" alt="Mega">
       <span id="frenzyCountLabel" class="boostCount">0</span>
     </button>
+    <button id="killButton" class="boostBtn killBtn">
+      <img src="kill.png" class="boostIcon" style="margin-left: -4px; margin-right: -12px; transform: scale(1.3);" alt="Kill">
+      <span id="killCountLabel" class="boostCount">0</span>
+    </button>
   </div>
   <div id="loadingScreen">
     <div class="menuPanel" style="text-align:center">
@@ -81,7 +93,15 @@ canvas{display:block;}
       <button class="menuBtn difficultyBtn" data-mode="easy" style="background:transparent; padding:0; line-height:0;"><img src="easy.png" style="height:70px; transform:scale(2.3); pointer-events:none;" alt="EASY"></button>
       <button class="menuBtn difficultyBtn" data-mode="medium" style="background:transparent; padding:0; line-height:0;"><img src="medium.png" style="height:70px; transform:scale(2.3); pointer-events:none;" alt="MEDIUM"></button>
       <button class="menuBtn difficultyBtn" data-mode="hard" style="background:transparent; padding:0; line-height:0;"><img src="hard.png" style="height:70px; transform:scale(2.3); pointer-events:none;" alt="HARD"></button>
+      <button id="openCareerBtn" class="menuBtn" style="background:transparent; border:none; box-shadow:none; padding:0; line-height:0;"><img src="career.png" style="height:70px; transform:scale(2.3); pointer-events:none;" alt="Career Mode"></button>
       <button id="openShopBtn" class="menuBtn shopBtn" style="background:transparent; padding:0; line-height:0;"><img src="store.png" style="height:70px; transform:scale(2.3); pointer-events:none;" alt="STORE"></button>
+    </div>
+  </div>
+  <div id="careerPanel" class="overlay">
+    <div class="menuPanel">
+      <div class="mainTitle">CAREER</div>
+      <div id="careerGrid" class="careerGrid"></div>
+      <button id="closeCareerBtn" class="closeBtn" style="background:transparent; padding:0; line-height:0; text-align:center; margin-top:24px;"><img src="back.png" style="height:70px; transform:scale(2.5); pointer-events:none;" alt="BACK"></button>
     </div>
   </div>
   <div id="shopPanel" class="overlay">
@@ -89,12 +109,15 @@ canvas{display:block;}
       <div id="shopWallet" class="shopWallet">WALLET: 0 GOLD</div>
       <div class="shopCard"><div class="shopInfo"><h3 id="labelFireRate">FIRE RATE (Lv.0)</h3><p id="descFireRate"></p></div><button id="buyFireRate" class="buyBtn" style="padding:0; line-height:0;"><img src="buy.png?v=2" style="height:60px; transform:scale(2.8); margin-right:24px; pointer-events:none;" alt="BUY"></button></div>
       <div class="shopCard"><div class="shopInfo"><h3 id="labelMobSpeed">MOB SPEED (Lv.0)</h3><p id="descMobSpeed"></p></div><button id="buyMobSpeed" class="buyBtn" style="padding:0; line-height:0;"><img src="buy.png?v=2" style="height:60px; transform:scale(2.8); margin-right:24px; pointer-events:none;" alt="BUY"></button></div>
-      <div class="shopCard"><div class="shopInfo"><h3>ICE BOMB</h3><p>Price: 300 Gold — Freezes all enemies for 4 sec.</p></div><button id="buyFreeze" class="buyBtn" style="padding:0; line-height:0;"><img src="buy.png?v=2" style="height:60px; transform:scale(2.8); margin-right:24px; pointer-events:none;" alt="BUY"></button></div>
-      <div class="shopCard"><div class="shopInfo"><h3>MEGA FIRE</h3><p>Price: 450 Gold — 5 sec ultra-fast firing.</p></div><button id="buyFrenzy" class="buyBtn" style="padding:0; line-height:0;"><img src="buy.png?v=2" style="height:60px; transform:scale(2.8); margin-right:24px; pointer-events:none;" alt="BUY"></button></div>
+      <div class="shopCard"><div class="shopInfo"><h3 id="labelDostHp">KNIGHT HP (Lv.0)</h3><p id="descDostHp"></p></div><button id="buyDostHp" class="buyBtn" style="padding:0; line-height:0;"><img src="buy.png?v=2" style="height:60px; transform:scale(2.8); margin-right:24px; pointer-events:none;" alt="BUY"></button></div>
+      <div class="shopCard"><div class="shopInfo"><h3>ICE BOMB</h3><p>Price: 300 Gold — Freezes all enemies for 10 sec.</p></div><button id="buyFreeze" class="buyBtn" style="padding:0; line-height:0;"><img src="buy.png?v=2" style="height:60px; transform:scale(2.8); margin-right:24px; pointer-events:none;" alt="BUY"></button></div>
+      <div class="shopCard"><div class="shopInfo"><h3>MEGA FIRE</h3><p>Price: 450 Gold — 10 sec ultra-fast firing.</p></div><button id="buyFrenzy" class="buyBtn" style="padding:0; line-height:0;"><img src="buy.png?v=2" style="height:60px; transform:scale(2.8); margin-right:24px; pointer-events:none;" alt="BUY"></button></div>
+      <div class="shopCard"><div class="shopInfo"><h3>KILL EVERYTHING</h3><p>Price: 500 Gold — Instantly kills all enemies.</p></div><button id="buyKill" class="buyBtn" style="padding:0; line-height:0;"><img src="buy.png?v=2" style="height:60px; transform:scale(2.8); margin-right:24px; pointer-events:none;" alt="BUY"></button></div>
       <div class="inventoryPanel"><h4>MY INVENTORY</h4>
         <div class="inventoryGrid">
           <div class="inventoryItem"><div class="itemName">Ice Bomb</div><div id="invFreezeCount" class="itemCount">0</div></div>
           <div class="inventoryItem"><div class="itemName">Mega Fire</div><div id="invFrenzyCount" class="itemCount">0</div></div>
+          <div class="inventoryItem"><div class="itemName">Kill All</div><div id="invKillCount" class="itemCount">0</div></div>
         </div>
       </div>
       <button id="closeShopBtn" class="closeBtn" style="background:transparent; padding:0; line-height:0; text-align:center;"><img src="back.png" style="height:70px; transform:scale(2.5); pointer-events:none;" alt="BACK"></button>
@@ -114,12 +137,15 @@ const container=document.getElementById("gameContainer");
 const goldUI=document.getElementById("goldUI"),shopWallet=document.getElementById("shopWallet");
 const gateLabel=document.getElementById("gateLabel"),castleHPLabel=document.getElementById("castleHP");
 const playerHPLabel=document.getElementById("playerHP"),bossHPLabel=document.getElementById("bossHP");
-const freezeButton=document.getElementById("freezeButton"),frenzyButton=document.getElementById("frenzyButton");
+const freezeButton=document.getElementById("freezeButton"),frenzyButton=document.getElementById("frenzyButton"),killButton=document.getElementById("killButton");
 const freezeOverlay=document.getElementById("freezeOverlay"),mainMenu=document.getElementById("mainMenu");
-const shopPanel=document.getElementById("shopPanel"),winScreen=document.getElementById("winScreen"),loseScreen=document.getElementById("loseScreen");
+const ingameBackBtn=document.getElementById("ingameBackBtn");
+const shopPanel=document.getElementById("shopPanel"),careerPanel=document.getElementById("careerPanel");
+const winScreen=document.getElementById("winScreen"),loseScreen=document.getElementById("loseScreen");
 const labelFireRate=document.getElementById("labelFireRate"),descFireRate=document.getElementById("descFireRate");
 const labelMobSpeed=document.getElementById("labelMobSpeed"),descMobSpeed=document.getElementById("descMobSpeed");
-const invFreezeCount=document.getElementById("invFreezeCount"),invFrenzyCount=document.getElementById("invFrenzyCount");
+const labelDostHp=document.getElementById("labelDostHp"),descDostHp=document.getElementById("descDostHp");
+const invFreezeCount=document.getElementById("invFreezeCount"),invFrenzyCount=document.getElementById("invFrenzyCount"),invKillCount=document.getElementById("invKillCount");
 const loadingScreen=document.getElementById("loadingScreen"),loadingBarFill=document.getElementById("loadingBarFill");
 const loadingPercent=document.getElementById("loadingPercent"),loadingStatus=document.getElementById("loadingStatus");
 
@@ -164,27 +190,35 @@ document.body.addEventListener('click', () => {
 let gold=parseInt(localStorage.getItem("mob_gold"))||0;
 let fireRateLevel=parseInt(localStorage.getItem("fireRateLevel"))||0;
 let mobSpeedLevel=parseInt(localStorage.getItem("mobSpeedLevel"))||0;
+let dostHpLevel=parseInt(localStorage.getItem("dostHpLevel"))||0;
 let freezeCount=parseInt(localStorage.getItem("freezeCount"))||0;
 let frenzyCount=parseInt(localStorage.getItem("frenzyCount"))||0;
+let killCount=parseInt(localStorage.getItem("killCount"))||0;
 let castleGoldCounter=0;
 function getFireRatePrice(){return Math.floor(500*Math.pow(1.5,fireRateLevel));}
 function getMobSpeedPrice(){return Math.floor(400*Math.pow(1.5,mobSpeedLevel));}
+function getDostHpPrice(){return Math.floor(600*Math.pow(1.5,dostHpLevel));}
 function playCoinSound(){try{const C=window.AudioContext||window.webkitAudioContext;if(!C)return;const c=new C(),o=c.createOscillator(),g=c.createGain();o.type='sine';o.frequency.setValueAtTime(587,c.currentTime);g.gain.setValueAtTime(0.1,c.currentTime);g.gain.exponentialRampToValueAtTime(0.01,c.currentTime+0.05);o.connect(g);g.connect(c.destination);o.start();o.stop(c.currentTime+0.05);}catch(e){}}
-function saveEconomy(){localStorage.setItem("mob_gold",gold);localStorage.setItem("fireRateLevel",fireRateLevel);localStorage.setItem("mobSpeedLevel",mobSpeedLevel);localStorage.setItem("freezeCount",freezeCount);localStorage.setItem("frenzyCount",frenzyCount);}
+function saveEconomy(){localStorage.setItem("mob_gold",gold);localStorage.setItem("fireRateLevel",fireRateLevel);localStorage.setItem("mobSpeedLevel",mobSpeedLevel);localStorage.setItem("dostHpLevel",dostHpLevel);localStorage.setItem("freezeCount",freezeCount);localStorage.setItem("frenzyCount",frenzyCount);localStorage.setItem("killCount",killCount);}
 function updateEconomyUI(){
     goldUI.innerHTML=`<img src="gold.png" style="width:44px;height:44px;object-fit:contain;vertical-align:middle;"> <span style="vertical-align:middle;">${gold}</span>`;
     shopWallet.innerHTML=`WALLET: ${gold} <img src="gold.png" style="width:44px;height:44px;object-fit:contain;vertical-align:middle;">`;
     document.getElementById("freezeCountLabel").innerText=freezeCount;
     document.getElementById("frenzyCountLabel").innerText=frenzyCount;
-    invFreezeCount.innerText=freezeCount;invFrenzyCount.innerText=frenzyCount;
+    document.getElementById("killCountLabel").innerText=killCount;
+    invFreezeCount.innerText=freezeCount;invFrenzyCount.innerText=frenzyCount;invKillCount.innerText=killCount;
     labelFireRate.innerText="FIRE RATE (Lv."+fireRateLevel+")";
     if(fireRateLevel>=5){descFireRate.innerHTML="MAXIMUM LEVEL";document.getElementById("buyFireRate").style.display="none";}
     else{descFireRate.innerHTML="Price: "+getFireRatePrice()+" Gold<br>Cannon fires faster. Max: 5";document.getElementById("buyFireRate").style.display="block";}
     labelMobSpeed.innerText="MOB SPEED (Lv."+mobSpeedLevel+")";
     if(mobSpeedLevel>=10){descMobSpeed.innerHTML="MAXIMUM LEVEL";document.getElementById("buyMobSpeed").style.display="none";}
     else{descMobSpeed.innerHTML="Price: "+getMobSpeedPrice()+" Gold<br>Projectiles travel faster. Max: 10";document.getElementById("buyMobSpeed").style.display="block";}
+    labelDostHp.innerText="KNIGHT HP (Lv."+dostHpLevel+")";
+    if(dostHpLevel>=10){descDostHp.innerHTML="MAXIMUM LEVEL";document.getElementById("buyDostHp").style.display="none";}
+    else{descDostHp.innerHTML="Price: "+getDostHpPrice()+" Gold<br>Friendly knights survive longer. Max: 10";document.getElementById("buyDostHp").style.display="block";}
     freezeButton.classList.toggle("disabledBoost",freezeCount<=0);
     frenzyButton.classList.toggle("disabledBoost",frenzyCount<=0);
+    killButton.classList.toggle("disabledBoost",killCount<=0);
 }
 updateEconomyUI();
 
@@ -197,13 +231,23 @@ function getPlayerFireInterval(){return frenzyMode?80:Math.max(120,380-(fireRate
 // loadAssets sonrası doldurulur
 let knightTemplate=null;      // kaynak FBX sahnesi
 let knightClipRun=null;       // koşu animasyon klibi
+let knightClipDeath=null;     // ölüm animasyon klibi
+let knightClipFight=null;     // düşman dövüş animasyon klibi
 let knightSpawnY=0.55;
 let knightAutoScale=0.01;
 
 let bossTemplate=null;        // boss FBX sahnesi
 let bossClipRun=null;         // boss koşu klibi
+let bossClipDeath=null;       // boss ölüm animasyon klibi
 let bossSpawnY=0.55;
 let bossAutoScale=0.01;
+
+let dostTemplate=null;        // dost FBX sahnesi
+let dostClipRun=null;         // dost koşu animasyon klibi
+let dostClipFight=null;       // dost dövüş animasyon klibi
+let dostClipDeath=null;       // dost ölüm animasyon klibi
+let dostSpawnY=0.55;
+let dostAutoScale=0.01;
 
 let castleMesh=null;          // low_poly_castle.glb sahnesi
 let cannonballTemplate=null;  // cannonball.glb şablonu
@@ -287,6 +331,57 @@ async function loadAssets(){
     knightSpawnY = -box2.min.y + 0.02;
     console.log('Spawn Y:', knightSpawnY.toFixed(3));
 
+    // ── ÖLÜM ANİMASYONU: die.fbx ────────────────────────────────────────
+    setLoadUI(90,'Loading die.fbx...');
+    const fbxDie=await new Promise((r,j)=>fl.load('die.fbx',r,null,j));
+    if(fbxDie.animations&&fbxDie.animations.length>0){
+        knightClipDeath=fbxDie.animations[0];
+        console.log('Death animasyonu yüklendi:', knightClipDeath.name);
+    }
+
+    // ── DÜŞMAN SAVAŞ ANİMASYONU: dusmanfıght.fbx ─────────────────────────
+    setLoadUI(91,'Loading dusmanfıght.fbx...');
+    const fbxEnemyFight=await new Promise((r,j)=>fl.load('dusmanfıght.fbx',r,null,j));
+    if(fbxEnemyFight.animations&&fbxEnemyFight.animations.length>0) knightClipFight=fbxEnemyFight.animations[0];
+
+    // ── DOST ŞÖVALYE MODELİ VE ANİMASYONLARI ──────────────────────────────
+    setLoadUI(92,'Loading dostrun.fbx...');
+    const fbxDost=await new Promise((r,j)=>fl.load('dostrun.fbx',r,null,j));
+    dostTemplate=fbxDost;
+    if(fbxDost.animations&&fbxDost.animations.length>0){
+        dostClipRun=fbxDost.animations[0];
+        dostClipRun.tracks=dostClipRun.tracks.filter(t=>!t.name.endsWith('.position'));
+        dostClipRun.tracks.forEach(track=>{
+            const n=track.times.length;
+            if(n>1){
+                const vs=track.getValueSize(), nt=new Float32Array(n-1); nt.set(track.times.subarray(0,n-1)); track.times=nt;
+                const nv=new Float32Array((n-1)*vs); nv.set(track.values.subarray(0,(n-1)*vs)); track.values=nv;
+            }
+        });
+        dostClipRun.resetDuration();
+    }
+    dostTemplate.traverse(c=>{
+        if(c.isMesh||c.isSkinnedMesh){
+            if(!c.material||!c.material.map) c.material=new THREE.MeshStandardMaterial({color:0x00aaff,metalness:0.8,roughness:0.25,side:THREE.DoubleSide});
+            c.castShadow=false; c.receiveShadow=false; c.frustumCulled=false;
+        }
+    });
+    dostTemplate.scale.setScalar(1); dostTemplate.updateWorldMatrix(true,true);
+    const boxD=new THREE.Box3().setFromObject(dostTemplate);
+    const realHD=boxD.getSize(new THREE.Vector3()).y;
+    dostAutoScale = realHD>0 ? TARGET_KNIGHT_HEIGHT/realHD : 0.01;
+    dostTemplate.scale.setScalar(dostAutoScale); dostTemplate.updateWorldMatrix(true,true);
+    const boxD2=new THREE.Box3().setFromObject(dostTemplate);
+    dostSpawnY = -boxD2.min.y + 0.02;
+
+    setLoadUI(93,'Loading dostfıght.fbx...');
+    const fbxDostFight=await new Promise((r,j)=>fl.load('dostfıght.fbx',r,null,j));
+    if(fbxDostFight.animations&&fbxDostFight.animations.length>0) dostClipFight=fbxDostFight.animations[0];
+
+    setLoadUI(94,'Loading dostdead.fbx...');
+    const fbxDostDead=await new Promise((r,j)=>fl.load('dostdead.fbx',r,null,j));
+    if(fbxDostDead.animations&&fbxDostDead.animations.length>0) dostClipDeath=fbxDostDead.animations[0];
+
     // ── BOSS MODELİ: Slow Run.fbx ────────────────────────────────────────
     setLoadUI(96,'Loading Slow Run.fbx...');
     const fbxBoss=await new Promise((r,j)=>fl.load('Slow Run.fbx',r,
@@ -333,6 +428,14 @@ async function loadAssets(){
     const bboxB2=new THREE.Box3().setFromObject(bossTemplate);
     bossSpawnY = -bboxB2.min.y + 0.02;
     console.log('Boss spawnY:', bossSpawnY.toFixed(3));
+
+    // ── BOSS ÖLÜM ANİMASYONU: bossdead.fbx ──────────────────────────────
+    setLoadUI(97,'Loading bossdead.fbx...');
+    const fbxBossDie=await new Promise((r,j)=>fl.load('bossdead.fbx',r,null,j));
+    if(fbxBossDie.animations&&fbxBossDie.animations.length>0){
+        bossClipDeath=fbxBossDie.animations[0];
+        console.log('Boss death animasyonu:', bossClipDeath.name);
+    }
 
     // ── KALE MODELİ: low_poly_castle.glb ────────────────────────────────────
     setLoadUI(99,'Loading castle model...');
@@ -455,6 +558,8 @@ scene.add(castle);
 let gameStarted=false,castleHP=300,playerHP=50;
 let enemySpawnInterval=700,enemySpeed=0.18,bossHPValue=60,gateMoveSpeed=0.0018;
 let frozen=false,frenzyMode=false,currentDifficulty='medium';
+let currentMaxLevel=parseInt(localStorage.getItem('mob_career_level'))||1;
+let playingCareerLevel=0;
 
 // ── OYUNCU MERMİLERİ ─────────────────────────────────────────────────────────
 const mobPool=[],activeMobs=[];
@@ -499,20 +604,32 @@ function createEnemyMob(){
 
     // AnimationMixer — her şövalye kendi mixer'ı ile animasyon oynatır
     const mixer=new THREE.AnimationMixer(c);
-    let action=null;
+    let action=null, actionDeath=null, actionFight=null;
     if(knightClipRun){
         action=mixer.clipAction(knightClipRun);
         action.play();
     }
+    if(knightClipDeath){
+        actionDeath=mixer.clipAction(knightClipDeath);
+        actionDeath.setLoop(THREE.LoopOnce);
+        actionDeath.clampWhenFinished=true;
+        actionDeath.setEffectiveTimeScale(1.8);
+    }
+    if(knightClipFight){
+        actionFight=mixer.clipAction(knightClipFight);
+    }
 
-    return{mesh:c, mixer, action, active:false, vx:0, vz:0, speed:0};
+    return{mesh:c, mixer, action, actionDeath, actionFight, active:false, isDying:false, isFighting:false, vx:0, vz:0, speed:0};
 }
 
 function getEnemyMob(){
     const e=enemyPool.length?enemyPool.pop():createEnemyMob();
     e.active=true;
+    e.isDying=false; e.isFighting=false;
     e.mesh.visible=true;
     e.mesh.traverse(ch=>{ if(ch.isMesh||ch.isSkinnedMesh) ch.visible=true; });
+    if(e.actionDeath) e.actionDeath.stop();
+    if(e.actionFight) e.actionFight.stop();
     if(e.action){ e.action.reset(); e.action.play(); }
     activeEnemies.push(e);
     return e;
@@ -538,9 +655,52 @@ function spawnEnemyMob(){
     return e;
 }
 
+// ── DOST (OYUNCU ŞÖVALYELERİ) ────────────────────────────────────────────────
+const dostPool=[],activeDosts=[];
+function createDostMob(){
+    const c=SkeletonUtils.clone(dostTemplate);
+    c.visible=false; c.scale.setScalar(dostAutoScale); c.rotation.set(0,Math.PI,0);
+    scene.add(c);
+    c.traverse(ch=>{if(ch.isMesh||ch.isSkinnedMesh){ch.frustumCulled=false;ch.visible=true;}});
+    const mixer=new THREE.AnimationMixer(c);
+    let actionRun=null, actionFight=null, actionDeath=null;
+    if(dostClipRun) { actionRun=mixer.clipAction(dostClipRun); actionRun.play(); }
+    if(dostClipFight) actionFight=mixer.clipAction(dostClipFight);
+    if(dostClipDeath) { actionDeath=mixer.clipAction(dostClipDeath); actionDeath.setLoop(THREE.LoopOnce); actionDeath.clampWhenFinished=true; actionDeath.setEffectiveTimeScale(1.8); }
+    return{mesh:c, mixer, actionRun, actionFight, actionDeath, active:false, isFighting:false, isDying:false, vx:0, vz:0, castleDamageCount:0, castleHitTime:0};
+}
+function getDostMob(){
+    const d=dostPool.length?dostPool.pop():createDostMob();
+    d.active=true; d.isDying=false; d.isFighting=false; d.castleDamageCount=0; d.castleHitTime=0;
+    d.hp = 1 + dostHpLevel;
+    d.maxCastleHits = 5 + dostHpLevel;
+    d.mesh.visible=true; d.mesh.traverse(ch=>{ if(ch.isMesh||ch.isSkinnedMesh) ch.visible=true; });
+    if(d.actionDeath) d.actionDeath.stop();
+    if(d.actionFight) d.actionFight.stop();
+    if(d.actionRun){ d.actionRun.reset(); d.actionRun.play(); }
+    activeDosts.push(d);
+    return d;
+}
+function releaseDostMob(d){
+    d.active=false; d.mesh.visible=false;
+    if(d.actionRun) d.actionRun.stop();
+    const i=activeDosts.indexOf(d);if(i!==-1)activeDosts.splice(i,1);
+    dostPool.push(d);
+}
+function spawnDostSquad(){
+    const offsets = [-5, -2.5, 0, 2.5, 5];
+    offsets.forEach(ox => {
+        const d = getDostMob();
+        d.mesh.position.set(ox, dostSpawnY, cg.position.z-1.5);
+        d.mesh.rotation.set(0, Math.PI, 0);
+        d.vz = -enemySpeed; // Düşmanlarla aynı hız
+    });
+}
+
+
 // ── BOSS ─────────────────────────────────────────────────────────────────────
 // Boss mesh/mixer/action — loadAssets bittikten sonra initBoss() ile kurulur
-const boss={active:false,hp:60,vx:0,vz:0,mesh:null,mixer:null,action:null};
+const boss={active:false,hp:60,vx:0,vz:0,mesh:null,mixer:null,action:null,actionDeath:null,isDying:false};
 
 function initBoss(){
     const c=SkeletonUtils.clone(bossTemplate);
@@ -554,15 +714,21 @@ function initBoss(){
     if(bossClipRun){
         boss.action=boss.mixer.clipAction(bossClipRun);
     }
+    if(bossClipDeath){
+        boss.actionDeath=boss.mixer.clipAction(bossClipDeath);
+        boss.actionDeath.setLoop(THREE.LoopOnce);
+        boss.actionDeath.clampWhenFinished=true;
+    }
 }
 
 function spawnBoss(){
     if(boss.active||!boss.mesh)return;
-    boss.active=true;boss.hp=bossHPValue;
+    boss.active=true;boss.hp=bossHPValue;boss.isDying=false;
     boss.mesh.visible=true;
     boss.mesh.traverse(ch=>{if(ch.isMesh||ch.isSkinnedMesh)ch.visible=true;});
     boss.mesh.position.set((Math.random()-0.5)*6, bossSpawnY, castle.position.z+6);
     boss.mesh.rotation.set(0,0,0);
+    if(boss.actionDeath) boss.actionDeath.stop();
     if(boss.action){boss.action.reset();boss.action.play();}
     const dx=cg.position.x-boss.mesh.position.x,dz=125,len=Math.sqrt(dx*dx+dz*dz);
     boss.vx=(dx/len)*enemySpeed*0.2;boss.vz=(dz/len)*enemySpeed*0.4;
@@ -578,6 +744,7 @@ function destroyBoss(){
 
 function setDifficulty(m){
     currentDifficulty=m;
+    playingCareerLevel=0;
     if(m==='easy')  {enemySpawnInterval=1020;enemySpeed=0.138;bossHPValue=35; gateMoveSpeed=0.00115;}
     if(m==='medium'){enemySpawnInterval=595; enemySpeed=0.207;bossHPValue=69; gateMoveSpeed=0.00207;}
     if(m==='hard')  {enemySpawnInterval=340; enemySpeed=0.276;bossHPValue=138;gateMoveSpeed=0.00322;}
@@ -587,32 +754,59 @@ function setDifficulty(m){
 
 // ── BUTONLAR ─────────────────────────────────────────────────────────────────
 document.querySelectorAll('.difficultyBtn').forEach(b=>b.addEventListener('click',()=>{
-    setDifficulty(b.dataset.mode);mainMenu.style.display='none';gameStarted=true;
+    setDifficulty(b.dataset.mode);mainMenu.style.display='none';gameStarted=true;ingameBackBtn.style.display='block';
     stopAllMusic();
     const n=performance.now();lastPlayerShot=n;lastEnemyShot=n;lastBossSpawn=n;
 }));
 document.getElementById('openShopBtn').onclick=()=>{updateEconomyUI();shopPanel.style.display='flex';playStoreMusic();};
 document.getElementById('closeShopBtn').onclick=()=>{shopPanel.style.display='none';playMenuMusic();};
+document.getElementById('openCareerBtn').onclick=()=>{mainMenu.style.display='none';careerPanel.style.display='flex';};
+document.getElementById('closeCareerBtn').onclick=()=>{careerPanel.style.display='none';mainMenu.style.display='flex';};
 document.getElementById('buyFireRate').onclick=()=>{const p=getFireRatePrice();if(gold>=p&&fireRateLevel<5){gold-=p;fireRateLevel++;playCoinSound();saveEconomy();updateEconomyUI();}};
 document.getElementById('buyMobSpeed').onclick=()=>{const p=getMobSpeedPrice();if(gold>=p&&mobSpeedLevel<10){gold-=p;mobSpeedLevel++;playCoinSound();saveEconomy();updateEconomyUI();}};
+document.getElementById('buyDostHp').onclick=()=>{const p=getDostHpPrice();if(gold>=p&&dostHpLevel<10){gold-=p;dostHpLevel++;playCoinSound();saveEconomy();updateEconomyUI();}};
 document.getElementById('buyFreeze').onclick=()=>{if(gold>=300){gold-=300;freezeCount++;playCoinSound();saveEconomy();updateEconomyUI();}};
 document.getElementById('buyFrenzy').onclick=()=>{if(gold>=450){gold-=450;frenzyCount++;playCoinSound();saveEconomy();updateEconomyUI();}};
+document.getElementById('buyKill').onclick=()=>{if(gold>=500){gold-=500;killCount++;playCoinSound();saveEconomy();updateEconomyUI();}};
 freezeButton.onclick=()=>{
     if(freezeCount<=0||!gameStarted||frozen)return;
     freezeCount--;saveEconomy();updateEconomyUI();frozen=true;freezeOverlay.style.display='block';
     activeEnemies.forEach(e=>{e.mesh.visible=true;});
-    setTimeout(()=>{frozen=false;freezeOverlay.style.display='none';},4000);
+    setTimeout(()=>{frozen=false;freezeOverlay.style.display='none';},10000);
 };
-frenzyButton.onclick=()=>{if(frenzyCount<=0||!gameStarted||frenzyMode)return;frenzyCount--;saveEconomy();updateEconomyUI();frenzyMode=true;setTimeout(()=>{frenzyMode=false;},5000);};
+frenzyButton.onclick=()=>{if(frenzyCount<=0||!gameStarted||frenzyMode)return;frenzyCount--;saveEconomy();updateEconomyUI();frenzyMode=true;setTimeout(()=>{frenzyMode=false;},10000);};
+
+killButton.onclick=()=>{
+    if(killCount<=0||!gameStarted)return;
+    killCount--;saveEconomy();updateEconomyUI();
+    activeEnemies.forEach(e=>{
+        if(!e.isDying){
+            e.isDying=true;
+            if(e.action) e.action.stop();
+            if(e.actionDeath) { e.actionDeath.reset(); e.actionDeath.play(); }
+            const dur = knightClipDeath ? (knightClipDeath.duration / 1.8) * 1000 : 1500;
+            setTimeout(()=>{ if(e.active) releaseEnemyMob(e); }, dur);
+        }
+    });
+    if(boss.active && boss.mesh && !boss.isDying){
+        boss.isDying=true;
+        if(boss.action) boss.action.stop();
+        if(boss.actionDeath) { boss.actionDeath.reset(); boss.actionDeath.play(); }
+        const dur = bossClipDeath ? bossClipDeath.duration * 1000 : 2000;
+        setTimeout(()=>{ if(boss.active) destroyBoss(); }, dur);
+    }
+};
+
 function backToMenu(){
     gameStarted=false;frozen=false;frenzyMode=false;freezeOverlay.style.display='none';castleGoldCounter=0;
     while(activeMobs.length)releasePlayerMob(activeMobs[0]);
     while(activeEnemies.length)releaseEnemyMob(activeEnemies[0]);
+    while(activeDosts.length)releaseDostMob(activeDosts[0]);
     boss.active=false;
     if(boss.mesh) boss.mesh.visible=false;
     if(boss.action) boss.action.stop();
     bossHPLabel.style.display='none';
-    winScreen.style.display='none';loseScreen.style.display='none';mainMenu.style.display='flex';
+    winScreen.style.display='none';loseScreen.style.display='none';mainMenu.style.display='flex';ingameBackBtn.style.display='none';
     playMenuMusic();
 }
 document.querySelectorAll('.menuReturnBtn').forEach(b=>{b.onclick=backToMenu;});
@@ -622,12 +816,56 @@ function setPointer(cx){const r=container.getBoundingClientRect();pointer.x=((cx
 window.addEventListener('mousemove',e=>setPointer(e.clientX));
 window.addEventListener('touchmove',e=>{if(e.touches.length)setPointer(e.touches[0].clientX);},{passive:false});
 function projectToScreen(p,el){const v=p.clone().project(camera);el.style.left=((v.x*0.5+0.5)*container.clientWidth)+'px';el.style.top=((-v.y*0.5+0.5)*container.clientHeight)+'px';}
-function endGameWin(){gameStarted=false;winScreen.style.display='flex';}
+function endGameWin(){
+    gameStarted=false;
+    winScreen.style.display='flex';
+    if(playingCareerLevel>0 && playingCareerLevel===currentMaxLevel && currentMaxLevel<200){
+        currentMaxLevel++;
+        localStorage.setItem('mob_career_level',currentMaxLevel);
+        initCareerPanel();
+    }
+}
 function endGameLose(){gameStarted=false;loseScreen.style.display='flex';}
 
+function setCareerDifficulty(level){
+    currentDifficulty='career';
+    playingCareerLevel=level;
+    enemySpawnInterval=Math.max(250, 1100-(level*4));
+    enemySpeed=0.12+(level*0.0015);
+    bossHPValue=35+Math.floor(level*2);
+    gateMoveSpeed=0.001+(level*0.00003);
+    castleHP=500+(level*40);
+    playerHP=50;
+    castleHPLabel.innerText=castleHP; playerHPLabel.innerText='HP: '+playerHP;
+}
+
+function initCareerPanel(){
+    const grid=document.getElementById('careerGrid');
+    grid.innerHTML='';
+    for(let i=1;i<=200;i++){
+        const btn=document.createElement('button');
+        btn.innerText=i;
+        if(i<=currentMaxLevel){
+            btn.className='levelBtn unlocked';
+            btn.onclick=()=>{
+                setCareerDifficulty(i);
+                careerPanel.style.display='none';
+                gameStarted=true;ingameBackBtn.style.display='block';
+                stopAllMusic();
+                const n=performance.now();lastPlayerShot=n;lastEnemyShot=n;lastBossSpawn=n;
+            };
+        } else {
+            btn.className='levelBtn locked';
+        }
+        grid.appendChild(btn);
+    }
+}
+initCareerPanel();
+
 // ── ANİMASYON DÖNGÜSÜ ────────────────────────────────────────────────────────
-let lastPlayerShot=0,lastEnemyShot=0,lastBossSpawn=0,lastFrameTime=0;
+let lastPlayerShot=0,lastEnemyShot=0,lastBossSpawn=0,lastDostSpawn=0,lastFrameTime=0;
 const bossInterval=25000;
+const dostSpawnInterval=15000;
 
 function animate(time){
     requestAnimationFrame(animate);
@@ -640,10 +878,11 @@ function animate(time){
 
     if(gameStarted){
         if(time-lastPlayerShot>getPlayerFireInterval()){lastPlayerShot=time;spawnPlayerMob();}
-        if(frozen){lastEnemyShot=time;lastBossSpawn=time;}
+        if(frozen){lastEnemyShot=time;lastBossSpawn=time;lastDostSpawn=time;}
         else{
             if(time-lastEnemyShot>enemySpawnInterval){lastEnemyShot=time;spawnEnemyMob();}
             if(time-lastBossSpawn>bossInterval){lastBossSpawn=time;spawnBoss();}
+            if(time-lastDostSpawn>dostSpawnInterval){lastDostSpawn=time;spawnDostSquad();}
         }
     }
 
@@ -651,20 +890,32 @@ function animate(time){
     for(let i=activeEnemies.length-1;i>=0;i--){
         const e=activeEnemies[i];
         if(!frozen){
-            e.mesh.position.x+=e.vx;
-            e.mesh.position.z+=e.vz;
+            if(!e.isDying && !e.isFighting){
+                e.mesh.position.x+=e.vx;
+                e.mesh.position.z+=e.vz;
+            }
             if(e.mixer) e.mixer.update(delta); // gerçek animasyon güncelle
         }
         if(e.mesh.position.z>10){
-            releaseEnemyMob(e);
-            if(gameStarted){playerHP=Math.max(0,playerHP-1);playerHPLabel.innerText='HP: '+playerHP;if(playerHP<=0)endGameLose();}
+            if(!e.isDying){
+                releaseEnemyMob(e);
+                if(gameStarted){playerHP=Math.max(0,playerHP-1);playerHPLabel.innerText='HP: '+playerHP;if(playerHP<=0)endGameLose();}
+            }
             continue;
         }
         for(let j=activeMobs.length-1;j>=0;j--){
             const m=activeMobs[j];
             const dx=e.mesh.position.x-m.mesh.position.x;
             const dz=e.mesh.position.z-m.mesh.position.z;
-            if(dx*dx+dz*dz<0.6){releasePlayerMob(m);releaseEnemyMob(e);break;}
+            if(dx*dx+dz*dz<0.6 && !e.isDying){
+                releasePlayerMob(m);
+                e.isDying=true;
+                if(e.action) e.action.stop();
+                if(e.actionDeath) { e.actionDeath.reset(); e.actionDeath.play(); }
+                const dur = knightClipDeath ? (knightClipDeath.duration / 1.8) * 1000 : 1500;
+                setTimeout(()=>{ if(e.active) releaseEnemyMob(e); }, dur);
+                break;
+            }
         }
     }
 
@@ -672,7 +923,7 @@ function animate(time){
     const mspd=getPlayerMobSpeed();
     for(let i=activeMobs.length-1;i>=0;i--){
         const m=activeMobs[i];
-        if(!frozen) m.mesh.position.z-=mspd;
+        m.mesh.position.z-=mspd;
         if(m.mesh.position.y>0.32) m.mesh.position.y=Math.max(0.32,m.mesh.position.y-0.05);
 
         if(!m.hasMultiplied&&
@@ -698,22 +949,148 @@ function animate(time){
     // ── BOSS ─────────────────────────────────────────────────────────────────
     if(boss.active&&boss.mesh){
         if(!frozen){
-            boss.mesh.position.x+=boss.vx;
-            boss.mesh.position.z+=boss.vz;
+            if(!boss.isDying){
+                boss.mesh.position.x+=boss.vx;
+                boss.mesh.position.z+=boss.vz;
+            }
             if(boss.mixer) boss.mixer.update(delta);
         }
         if(boss.mesh.position.z>10){
-            destroyBoss();
-            if(gameStarted){playerHP=Math.max(0,playerHP-5);playerHPLabel.innerText='HP: '+playerHP;if(playerHP<=0)endGameLose();}
+            if(!boss.isDying){
+                destroyBoss();
+                if(gameStarted){playerHP=Math.max(0,playerHP-5);playerHPLabel.innerText='HP: '+playerHP;if(playerHP<=0)endGameLose();}
+            }
         }
         for(let j=activeMobs.length-1;j>=0;j--){
             const m=activeMobs[j];
             const dx=boss.mesh.position.x-m.mesh.position.x;
             const dz=boss.mesh.position.z-m.mesh.position.z;
-            if(dx*dx+dz*dz<7){
+            if(dx*dx+dz*dz<7 && !boss.isDying){
                 releasePlayerMob(m);boss.hp--;
-                bossHPLabel.innerText='BOSS: '+boss.hp;
-                if(boss.hp<=0){destroyBoss();break;}
+                bossHPLabel.innerText='BOSS: '+Math.max(0,boss.hp);
+                if(boss.hp<=0){
+                    boss.isDying=true;
+                    if(boss.action) boss.action.stop();
+                    if(boss.actionDeath) { boss.actionDeath.reset(); boss.actionDeath.play(); }
+                    const dur = bossClipDeath ? bossClipDeath.duration * 1000 : 2000;
+                    setTimeout(()=>{ if(boss.active) destroyBoss(); }, dur);
+                    break;
+                }
+            }
+        }
+    }
+
+    // ── DOSTLARIN (SQUAD) GÜNCELLEMESİ VE SAVAŞ MANTIĞI ──────────────────────
+    for(let i=activeDosts.length-1;i>=0;i--){
+        const d=activeDosts[i];
+        if(!frozen){
+            if(!d.isDying && !d.isFighting){
+                d.mesh.position.x+=d.vx;
+                d.mesh.position.z+=d.vz;
+            }
+            if(d.mixer) d.mixer.update(delta);
+        }
+
+        // Kuleye ulaşma (Castle Damage)
+        if(d.mesh.position.z < castle.position.z + 5 && !d.isDying){
+            if(!d.isFighting){
+                d.isFighting = true;
+                if(d.actionRun) d.actionRun.stop();
+                if(d.actionFight) { d.actionFight.reset(); d.actionFight.play(); }
+                d.castleHitTime = time;
+            } else if (!frozen && time - d.castleHitTime > 1000) {
+                d.castleHitTime = time;
+                d.castleDamageCount++;
+                castleHP--;
+                castleHPLabel.innerText = castleHP;
+                if(castleHP<=0){ endGameWin(); }
+                else if (d.castleDamageCount >= d.maxCastleHits) {
+                    d.isFighting = false; d.isDying = true;
+                    if(d.actionFight) d.actionFight.stop();
+                    if(d.actionDeath) { d.actionDeath.reset(); d.actionDeath.play(); }
+                    setTimeout(()=>{ if(d.active) releaseDostMob(d); }, 1500);
+                }
+            }
+        }
+
+        // Düşmanlarla çarpışma (Dost vs Enemy)
+        if(!d.isDying && !d.isFighting){
+            for(let j=activeEnemies.length-1;j>=0;j--){
+                const e=activeEnemies[j];
+                if(e.isDying || e.isFighting) continue;
+                const dx=d.mesh.position.x-e.mesh.position.x;
+                const dz=d.mesh.position.z-e.mesh.position.z;
+                if(dx*dx+dz*dz < 2.25){ // ~1.5 birim mesafe
+                    d.isFighting = true; e.isFighting = true;
+                    if(d.actionRun) d.actionRun.stop();
+                    if(d.actionFight) { d.actionFight.reset(); d.actionFight.play(); }
+                    if(e.action) e.action.stop();
+                    if(e.actionFight) { e.actionFight.reset(); e.actionFight.play(); }
+                    
+                    // 1.5 saniye sonra
+                    setTimeout(()=>{
+                        if(e.active){
+                            e.isFighting=false; e.isDying=true;
+                            if(e.actionFight) e.actionFight.stop();
+                            if(e.actionDeath) { e.actionDeath.reset(); e.actionDeath.play(); }
+                            const edur = knightClipDeath ? (knightClipDeath.duration / 1.8)*1000 : 1500;
+                            setTimeout(()=>{ if(e.active) releaseEnemyMob(e); }, edur);
+                        }
+                        if(d.active){
+                            d.hp--;
+                            if(d.hp <= 0){
+                                d.isFighting=false; d.isDying=true;
+                                if(d.actionFight) d.actionFight.stop();
+                                if(d.actionDeath) { d.actionDeath.reset(); d.actionDeath.play(); }
+                                setTimeout(()=>{ if(d.active) releaseDostMob(d); }, 1500);
+                            } else {
+                                d.isFighting=false;
+                                if(d.actionFight) d.actionFight.stop();
+                                if(d.actionRun) { d.actionRun.reset(); d.actionRun.play(); }
+                            }
+                        }
+                    }, 1500);
+                    break;
+                }
+            }
+        }
+
+        // Boss ile çarpışma (Dost vs Boss)
+        if(!d.isDying && !d.isFighting && boss.active && boss.mesh && !boss.isDying){
+            const bdx=d.mesh.position.x-boss.mesh.position.x;
+            const bdz=d.mesh.position.z-boss.mesh.position.z;
+            if(bdx*bdx+bdz*bdz < 9){ // Boss için mesafe
+                d.isFighting = true;
+                if(d.actionRun) d.actionRun.stop();
+                if(d.actionFight) { d.actionFight.reset(); d.actionFight.play(); }
+                
+                // 1 saniye sonra boss hasar alır, dost hp kontrol edilir
+                setTimeout(()=>{
+                    if(boss.active && !boss.isDying){
+                        boss.hp--;
+                        bossHPLabel.innerText='BOSS: '+Math.max(0,boss.hp);
+                        if(boss.hp<=0){
+                            boss.isDying=true;
+                            if(boss.action) boss.action.stop();
+                            if(boss.actionDeath) { boss.actionDeath.reset(); boss.actionDeath.play(); }
+                            const bdur = bossClipDeath ? bossClipDeath.duration * 1000 : 2000;
+                            setTimeout(()=>{ if(boss.active) destroyBoss(); }, bdur);
+                        }
+                    }
+                    if(d.active){
+                        d.hp--;
+                        if(d.hp <= 0){
+                            d.isFighting=false; d.isDying=true;
+                            if(d.actionFight) d.actionFight.stop();
+                            if(d.actionDeath) { d.actionDeath.reset(); d.actionDeath.play(); }
+                            setTimeout(()=>{ if(d.active) releaseDostMob(d); }, 1500);
+                        } else {
+                            d.isFighting=false;
+                            if(d.actionFight) d.actionFight.stop();
+                            if(d.actionRun) { d.actionRun.reset(); d.actionRun.play(); }
+                        }
+                    }
+                }, 1000);
             }
         }
     }
