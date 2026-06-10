@@ -149,7 +149,7 @@ body {
 @keyframes blink { 50% { opacity: 0; } }
 
 /* mobilde klavyenin açılması için input ekran içinde (görünmez) tutulur */
-.hidden-input { position: absolute; bottom: 0; left: 0; width: 1px; height: 1px; opacity: 0; border: none; padding: 0; }
+.hidden-input { position: absolute; bottom: 0; left: 0; width: 1px; height: 1px; opacity: 0.01; border: none; padding: 0; color: transparent; background: transparent; pointer-events: none; }
 
 .refocus-overlay {
   position: absolute; inset: 0; z-index: 5; display: none;

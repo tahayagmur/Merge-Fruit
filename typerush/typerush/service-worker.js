@@ -1,5 +1,5 @@
 /* TypeRush — basit çevrimdışı önbellek (offline-first) */
-const CACHE = "typerush-v2";
+const CACHE = "typerush-v3";
 const ASSETS = [
   "./",
   "./index.html",

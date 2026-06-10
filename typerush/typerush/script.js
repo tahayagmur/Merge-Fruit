@@ -461,6 +461,12 @@ hidden.addEventListener("focus", () => {
 });
 $("#refocusOverlay").addEventListener("click", () => hidden.focus());
 
+// Her ihtimale karşı: Klavye tuşuna basıldığında odak kayıpsa zorla odaklan!
+document.addEventListener("keydown", (e) => {
+  if (state.raceActive && document.activeElement !== hidden) {
+    hidden.focus();
+  }
+});
 hidden.addEventListener("input", (e) => {
   if (!state.raceActive) { hidden.value = ""; return; }
   const val = hidden.value;
