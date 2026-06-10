@@ -1,0 +1,16 @@
+{
+  "name": "TypeRush — Yazma Yarışı",
+  "short_name": "TypeRush",
+  "description": "Botlara karşı klavye yarışı. Kelimeleri yaz, pistte ilerle, ilk bitişe ulaşan kazanır.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#0a0b14",
+  "theme_color": "#6c5ce7",
+  "lang": "tr",
+  "categories": ["games", "education"],
+  "icons": [
+    { "src": "./icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}
