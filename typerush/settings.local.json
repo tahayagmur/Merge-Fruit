@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(node --check script.js)",
+      "Bash(python3 -c \"s=open\\('script.js'\\).read\\(\\); print\\('{ }:', s.count\\('{'\\), s.count\\('}'\\)\\); print\\('\\( \\):', s.count\\('\\('\\), s.count\\('\\)'\\)\\)\")",
+      "Bash(python3 -c ' *)"
+    ]
+  }
+}
