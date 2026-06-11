@@ -29,7 +29,7 @@
   "name": "Tamga Studio",
   "url": "https://tamgastudio.com",
   "logo": "https://tamgastudio.com/tamga-logo.jpg",
-  "email": "info@tamgastudio.com",
+  "email": "ceo@bionests.com",
   "description": "Oyun geliştirme, web tasarım ve dijital pazarlama alanında yaratıcı çözümler üreten dijital ajans.",
   "foundingDate": "2026",
   "sameAs": ["https://github.com/tahayagmur"]
@@ -325,12 +325,12 @@ main{position:relative;z-index:5;background:transparent}
 .tag-app{color:var(--acc2);border-color:rgba(0,229,255,.45);background:rgba(0,229,255,.07)}
 .tag-web{color:var(--amber);border-color:rgba(232,193,112,.45);background:rgba(232,193,112,.07)}
 .proj-img{
-  width:100%;aspect-ratio:16/10;object-fit:cover;display:block;
-  border:1px solid var(--line);margin-bottom:18px;
+  display:block;width:auto;max-width:100%;max-height:300px;
+  margin:0 auto 18px;object-fit:contain;
+  border:1px solid var(--line);background:var(--bg2);padding:8px;
   filter:saturate(1.05);transition:transform .4s ease,filter .4s ease;
-  background:var(--bg2);
 }
-.proj:hover .proj-img{transform:scale(1.03);filter:saturate(1.2) brightness(1.06)}
+.proj:hover .proj-img{transform:scale(1.02);filter:saturate(1.2) brightness(1.06)}
 .proj h3{font-size:1.25rem;font-weight:700;letter-spacing:.03em;margin-bottom:10px}
 .proj>p{color:var(--mut);font-size:.9rem;font-weight:300;line-height:1.7;margin-bottom:16px}
 .proj .btn{align-self:flex-start;padding:13px 24px;font-size:.72rem;margin-top:auto}
@@ -594,7 +594,7 @@ footer{position:relative;z-index:5;border-top:1px solid var(--line);background:v
           <div>
             <h3>Ekibe Katıl</h3>
             <p class="role">Sıradaki Sen Olabilirsin</p>
-            <p>Birlikte üretmek ister misin? <a href="mailto:info@tamgastudio.com">info@tamgastudio.com</a> adresine yaz.</p>
+            <p>Birlikte üretmek ister misin? <a href="mailto:ceo@bionests.com">ceo@bionests.com</a> adresine yaz.</p>
           </div>
         </div>
       </div>
@@ -862,7 +862,7 @@ footer{position:relative;z-index:5;border-top:1px solid var(--line);background:v
         <p class="sec-sub">Projenizi anlatın, 24 saat içinde dönüş yapalım.</p>
       </div>
       <div class="contact-grid">
-        <form class="cform hud fx" action="https://formsubmit.co/info@tamgastudio.com" method="POST">
+        <form class="cform hud fx" action="https://formsubmit.co/ceo@bionests.com" method="POST">
           <input type="hidden" name="_subject" value="tamgastudio.com — Yeni iletişim formu mesajı">
           <input type="hidden" name="_captcha" value="false">
           <input type="text" name="_honey" style="display:none">
@@ -877,7 +877,7 @@ footer{position:relative;z-index:5;border-top:1px solid var(--line);background:v
         <div class="cinfo hud fx">
           <h3>// Doğrudan ulaş</h3>
           <p>Form yerine e-posta tercih ediyorsanız:</p>
-          <a class="mail-link" href="mailto:info@tamgastudio.com">info@tamgastudio.com</a>
+          <a class="mail-link" href="mailto:ceo@bionests.com">ceo@bionests.com</a>
           <p>Bizi takip edin:</p>
           <div class="socials">
             <a href="https://github.com/tahayagmur" target="_blank" rel="noopener noreferrer" aria-label="GitHub" title="GitHub">
@@ -922,7 +922,7 @@ footer{position:relative;z-index:5;border-top:1px solid var(--line);background:v
       <h4>// Kurumsal</h4>
       <a href="about.html">Hakkımızda</a>
       <a href="privacy-policy.html">Gizlilik Politikası</a>
-      <a href="mailto:info@tamgastudio.com">info@tamgastudio.com</a>
+      <a href="mailto:ceo@bionests.com">ceo@bionests.com</a>
       <a href="https://github.com/tahayagmur" target="_blank" rel="noopener noreferrer">GitHub</a>
     </div>
   </div>
@@ -1070,7 +1070,7 @@ footer{position:relative;z-index:5;border-top:1px solid var(--line);background:v
   var tunnel = document.getElementById('tunnel');
   var tctx = tunnel.getContext('2d', { alpha: false });
 
-  var DPR = Math.min(window.devicePixelRatio || 1, 1.75);
+  var DPR = 1; /* resizeTunnel'da ekran alanına göre adaptif hesaplanır */
   var W = 0, H = 0, CX = 0, CY = 0;
 
   var DEPTH = 1400;
@@ -1099,7 +1099,7 @@ footer{position:relative;z-index:5;border-top:1px solid var(--line);background:v
   }
 
   function buildLines() {
-    var target = Math.max(60, Math.min(150, (W * H) / 11000 | 0));
+    var target = Math.max(50, Math.min(110, (W * H) / 15000 | 0));
     lines.length = 0;
     for (var i = 0; i < target; i++) lines.push(makeLine());
   }
@@ -1107,6 +1107,9 @@ footer{position:relative;z-index:5;border-top:1px solid var(--line);background:v
   function resizeTunnel() {
     var r = tunnel.parentElement.getBoundingClientRect();
     W = r.width; H = r.height;
+    /* performans: buyuk ekranlarda render cozunurlugunu dusur */
+    var area = W * H;
+    DPR = Math.min(window.devicePixelRatio || 1, area > 1500000 ? 1.15 : 1.4);
     tunnel.width = W * DPR; tunnel.height = H * DPR;
     tctx.setTransform(DPR, 0, 0, DPR, 0, 0);
     CX = W / 2; CY = H / 2;
@@ -1148,6 +1151,8 @@ footer{position:relative;z-index:5;border-top:1px solid var(--line);background:v
       var sc = FOCAL / rel;
       var fs = BASE_FONT * sc;
       if (fs < 2.4 || fs > 360) continue;
+      /* performans: font boyutunu kuantala — tarayici font onbellegi cok daha az calisir */
+      fs = fs < 24 ? Math.max(3, Math.round(fs)) : Math.round(fs / 3) * 3;
 
       var sx = CX + L.x * spreadX * sc * 0.45;
       var sy = CY + L.y * spreadY * sc * 0.45;
@@ -1158,11 +1163,7 @@ footer{position:relative;z-index:5;border-top:1px solid var(--line);background:v
       var alpha = aFar * aNear * flick;
       if (alpha < 0.02) continue;
 
-      if (sc > 1.6) {
-        tctx.shadowColor = 'rgba(0,255,156,0.55)';
-        tctx.shadowBlur = Math.min(sc * 4, 22);
-      } else tctx.shadowBlur = 0;
-
+      /* performans: shadowBlur kaldirildi — canvas'taki en pahali islemdi */
       tctx.font = fs + 'px "JetBrains Mono", monospace';
       var cw = fs * CHAR_W;
       var px = sx - (L.len * cw) / 2;
@@ -1177,11 +1178,10 @@ footer{position:relative;z-index:5;border-top:1px solid var(--line);background:v
         px += tok.t.length * cw;
       }
     }
-    tctx.shadowBlur = 0;
 
-    var gProb = 0.012 + breach * 0.12;
+    var gProb = 0.006 + breach * 0.06;
     if (Math.random() < gProb) {
-      var slices = 1 + ((Math.random() * 3) | 0);
+      var slices = 1 + ((Math.random() * 2) | 0);
       for (var g = 0; g < slices; g++) {
         var gy = Math.random() * H, gh = rand(2, 14);
         var off = rand(-18, 18) * (1 + breach * 2);
@@ -1219,6 +1219,8 @@ footer{position:relative;z-index:5;border-top:1px solid var(--line);background:v
   }
 
   function renderBG(now) {
+    /* performans: intro tuneli ekrani kaplarken arka plan matrix'ini cizme */
+    if (state.stageAlpha > 0.05) return;
     if (now - bTimer < 66) return;
     bTimer = now;
     bctx.fillStyle = 'rgba(0,0,0,0.08)';
