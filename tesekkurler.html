@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="alternate icon" type="image/jpeg" href="tamga-logo.jpg">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mesajın Ulaştı – Tamga Studio</title>
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Syncopate:wght@700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg2:#050607;--acc:#00ff9c;--acc2:#00e5ff;
+  --txt:#e6edf3;--mut:#8b98a5;
+  --mono:'JetBrains Mono',ui-monospace,monospace;
+  --disp:'Syncopate',sans-serif;
+}
+body{
+  background:var(--bg2);color:var(--txt);
+  min-height:100vh;min-height:100svh;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  text-align:center;padding:24px;overflow:hidden;font-family:var(--mono);
+}
+#bgMatrix{position:fixed;inset:0;width:100%;height:100%;z-index:0;opacity:.1;pointer-events:none}
+.crt{
+  position:fixed;inset:0;z-index:1;pointer-events:none;
+  background:
+    repeating-linear-gradient(0deg,rgba(0,0,0,.18) 0 1px,transparent 1px 3px),
+    radial-gradient(ellipse at center,transparent 35%,rgba(0,0,0,.8) 100%);
+}
+.box{
+  position:relative;z-index:2;
+  border:1px solid rgba(0,255,156,.35);background:rgba(5,10,8,.85);
+  padding:clamp(30px,6vw,54px);max-width:520px;
+  box-shadow:0 0 60px rgba(0,255,156,.12);
+}
+.box::before,.box::after{content:'';position:absolute;width:16px;height:16px;border:2px solid var(--acc)}
+.box::before{top:-2px;left:-2px;border-right:0;border-bottom:0}
+.box::after{bottom:-2px;right:-2px;border-left:0;border-top:0}
+.check{
+  font-size:clamp(2.4rem,8vw,3.6rem);color:var(--acc);
+  text-shadow:0 0 30px rgba(0,255,156,.6);margin-bottom:18px;display:block;
+}
+h1{
+  font-family:var(--disp);font-size:clamp(1rem,3.4vw,1.5rem);font-weight:700;
+  letter-spacing:.08em;text-transform:uppercase;line-height:1.4;margin-bottom:16px;
+}
+h1 em{font-style:normal;color:var(--acc)}
+.status{font-size:.72rem;letter-spacing:.3em;color:var(--acc2);text-transform:uppercase;margin-bottom:18px}
+p.desc{color:var(--mut);font-size:.86rem;line-height:1.8;margin-bottom:32px}
+.btn{
+  display:inline-block;font-size:.76rem;font-weight:700;letter-spacing:.22em;text-transform:uppercase;
+  text-decoration:none;background:var(--acc);color:#02130b;padding:15px 30px;transition:.25s;
+  clip-path:polygon(0 0,calc(100% - 14px) 0,100% 14px,100% 100%,14px 100%,0 calc(100% - 14px));
+}
+.btn:hover{background:var(--acc2);box-shadow:0 0 34px rgba(0,229,255,.45);transform:translateY(-2px)}
+.corner{position:fixed;width:26px;height:26px;border:1px solid rgba(0,255,156,.45);z-index:2}
+.tl{top:18px;left:18px;border-right:0;border-bottom:0}
+.tr{top:18px;right:18px;border-left:0;border-bottom:0}
+.bl{bottom:18px;left:18px;border-right:0;border-top:0}
+.br{bottom:18px;right:18px;border-left:0;border-top:0}
+</style>
+</head>
+<body>
+
+<canvas id="bgMatrix" aria-hidden="true"></canvas>
+<div class="crt" aria-hidden="true"></div>
+<i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>
+
+<div class="box">
+  <span class="check">✓</span>
+  <p class="status">// MESSAGE.SENT — STATUS 200 OK</p>
+  <h1>Mesajın <em>Ulaştı!</em></h1>
+  <p class="desc">İletişim formun başarıyla gönderildi.<br>En geç 24 saat içinde sana geri dönüş yapacağız.<br>&gt; bağlantı kapatılıyor...</p>
+  <a class="btn" href="/">◂ Ana Sayfaya Dön</a>
+</div>
+
+<script>
+(function(){
+  'use strict';
+  var bg=document.getElementById('bgMatrix'),ctx=bg.getContext('2d');
+  var cols=[],FS=14,W=0,H=0,timer=0;
+  var GLYPHS='01アイウエオカキクケコ<>/{}[]=+*#$&%!?;:OK'.split('');
+  function resize(){
+    W=window.innerWidth;H=window.innerHeight;bg.width=W;bg.height=H;
+    var n=Math.ceil(W/FS);cols.length=0;
+    for(var i=0;i<n;i++)cols.push(Math.random()*-100);
+    ctx.fillStyle='#000';ctx.fillRect(0,0,W,H);
+  }
+  function step(now){
+    requestAnimationFrame(step);
+    if(now-timer<60)return;timer=now;
+    ctx.fillStyle='rgba(0,0,0,0.08)';ctx.fillRect(0,0,W,H);
+    ctx.font=FS+'px "JetBrains Mono",monospace';
+    for(var i=0;i<cols.length;i++){
+      var ch=GLYPHS[(Math.random()*GLYPHS.length)|0];
+      ctx.fillStyle=Math.random()<0.08?'#aaffdd':'#00ff9c';
+      ctx.fillText(ch,i*FS,cols[i]*FS);
+      if(cols[i]*FS>H&&Math.random()>0.975)cols[i]=0;
+      cols[i]++;
+    }
+  }
+  resize();window.addEventListener('resize',resize);
+  if(!window.matchMedia('(prefers-reduced-motion: reduce)').matches)requestAnimationFrame(step);
+})();
+</script>
+
+</body>
+</html>
