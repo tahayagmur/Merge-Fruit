@@ -2,72 +2,218 @@
 <html lang="tr">
 <head>
 <meta charset="UTF-8">
+<link rel="icon" type="image/jpeg" href="tamga-logo.jpg">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Gizlilik Politikası – Tamga Studio</title>
-<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
+<meta name="description" content="Tamga Studio gizlilik politikası: tamgastudio.com üzerinde hangi verilerin toplandığını ve nasıl kullanıldığını öğrenin.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Space+Grotesk:wght@300;400;500;600;700&family=Syncopate:wght@400;700&display=swap" rel="stylesheet">
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3066824413621209" crossorigin="anonymous"></script>
 <style>
-*{margin:0;padding:0;box-sizing:border-box;font-family:'Outfit',sans-serif}
-body{background:#0f0a1e;color:#fff;padding:0}
-nav{padding:18px 40px;display:flex;justify-content:space-between;align-items:center;background:rgba(15,10,30,.9);border-bottom:1px solid rgba(255,255,255,.08);position:sticky;top:0;z-index:100}
-.logo{font-size:1.4rem;font-weight:900;background:linear-gradient(90deg,#ff477e,#a855f7);-webkit-background-clip:text;-webkit-text-fill-color:transparent;text-decoration:none}
-nav a{color:rgba(255,255,255,.7);text-decoration:none;margin-left:20px;font-size:.9rem}
-.container{max-width:800px;margin:60px auto;padding:0 24px 80px}
-h1{font-size:2.2rem;font-weight:800;margin-bottom:8px;color:#ff477e}
-.date{color:rgba(255,255,255,.4);font-size:.9rem;margin-bottom:40px}
-h2{font-size:1.2rem;font-weight:700;margin:32px 0 12px;color:#fce043}
-p,li{color:rgba(255,255,255,.65);line-height:1.8;font-size:.97rem}
-ul{padding-left:20px;margin-top:8px}
-li{margin-bottom:6px}
-a{color:#a855f7}
-footer{text-align:center;padding:30px;border-top:1px solid rgba(255,255,255,.07);color:rgba(255,255,255,.3);font-size:.85rem}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#0a0a0c;--bg2:#050607;
+  --panel:rgba(13,18,16,.62);
+  --line:rgba(0,255,156,.14);
+  --acc:#00ff9c;--acc2:#00e5ff;
+  --txt:#e6edf3;--mut:#8b98a5;--mut2:#525e6b;
+  --mono:'JetBrains Mono',ui-monospace,monospace;
+  --sans:'Space Grotesk',system-ui,sans-serif;
+  --disp:'Syncopate',sans-serif;
+}
+body{background:var(--bg);color:var(--txt);font-family:var(--sans);overflow-x:hidden;-webkit-font-smoothing:antialiased}
+::selection{background:var(--acc);color:#031}
+
+#bgMatrix{position:fixed;inset:0;width:100%;height:100%;z-index:0;opacity:.07;pointer-events:none}
+
+nav{
+  position:sticky;top:0;z-index:90;
+  display:flex;justify-content:space-between;align-items:center;
+  padding:16px clamp(18px,4vw,44px);
+  background:rgba(8,10,11,.78);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+  border-bottom:1px solid var(--line);
+}
+.logo{font-family:var(--disp);font-weight:700;font-size:.95rem;letter-spacing:.18em;color:var(--txt);text-decoration:none;white-space:nowrap}
+.logo b{color:var(--acc);font-weight:700}
+.nav-links{display:flex;align-items:center;gap:clamp(12px,2.4vw,30px)}
+.nav-links a{font-family:var(--mono);font-size:.74rem;letter-spacing:.18em;text-transform:uppercase;color:var(--mut);text-decoration:none;transition:.2s;white-space:nowrap}
+.nav-links a:hover{color:var(--acc);text-shadow:0 0 14px rgba(0,255,156,.6)}
+
+main{position:relative;z-index:5}
+.wrap{max-width:860px;margin:0 auto;padding:0 clamp(18px,4vw,40px)}
+
+.page-hero{padding:clamp(60px,10vh,90px) 0 clamp(30px,5vh,44px)}
+.kicker{font-family:var(--mono);font-size:.74rem;letter-spacing:.32em;color:var(--acc2);text-transform:uppercase;margin-bottom:16px}
+.kicker::before{content:'> '}
+h1.title{
+  font-family:var(--disp);font-size:clamp(1.3rem,3.8vw,2.3rem);font-weight:700;
+  letter-spacing:.05em;text-transform:uppercase;line-height:1.3;
+}
+h1.title em{font-style:normal;color:var(--acc)}
+.date{font-family:var(--mono);font-size:.74rem;letter-spacing:.2em;color:var(--mut2);text-transform:uppercase;margin-top:14px}
+
+.doc{
+  position:relative;background:var(--panel);border:1px solid var(--line);
+  backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);
+  padding:clamp(26px,5vw,48px);margin-bottom:90px;
+}
+.doc::before,.doc::after{content:'';position:absolute;width:15px;height:15px;border:2px solid var(--acc)}
+.doc::before{top:-2px;left:-2px;border-right:0;border-bottom:0}
+.doc::after{bottom:-2px;right:-2px;border-left:0;border-top:0}
+
+.doc>p{color:var(--mut);line-height:1.85;font-weight:300;font-size:.95rem}
+.doc h2{
+  font-family:var(--mono);font-size:.86rem;font-weight:700;
+  letter-spacing:.22em;text-transform:uppercase;color:var(--acc);
+  margin:38px 0 14px;padding-bottom:10px;
+  border-bottom:1px dashed rgba(0,255,156,.25);
+}
+.doc h2:first-of-type{margin-top:30px}
+.doc ul{list-style:none;margin-top:10px}
+.doc li{
+  color:var(--mut);line-height:1.8;font-weight:300;font-size:.95rem;
+  padding-left:22px;position:relative;margin-bottom:7px;
+}
+.doc li::before{content:'▸';position:absolute;left:0;color:var(--acc);font-family:var(--mono)}
+.doc li strong{color:var(--txt);font-weight:600}
+.doc a{color:var(--acc2);text-decoration:none;border-bottom:1px dashed rgba(0,229,255,.4);transition:.2s}
+.doc a:hover{color:var(--acc);border-color:var(--acc);text-shadow:0 0 12px rgba(0,255,156,.5)}
+
+footer{
+  position:relative;z-index:5;border-top:1px solid var(--line);background:var(--bg2);
+  padding:30px clamp(18px,4vw,44px);
+  display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;
+  font-family:var(--mono);font-size:.72rem;letter-spacing:.12em;color:var(--mut2);
+}
+footer a{color:var(--mut);text-decoration:none;margin-left:18px;transition:.2s}
+footer a:hover{color:var(--acc)}
 </style>
 </head>
 <body>
-<nav>
-  <a href="/" class="logo">TAMGA STUDIO</a>
-  <div><a href="/">Ana Sayfa</a><a href="about.html">Hakkımızda</a></div>
+
+<canvas id="bgMatrix" aria-hidden="true"></canvas>
+
+<nav aria-label="Ana menü">
+  <a class="logo" href="/">TAMGA<b>_</b>STUDIO</a>
+  <div class="nav-links">
+    <a href="/">Ana Sayfa</a>
+    <a href="about.html">Hakkımızda</a>
+  </div>
 </nav>
-<div class="container">
-  <h1>Gizlilik Politikası</h1>
-  <p class="date">Son güncelleme: 3 Mayıs 2026</p>
 
-  <p>Tamga Studio olarak gizliliğinize saygı duyuyoruz. Bu politika, tamgastudio.com ve alt sayfalarında hangi verilerin toplandığını açıklar.</p>
+<main>
+  <div class="wrap">
 
-  <h2>1. Toplanan Bilgiler</h2>
-  <p>Web sitemizi ziyaret ettiğinizde aşağıdaki veriler otomatik olarak toplanabilir:</p>
-  <ul>
-    <li>IP adresi ve tarayıcı türü</li>
-    <li>Ziyaret edilen sayfalar ve süre</li>
-    <li>Cihaz türü ve işletim sistemi</li>
-    <li>Oyun içi skor ve ilerleme (yalnızca tarayıcınızın yerel deposunda saklanır)</li>
-  </ul>
+    <header class="page-hero">
+      <p class="kicker">tamga_studio.privacy_policy( )</p>
+      <h1 class="title">Gizlilik <em>Politikası</em></h1>
+      <p class="date">Son güncelleme :: 3 Mayıs 2026</p>
+    </header>
 
-  <h2>2. Çerezler (Cookies)</h2>
-  <p>Sitemiz, Google AdSense ve analitik hizmetleri için çerezler kullanmaktadır. Bu çerezler kullanıcı deneyimini iyileştirmek ve reklam kişiselleştirmek amacıyla kullanılır. Tarayıcınızın ayarlarından çerezleri devre dışı bırakabilirsiniz.</p>
+    <article class="doc">
+      <p>Tamga Studio olarak gizliliğinize saygı duyuyoruz. Bu politika, tamgastudio.com ve alt sayfalarında hangi verilerin toplandığını açıklar.</p>
 
-  <h2>3. Google AdSense</h2>
-  <p>Sitemizde Google AdSense tarafından sağlanan reklamlar gösterilmektedir. Google, reklamları kişiselleştirmek için çerez kullanabilir. Google'ın gizlilik politikasına <a href="https://policies.google.com/privacy" target="_blank">buradan</a> ulaşabilirsiniz.</p>
+      <h2>// 01 — Toplanan Bilgiler</h2>
+      <p>Web sitemizi ziyaret ettiğinizde aşağıdaki veriler otomatik olarak toplanabilir:</p>
+      <ul>
+        <li>IP adresi ve tarayıcı türü</li>
+        <li>Ziyaret edilen sayfalar ve süre</li>
+        <li>Cihaz türü ve işletim sistemi</li>
+        <li>Oyun içi skor ve ilerleme (yalnızca tarayıcınızın yerel deposunda saklanır)</li>
+      </ul>
 
-  <h2>4. Oyun Verileri</h2>
-  <p>Merge Fruit oyunundaki skor, coin ve boost bilgileri yalnızca tarayıcınızın localStorage'ında saklanır. Bu veriler sunucularımıza iletilmez ve üçüncü taraflarla paylaşılmaz.</p>
+      <h2>// 02 — Çerezler (Cookies)</h2>
+      <p>Sitemiz, Google AdSense ve analitik hizmetleri için çerezler kullanmaktadır. Bu çerezler kullanıcı deneyimini iyileştirmek ve reklam kişiselleştirmek amacıyla kullanılır. Tarayıcınızın ayarlarından çerezleri devre dışı bırakabilirsiniz.</p>
 
-  <h2>5. Üçüncü Taraf Hizmetler</h2>
-  <ul>
-    <li><strong>Google Analytics:</strong> Site trafiğini analiz etmek için kullanılır.</li>
-    <li><strong>Google AdSense:</strong> Reklam gösterimi için kullanılır.</li>
-    <li><strong>CrazyGames:</strong> Oyunumuz bu platform üzerinden de erişilebilir.</li>
-  </ul>
+      <h2>// 03 — Google AdSense</h2>
+      <p>Sitemizde Google AdSense tarafından sağlanan reklamlar gösterilmektedir. Google, reklamları kişiselleştirmek için çerez kullanabilir. Google'ın gizlilik politikasına <a href="https://policies.google.com/privacy" target="_blank" rel="noopener noreferrer">buradan</a> ulaşabilirsiniz.</p>
 
-  <h2>6. Veri Güvenliği</h2>
-  <p>Kişisel verilerinizi korumak için gerekli teknik önlemleri alıyoruz. Ancak internet üzerinden iletim yüzde yüz güvenli değildir.</p>
+      <h2>// 04 — Oyun Verileri</h2>
+      <p>Merge Fruit oyunundaki skor, coin ve boost bilgileri yalnızca tarayıcınızın localStorage'ında saklanır. Bu veriler sunucularımıza iletilmez ve üçüncü taraflarla paylaşılmaz.</p>
 
-  <h2>7. Çocukların Gizliliği</h2>
-  <p>Hizmetlerimiz 13 yaş altı çocuklara yönelik değildir. 13 yaşından küçük kullanıcılardan bilerek kişisel veri toplamıyoruz.</p>
+      <h2>// 05 — Üçüncü Taraf Hizmetler</h2>
+      <ul>
+        <li><strong>Google Analytics:</strong> Site trafiğini analiz etmek için kullanılır.</li>
+        <li><strong>Google AdSense:</strong> Reklam gösterimi için kullanılır.</li>
+        <li><strong>CrazyGames:</strong> Oyunumuz bu platform üzerinden de erişilebilir.</li>
+      </ul>
 
-  <h2>8. İletişim</h2>
-  <p>Gizlilik politikamızla ilgili sorularınız için: <a href="mailto:ceo@bionests.com">ceo@bionests.com</a></p>
-</div>
-<footer>© 2026 Tamga Studio – <a href="/" style="color:rgba(255,255,255,.4)">tamgastudio.com</a></footer>
+      <h2>// 06 — Veri Güvenliği</h2>
+      <p>Kişisel verilerinizi korumak için gerekli teknik önlemleri alıyoruz. Ancak internet üzerinden iletim yüzde yüz güvenli değildir.</p>
+
+      <h2>// 07 — Çocukların Gizliliği</h2>
+      <p>Hizmetlerimiz 13 yaş altı çocuklara yönelik değildir. 13 yaşından küçük kullanıcılardan bilerek kişisel veri toplamıyoruz.</p>
+
+      <h2>// 08 — İletişim</h2>
+      <p>Gizlilik politikamızla ilgili sorularınız için: <a href="mailto:ceo@bionests.com">ceo@bionests.com</a></p>
+    </article>
+
+  </div>
+</main>
+
+<footer>
+  <span>© 2026 TAMGA STUDIO — TAMGASTUDIO.COM</span>
+  <div>
+    <a href="about.html">Hakkımızda</a>
+    <a href="/">Ana Sayfa</a>
+  </div>
+</footer>
+
+<script>
+(function(){
+  'use strict';
+
+  /* ---- background matrix (same ambience as homepage) ---- */
+  var bg=document.getElementById('bgMatrix'),ctx=bg.getContext('2d');
+  var cols=[],FS=14,W=0,H=0,timer=0;
+  var GLYPHS='01アイウエオカキクケコ<>/{}[]=+*#$&%!?;:'.split('');
+  function resize(){
+    W=window.innerWidth;H=window.innerHeight;bg.width=W;bg.height=H;
+    var n=Math.ceil(W/FS);cols.length=0;
+    for(var i=0;i<n;i++)cols.push(Math.random()*-100);
+    ctx.fillStyle='#000';ctx.fillRect(0,0,W,H);
+  }
+  function step(now){
+    requestAnimationFrame(step);
+    if(now-timer<66)return;timer=now;
+    ctx.fillStyle='rgba(0,0,0,0.08)';ctx.fillRect(0,0,W,H);
+    ctx.font=FS+'px "JetBrains Mono",monospace';
+    for(var i=0;i<cols.length;i++){
+      var ch=GLYPHS[(Math.random()*GLYPHS.length)|0];
+      ctx.fillStyle=Math.random()<0.08?'#aaffdd':'#00ff9c';
+      ctx.fillText(ch,i*FS,cols[i]*FS);
+      if(cols[i]*FS>H&&Math.random()>0.975)cols[i]=0;
+      cols[i]++;
+    }
+  }
+  resize();window.addEventListener('resize',resize);
+  if(!window.matchMedia('(prefers-reduced-motion: reduce)').matches)requestAnimationFrame(step);
+
+  /* ---- mailto toast ---- */
+  document.querySelectorAll('a[href^="mailto:"]').forEach(function(link){
+    link.addEventListener('click',function(){
+      var email=link.getAttribute('href').replace('mailto:','');
+      if(navigator.clipboard)navigator.clipboard.writeText(email).catch(function(){});
+      var toast=document.getElementById('mailToast');
+      if(!toast){
+        toast=document.createElement('div');
+        toast.id='mailToast';
+        toast.style.cssText='position:fixed;bottom:20px;left:50%;transform:translateX(-50%);'+
+          'background:rgba(5,10,8,.92);border:1px solid rgba(0,255,156,.5);color:#e6edf3;'+
+          'padding:12px 24px;font-family:JetBrains Mono,monospace;font-size:13px;z-index:9999;'+
+          'box-shadow:0 0 30px rgba(0,255,156,.25);opacity:0;transition:opacity .3s;'+
+          'pointer-events:none;text-align:center;backdrop-filter:blur(6px)';
+        document.body.appendChild(toast);
+      }
+      toast.innerHTML='📧 E-posta kopyalandı:<br><span style="color:#00ff9c">'+email+'</span>';
+      toast.style.opacity='1';
+      if(window.toastTimeout)clearTimeout(window.toastTimeout);
+      window.toastTimeout=setTimeout(function(){toast.style.opacity='0';},3500);
+    });
+  });
+})();
+</script>
+
 </body>
 </html>
