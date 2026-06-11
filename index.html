@@ -2,10 +2,39 @@
 <html lang="tr">
 <head>
 <meta charset="UTF-8">
-<link rel="icon" type="image/jpeg" href="tamga-logo.jpg">
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="alternate icon" type="image/jpeg" href="tamga-logo.jpg">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Tamga Studio – Dijital Ajans & Oyun Geliştirme</title>
-<meta name="description" content="Tamga Studio: Mobil oyunlar, web tasarım ve dijital pazarlama alanında yaratıcı çözümler üreten Türk dijital ajansı.">
+<meta name="description" content="Tamga Studio: JavaScript, Python ve C++ ile oyun geliştirme, web tasarım ve dijital pazarlama alanında yaratıcı çözümler üreten Türk dijital ajansı.">
+<link rel="canonical" href="https://tamgastudio.com/">
+
+<!-- OPEN GRAPH / TWITTER CARD -->
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://tamgastudio.com/">
+<meta property="og:title" content="Tamga Studio – Dijital Ajans & Oyun Geliştirme">
+<meta property="og:description" content="JavaScript, Python ve C++ ile uçtan uca geliştirme. Tarayıcıda 60 FPS akan oyunlar, SaaS platformları ve sinematik web deneyimleri.">
+<meta property="og:image" content="https://tamgastudio.com/tamga-logo.jpg">
+<meta property="og:locale" content="tr_TR">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Tamga Studio – Dijital Ajans & Oyun Geliştirme">
+<meta name="twitter:description" content="JavaScript, Python ve C++ ile uçtan uca geliştirme. Oyunlar, SaaS platformları ve sinematik web deneyimleri.">
+<meta name="twitter:image" content="https://tamgastudio.com/tamga-logo.jpg">
+
+<!-- STRUCTURED DATA -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "name": "Tamga Studio",
+  "url": "https://tamgastudio.com",
+  "logo": "https://tamgastudio.com/tamga-logo.jpg",
+  "email": "info@tamgastudio.com",
+  "description": "Oyun geliştirme, web tasarım ve dijital pazarlama alanında yaratıcı çözümler üreten dijital ajans.",
+  "foundingDate": "2026",
+  "sameAs": ["https://github.com/tahayagmur"]
+}
+</script>
 
 <!-- FONTS -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -17,7 +46,10 @@
 
 <style>
 /* ============================================================
-   TAMGA STUDIO — CINEMATIC CODE-TUNNEL LANDING
+   TAMGA STUDIO — CINEMATIC LANDING v2
+   Akış: Tünel → Neler Yapıyoruz → Kimiz → Süreç → Ana Sayfa →
+         Platformlar → İstatistik → Oyunlar → Uygulamalar →
+         Devlog → İletişim → Footer
    ============================================================ */
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
 
@@ -27,8 +59,8 @@
   --panel:rgba(13,18,16,.62);
   --line:rgba(0,255,156,.14);
   --line2:rgba(0,229,255,.16);
-  --acc:#00ff9c;          /* hacker green   */
-  --acc2:#00e5ff;         /* cyber cyan     */
+  --acc:#00ff9c;
+  --acc2:#00e5ff;
   --amber:#e8c170;
   --txt:#e6edf3;
   --mut:#8b98a5;
@@ -51,11 +83,8 @@ body{
 }
 ::selection{background:var(--acc);color:#031}
 
-/* ---------- BACKGROUND MATRIX (perpetual, low opacity) ---------- */
-#bgMatrix{
-  position:fixed;inset:0;width:100%;height:100%;
-  z-index:0;opacity:.07;pointer-events:none;
-}
+/* ---------- BACKGROUND MATRIX ---------- */
+#bgMatrix{position:fixed;inset:0;width:100%;height:100%;z-index:0;opacity:.07;pointer-events:none}
 
 /* ---------- INTRO / TUNNEL STAGE ---------- */
 #intro{
@@ -65,12 +94,7 @@ body{
   overflow:hidden;
   z-index:5;
 }
-#tunnel{
-  position:absolute;inset:0;width:100%;height:100%;
-  display:block;z-index:1;
-  will-change:transform,opacity,filter;
-}
-/* CRT scanlines + vignette over the tunnel */
+#tunnel{position:absolute;inset:0;width:100%;height:100%;display:block;z-index:1;will-change:transform,opacity,filter}
 .crt{
   position:absolute;inset:0;z-index:2;pointer-events:none;
   background:
@@ -83,35 +107,23 @@ body{
   background:radial-gradient(circle at center,rgba(180,255,224,.95),rgba(0,255,156,.35) 45%,transparent 75%);
   opacity:0;
 }
-
-/* intro HUD chrome */
 .intro-hud{position:absolute;inset:0;z-index:3;pointer-events:none;font-family:var(--mono)}
 .hud-corner{position:absolute;width:26px;height:26px;border:1px solid rgba(0,255,156,.45)}
 .hud-corner.tl{top:18px;left:18px;border-right:0;border-bottom:0}
 .hud-corner.tr{top:18px;right:18px;border-left:0;border-bottom:0}
 .hud-corner.bl{bottom:18px;left:18px;border-right:0;border-top:0}
 .hud-corner.br{bottom:18px;right:18px;border-left:0;border-top:0}
-.boot-line{
-  position:absolute;top:26px;left:58px;
-  font-size:11px;letter-spacing:.14em;color:rgba(0,255,156,.75);
-  text-transform:uppercase;white-space:nowrap;
-}
-.boot-line .cursor{display:inline-block;width:7px;height:12px;background:var(--acc);
-  vertical-align:-2px;margin-left:4px;animation:blink 1s steps(1) infinite}
+.boot-line{position:absolute;top:26px;left:58px;font-size:11px;letter-spacing:.14em;color:rgba(0,255,156,.75);text-transform:uppercase;white-space:nowrap}
+.boot-line .cursor{display:inline-block;width:7px;height:12px;background:var(--acc);vertical-align:-2px;margin-left:4px;animation:blink 1s steps(1) infinite}
 @keyframes blink{50%{opacity:0}}
-.hud-meta{
-  position:absolute;top:26px;right:58px;
-  font-size:10px;letter-spacing:.18em;color:rgba(0,229,255,.55);
-  text-align:right;line-height:1.9;text-transform:uppercase;
-}
+.hud-meta{position:absolute;top:26px;right:58px;font-size:10px;letter-spacing:.18em;color:rgba(0,229,255,.55);text-align:right;line-height:1.9;text-transform:uppercase}
 .scroll-cue{
   position:absolute;left:50%;bottom:42px;transform:translateX(-50%);
   display:flex;flex-direction:column;align-items:center;gap:10px;
   font-size:11px;letter-spacing:.4em;color:rgba(230,237,243,.8);
   text-transform:uppercase;animation:cuePulse 2.4s ease-in-out infinite;
 }
-.scroll-cue .bar{width:1px;height:46px;background:linear-gradient(to bottom,var(--acc),transparent);
-  animation:cueDrop 1.8s ease-in-out infinite}
+.scroll-cue .bar{width:1px;height:46px;background:linear-gradient(to bottom,var(--acc),transparent);animation:cueDrop 1.8s ease-in-out infinite}
 @keyframes cuePulse{0%,100%{opacity:.9}50%{opacity:.35}}
 @keyframes cueDrop{0%{transform:scaleY(.2);transform-origin:top}55%{transform:scaleY(1)}100%{transform:scaleY(.2);transform-origin:bottom}}
 #skipIntro{
@@ -122,48 +134,159 @@ body{
 }
 #skipIntro:hover{border-color:var(--acc);color:var(--acc);box-shadow:0 0 18px rgba(0,255,156,.25)}
 
-/* ---------- HERO (revealed inside the pinned intro) ---------- */
-.hero{
+/* ---------- CINEMATIC FRAME (shared) ---------- */
+.cframe{position:absolute;inset:clamp(14px,3vw,34px);pointer-events:none}
+.cframe i{position:absolute;background:linear-gradient(90deg,var(--acc),var(--acc2));opacity:.5}
+.cframe .t{top:0;left:0;right:0;height:1px;transform:scaleX(0);transform-origin:left}
+.cframe .b{bottom:0;left:0;right:0;height:1px;transform:scaleX(0);transform-origin:right}
+.cframe .l{top:0;bottom:0;left:0;width:1px;transform:scaleY(0);transform-origin:top}
+.cframe .r{top:0;bottom:0;right:0;width:1px;transform:scaleY(0);transform-origin:bottom}
+
+/* ---------- REVEAL PANEL: "NELER YAPIYORUZ" (pinli sahne içinde) ---------- */
+.reveal-panel{
   position:absolute;inset:0;z-index:3;
   display:flex;flex-direction:column;justify-content:center;align-items:center;
-  text-align:center;padding:90px 24px 70px;
+  text-align:center;padding:80px 24px 90px;
   visibility:hidden;opacity:0;
 }
-.hero-frame{
-  position:absolute;inset:clamp(14px,3vw,34px);
-  pointer-events:none;
+.rp-kicker{font-family:var(--mono);font-size:clamp(10px,1.4vw,13px);letter-spacing:.3em;color:var(--acc);text-transform:uppercase;margin-bottom:24px}
+.rp-kicker::before{content:'> '}
+.reveal-panel h1{
+  font-family:var(--disp);font-size:clamp(1.6rem,6vw,4.2rem);
+  font-weight:700;line-height:1.14;letter-spacing:.04em;text-transform:uppercase;
 }
-.hero-frame i{position:absolute;background:linear-gradient(90deg,var(--acc),var(--acc2));opacity:.5}
-.hero-frame .t{top:0;left:0;right:0;height:1px;transform:scaleX(0);transform-origin:left}
-.hero-frame .b{bottom:0;left:0;right:0;height:1px;transform:scaleX(0);transform-origin:right}
-.hero-frame .l{top:0;bottom:0;left:0;width:1px;transform:scaleY(0);transform-origin:top}
-.hero-frame .r{top:0;bottom:0;right:0;width:1px;transform:scaleY(0);transform-origin:bottom}
-
-.hero-tag{
-  font-family:var(--mono);font-size:clamp(10px,1.4vw,13px);
-  letter-spacing:.3em;color:var(--acc);text-transform:uppercase;
-  margin-bottom:26px;
-}
-.hero-tag::before{content:'> '}
-.hero h1{
-  font-family:var(--disp);
-  font-size:clamp(1.7rem,6.4vw,4.6rem);
-  font-weight:700;line-height:1.14;letter-spacing:.04em;
-  text-transform:uppercase;
-}
-.hero h1 .row{display:block;white-space:nowrap}
-.hero h1 .glow{
+.reveal-panel h1 .row{display:block;white-space:nowrap}
+.reveal-panel h1 .glow{
   background:linear-gradient(90deg,var(--acc) 0%,var(--acc2) 100%);
-  -webkit-background-clip:text;background-clip:text;
-  -webkit-text-fill-color:transparent;
+  -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;
   filter:drop-shadow(0 0 22px rgba(0,255,156,.35));
 }
-.hero-sub{
-  max-width:640px;margin:30px auto 40px;
-  color:var(--mut);font-size:clamp(.95rem,1.6vw,1.12rem);
-  font-weight:300;line-height:1.8;
+.rp-list{
+  margin-top:36px;display:flex;flex-direction:column;gap:12px;
+  font-family:var(--mono);font-size:clamp(.72rem,1.6vw,.92rem);
+  letter-spacing:.14em;color:var(--mut);text-transform:uppercase;
 }
+.rp-list span b{color:var(--acc);font-weight:700;margin-right:10px}
+.rp-cue{
+  position:absolute;left:50%;bottom:34px;transform:translateX(-50%);
+  font-family:var(--mono);font-size:10px;letter-spacing:.4em;color:var(--mut2);
+  text-transform:uppercase;animation:cuePulse 2.4s ease-in-out infinite;white-space:nowrap;
+}
+
+/* ---------- NAV ---------- */
+nav{
+  position:fixed;top:0;left:0;right:0;z-index:90;
+  display:flex;justify-content:space-between;align-items:center;
+  padding:13px clamp(18px,4vw,44px);
+  background:rgba(8,10,11,.78);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+  border-bottom:1px solid var(--line);
+  visibility:hidden;opacity:0;
+}
+.logo{display:flex;align-items:center;gap:11px;text-decoration:none;white-space:nowrap}
+.logo img{width:30px;height:30px;object-fit:cover;border:1px solid var(--line);display:block}
+.logo span{font-family:var(--disp);font-weight:700;font-size:.92rem;letter-spacing:.18em;color:var(--txt)}
+.logo b{color:var(--acc);font-weight:700}
+.nav-links{display:flex;align-items:center;gap:clamp(10px,2vw,26px)}
+.nav-links a{
+  font-family:var(--mono);font-size:.72rem;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--mut);text-decoration:none;transition:.2s;white-space:nowrap;
+}
+.nav-links a:hover{color:var(--acc);text-shadow:0 0 14px rgba(0,255,156,.6)}
+.nav-links a.lang{border:1px solid rgba(0,229,255,.4);color:var(--acc2);padding:4px 9px}
+.nav-links a.lang:hover{background:rgba(0,229,255,.1)}
+
+/* ---------- MAIN ---------- */
+main{position:relative;z-index:5;background:transparent}
+.wrap{max-width:1160px;margin:0 auto;padding:0 clamp(18px,4vw,40px)}
+
+.sec{padding:clamp(70px,11vh,120px) 0;position:relative}
+.sec-head{margin-bottom:clamp(36px,6vh,60px)}
+.sec-kicker{font-family:var(--mono);font-size:.74rem;letter-spacing:.32em;color:var(--acc2);text-transform:uppercase;margin-bottom:14px}
+.sec-title{font-family:var(--disp);font-size:clamp(1.35rem,3.6vw,2.3rem);font-weight:700;letter-spacing:.05em;text-transform:uppercase;line-height:1.25}
+.sec-title em{font-style:normal;color:var(--acc)}
+.sec-sub{color:var(--mut);font-weight:300;margin-top:14px;max-width:640px;line-height:1.75}
+
+/* HUD panel */
+.hud{position:relative;background:var(--panel);border:1px solid var(--line);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
+.hud::before,.hud::after{content:'';position:absolute;width:15px;height:15px;border:2px solid var(--acc);transition:.3s}
+.hud::before{top:-2px;left:-2px;border-right:0;border-bottom:0}
+.hud::after{bottom:-2px;right:-2px;border-left:0;border-top:0}
+.hud:hover{border-color:rgba(0,255,156,.4);box-shadow:0 0 38px rgba(0,255,156,.07)}
+.hud:hover::before,.hud:hover::after{width:24px;height:24px}
+
+/* SERVICES */
+.svc-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:22px}
+.svc{padding:32px 26px;transition:transform .3s}
+.svc .num{font-family:var(--mono);font-size:.7rem;letter-spacing:.3em;color:var(--mut2);display:block;margin-bottom:18px}
+.svc .ic{font-size:2rem;margin-bottom:16px;display:block;filter:drop-shadow(0 0 12px rgba(0,255,156,.3))}
+.svc h3{font-size:1.05rem;font-weight:600;letter-spacing:.04em;margin-bottom:12px}
+.svc p{color:var(--mut);font-size:.9rem;font-weight:300;line-height:1.7}
+
+/* KİMİZ */
+.mission{padding:clamp(28px,5vw,44px);margin-bottom:34px}
+.mission h3{font-family:var(--mono);font-size:.92rem;letter-spacing:.25em;text-transform:uppercase;color:var(--acc);margin-bottom:16px}
+.mission p{color:var(--mut);line-height:1.85;font-weight:300}
+.values{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:20px;margin-bottom:34px}
+.value{padding:26px 22px;transition:transform .3s}
+.value .ic{font-size:1.8rem;display:block;margin-bottom:12px;filter:drop-shadow(0 0 12px rgba(0,255,156,.3))}
+.value h3{font-size:.98rem;font-weight:600;margin-bottom:8px}
+.value p{color:var(--mut);font-size:.86rem;font-weight:300;line-height:1.65}
+.team{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px}
+.member{padding:26px;display:flex;align-items:center;gap:18px}
+.avatar{
+  width:62px;height:62px;flex:none;display:flex;align-items:center;justify-content:center;
+  font-family:var(--mono);font-weight:700;font-size:1.2rem;color:#02130b;
+  background:linear-gradient(135deg,var(--acc),var(--acc2));
+  clip-path:polygon(0 0,calc(100% - 12px) 0,100% 12px,100% 100%,12px 100%,0 calc(100% - 12px));
+}
+.member h3{font-size:1rem;font-weight:700;letter-spacing:.03em}
+.member .role{font-family:var(--mono);font-size:.68rem;letter-spacing:.22em;color:var(--acc2);text-transform:uppercase;margin-top:5px}
+.member p{color:var(--mut);font-size:.84rem;font-weight:300;margin-top:8px;line-height:1.6}
+.member a{color:var(--acc);text-decoration:none}
+
+/* SÜREÇ */
+.steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:22px;counter-reset:step}
+.step{padding:30px 26px;position:relative}
+.step .s-num{
+  font-family:var(--mono);font-size:1.7rem;font-weight:700;color:var(--acc);
+  text-shadow:0 0 20px rgba(0,255,156,.4);display:block;margin-bottom:14px;
+}
+.step h3{font-size:1rem;font-weight:600;letter-spacing:.04em;margin-bottom:10px}
+.step p{color:var(--mut);font-size:.88rem;font-weight:300;line-height:1.7}
+.step::after{
+  content:'▸';position:absolute;right:-19px;top:50%;transform:translateY(-50%);
+  color:var(--acc);font-size:1.1rem;opacity:.6;z-index:2;
+}
+.step:last-child::after{display:none}
+@media (max-width:1020px){.step::after{display:none}}
+
+/* ---------- HERO (ana sayfaya geliş — sayfa ortası sahne) ---------- */
+.hero-sec{
+  position:relative;min-height:100vh;min-height:100svh;
+  display:flex;flex-direction:column;justify-content:center;align-items:center;
+  text-align:center;padding:110px 24px 90px;
+}
+.hero-tag{font-family:var(--mono);font-size:clamp(10px,1.4vw,13px);letter-spacing:.3em;color:var(--acc);margin-bottom:26px}
+.hero-tag::before{content:'> '}
+.hero-sec h2.h-title{
+  font-family:var(--disp);font-size:clamp(1.7rem,6.4vw,4.6rem);
+  font-weight:700;line-height:1.14;letter-spacing:.04em;text-transform:uppercase;
+}
+.hero-sec .row{display:block;white-space:nowrap}
+.hero-sec .glow{
+  background:linear-gradient(90deg,var(--acc) 0%,var(--acc2) 100%);
+  -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;
+  filter:drop-shadow(0 0 22px rgba(0,255,156,.35));
+}
+.hero-sub{max-width:680px;margin:30px auto 40px;color:var(--mut);font-size:clamp(.95rem,1.6vw,1.12rem);font-weight:300;line-height:1.8}
 .hero-cta{display:flex;gap:18px;flex-wrap:wrap;justify-content:center}
+.hero-hudbar{
+  position:absolute;left:clamp(14px,3vw,34px);right:clamp(14px,3vw,34px);bottom:clamp(26px,4vh,46px);
+  display:flex;justify-content:space-between;gap:14px;
+  font-family:var(--mono);font-size:10px;letter-spacing:.2em;color:var(--mut2);text-transform:uppercase;
+}
+.hero-hudbar .ok{color:var(--acc)}
+.hero-hudbar span{white-space:nowrap}
 
 .btn{
   display:inline-block;position:relative;
@@ -177,150 +300,159 @@ body{
 .btn-ghost{background:rgba(0,255,156,.05);color:var(--acc);border:1px solid rgba(0,255,156,.4)}
 .btn-ghost:hover{background:rgba(0,255,156,.14);box-shadow:0 0 24px rgba(0,255,156,.25);transform:translateY(-2px)}
 
-.hero-hudbar{
-  position:absolute;left:clamp(14px,3vw,34px);right:clamp(14px,3vw,34px);bottom:clamp(26px,4vh,46px);
-  display:flex;justify-content:space-between;gap:14px;
-  font-family:var(--mono);font-size:10px;letter-spacing:.2em;
-  color:var(--mut2);text-transform:uppercase;
+/* PLATFORM ŞERİDİ */
+.platforms{border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:26px 0}
+.plat-inner{
+  display:flex;justify-content:center;align-items:center;gap:clamp(22px,5vw,64px);flex-wrap:wrap;
+  font-family:var(--mono);font-size:.78rem;letter-spacing:.3em;color:var(--mut2);text-transform:uppercase;
 }
-.hero-hudbar .ok{color:var(--acc)}
-.hero-hudbar span{white-space:nowrap}
-
-/* ---------- NAV ---------- */
-nav{
-  position:fixed;top:0;left:0;right:0;z-index:90;
-  display:flex;justify-content:space-between;align-items:center;
-  padding:16px clamp(18px,4vw,44px);
-  background:rgba(8,10,11,.78);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
-  border-bottom:1px solid var(--line);
-  visibility:hidden;opacity:0;
-}
-.logo{
-  font-family:var(--disp);font-weight:700;font-size:.95rem;letter-spacing:.18em;
-  color:var(--txt);text-decoration:none;white-space:nowrap;
-}
-.logo b{color:var(--acc);font-weight:700}
-.nav-links{display:flex;align-items:center;gap:clamp(12px,2.4vw,30px)}
-.nav-links a{
-  font-family:var(--mono);font-size:.74rem;letter-spacing:.18em;text-transform:uppercase;
-  color:var(--mut);text-decoration:none;transition:.2s;white-space:nowrap;
-}
-.nav-links a:hover{color:var(--acc);text-shadow:0 0 14px rgba(0,255,156,.6)}
-
-/* ---------- MAIN CONTENT ---------- */
-main{position:relative;z-index:5;background:transparent}
-.wrap{max-width:1160px;margin:0 auto;padding:0 clamp(18px,4vw,40px)}
-
-.sec{padding:clamp(70px,11vh,120px) 0;position:relative}
-.sec-head{margin-bottom:clamp(36px,6vh,60px)}
-.sec-kicker{
-  font-family:var(--mono);font-size:.74rem;letter-spacing:.32em;
-  color:var(--acc2);text-transform:uppercase;margin-bottom:14px;
-}
-.sec-title{
-  font-family:var(--disp);font-size:clamp(1.35rem,3.6vw,2.3rem);
-  font-weight:700;letter-spacing:.05em;text-transform:uppercase;line-height:1.25;
-}
-.sec-title em{font-style:normal;color:var(--acc)}
-.sec-sub{color:var(--mut);font-weight:300;margin-top:14px;max-width:600px;line-height:1.75}
-
-/* HUD panel w/ corner brackets */
-.hud{
-  position:relative;background:var(--panel);
-  border:1px solid var(--line);
-  backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);
-}
-.hud::before,.hud::after{content:'';position:absolute;width:15px;height:15px;border:2px solid var(--acc);transition:.3s}
-.hud::before{top:-2px;left:-2px;border-right:0;border-bottom:0}
-.hud::after{bottom:-2px;right:-2px;border-left:0;border-top:0}
-.hud:hover{border-color:rgba(0,255,156,.4);box-shadow:0 0 38px rgba(0,255,156,.07)}
-.hud:hover::before,.hud:hover::after{width:24px;height:24px}
+.plat-inner b{color:var(--mut);font-weight:500}
+.plat-label{font-size:.62rem;letter-spacing:.32em;color:var(--acc2);width:100%;text-align:center;margin-bottom:14px}
 
 /* STATS */
-.stats{
-  display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
-  gap:1px;background:var(--line);border:1px solid var(--line);
-}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1px;background:var(--line);border:1px solid var(--line)}
 .stat{background:rgba(10,10,12,.82);padding:36px 22px;text-align:center}
-.stat h3{
-  font-family:var(--mono);font-size:clamp(1.9rem,4vw,2.7rem);font-weight:700;
-  color:var(--acc);text-shadow:0 0 26px rgba(0,255,156,.35);
-}
+.stat h3{font-family:var(--mono);font-size:clamp(1.9rem,4vw,2.7rem);font-weight:700;color:var(--acc);text-shadow:0 0 26px rgba(0,255,156,.35)}
 .stat p{font-family:var(--mono);font-size:.72rem;letter-spacing:.22em;color:var(--mut);text-transform:uppercase;margin-top:10px}
-
-/* SERVICES */
-.svc-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:22px}
-.svc{padding:32px 26px;transition:transform .3s}
-.svc:hover{transform:translateY(-5px)}
-.svc .num{font-family:var(--mono);font-size:.7rem;letter-spacing:.3em;color:var(--mut2);display:block;margin-bottom:18px}
-.svc .ic{font-size:2rem;margin-bottom:16px;display:block;filter:drop-shadow(0 0 12px rgba(0,255,156,.3))}
-.svc h3{font-size:1.05rem;font-weight:600;letter-spacing:.04em;margin-bottom:12px}
-.svc p{color:var(--mut);font-size:.9rem;font-weight:300;line-height:1.7}
 
 /* PROJECT CARDS */
 .proj-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:24px}
-.proj{display:flex;flex-direction:column;padding:28px;overflow:hidden}
-.proj-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;font-family:var(--mono)}
+.proj{display:flex;flex-direction:column;padding:24px;overflow:hidden}
+.proj-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;font-family:var(--mono)}
 .proj-top .idx{font-size:.7rem;letter-spacing:.25em;color:var(--mut2)}
-.proj-tag{
-  font-size:.62rem;font-weight:700;letter-spacing:.25em;text-transform:uppercase;
-  padding:5px 10px;border:1px solid;
-}
+.proj-tag{font-size:.62rem;font-weight:700;letter-spacing:.25em;text-transform:uppercase;padding:5px 10px;border:1px solid}
 .tag-game{color:var(--acc);border-color:rgba(0,255,156,.45);background:rgba(0,255,156,.07)}
 .tag-app{color:var(--acc2);border-color:rgba(0,229,255,.45);background:rgba(0,229,255,.07)}
 .tag-web{color:var(--amber);border-color:rgba(232,193,112,.45);background:rgba(232,193,112,.07)}
-.proj-art{
-  font-size:2.6rem;line-height:1.25;margin-bottom:20px;
-  filter:drop-shadow(0 6px 18px rgba(0,0,0,.6));
+.proj-img{
+  width:100%;aspect-ratio:16/10;object-fit:cover;display:block;
+  border:1px solid var(--line);margin-bottom:18px;
+  filter:saturate(1.05);transition:transform .4s ease,filter .4s ease;
+  background:var(--bg2);
 }
+.proj:hover .proj-img{transform:scale(1.03);filter:saturate(1.2) brightness(1.06)}
 .proj h3{font-size:1.25rem;font-weight:700;letter-spacing:.03em;margin-bottom:10px}
-.proj p{color:var(--mut);font-size:.9rem;font-weight:300;line-height:1.7;flex:1;margin-bottom:24px}
-.proj .btn{align-self:flex-start;padding:13px 24px;font-size:.72rem}
+.proj>p{color:var(--mut);font-size:.9rem;font-weight:300;line-height:1.7;margin-bottom:16px}
+.proj .btn{align-self:flex-start;padding:13px 24px;font-size:.72rem;margin-top:auto}
 
-/* CONTACT */
-.contact-box{padding:clamp(40px,7vw,70px);text-align:center}
-.contact-box .sec-title{margin-bottom:14px}
-.contact-box p{color:var(--mut);font-weight:300;margin-bottom:8px}
+/* VAKA DOSYASI */
+.case{margin-bottom:18px;border:1px dashed rgba(0,255,156,.25)}
+.case summary{
+  font-family:var(--mono);font-size:.66rem;letter-spacing:.26em;text-transform:uppercase;
+  color:var(--acc2);padding:9px 14px;cursor:pointer;list-style:none;user-select:none;
+}
+.case summary::before{content:'+ ';color:var(--acc)}
+.case[open] summary::before{content:'− '}
+.case summary::-webkit-details-marker{display:none}
+.case div{padding:4px 14px 14px;font-size:.82rem;font-weight:300;color:var(--mut);line-height:1.7}
+.case b{color:var(--acc);font-family:var(--mono);font-size:.68rem;letter-spacing:.18em}
+
+/* DEVLOG TEASER */
+.blog-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));gap:22px}
+.post{padding:28px 26px;text-decoration:none;display:block;transition:transform .3s}
+.post:hover{transform:translateY(-5px)}
+.post .date{font-family:var(--mono);font-size:.66rem;letter-spacing:.25em;color:var(--mut2);text-transform:uppercase;display:block;margin-bottom:14px}
+.post h3{color:var(--txt);font-size:1.05rem;font-weight:600;line-height:1.45;margin-bottom:10px}
+.post p{color:var(--mut);font-size:.86rem;font-weight:300;line-height:1.7;margin-bottom:16px}
+.post .more{font-family:var(--mono);font-size:.68rem;letter-spacing:.25em;color:var(--acc);text-transform:uppercase}
+
+/* İLETİŞİM */
+.contact-grid{display:grid;grid-template-columns:1.2fr .8fr;gap:24px;align-items:stretch}
+@media (max-width:840px){.contact-grid{grid-template-columns:1fr}}
+.cform{padding:clamp(26px,4vw,40px)}
+.cform label{font-family:var(--mono);font-size:.68rem;letter-spacing:.25em;color:var(--acc2);text-transform:uppercase;display:block;margin:18px 0 8px}
+.cform label:first-of-type{margin-top:0}
+.cform input,.cform textarea{
+  width:100%;background:rgba(5,10,8,.6);border:1px solid var(--line);
+  color:var(--txt);font-family:var(--mono);font-size:.9rem;padding:13px 14px;
+  outline:none;transition:.25s;resize:vertical;
+}
+.cform input:focus,.cform textarea:focus{border-color:var(--acc);box-shadow:0 0 18px rgba(0,255,156,.15)}
+.cform button{border:none;cursor:pointer;margin-top:22px}
+.cinfo{padding:clamp(26px,4vw,40px);display:flex;flex-direction:column;gap:6px}
+.cinfo h3{font-family:var(--mono);font-size:.85rem;letter-spacing:.25em;color:var(--acc);text-transform:uppercase;margin-bottom:14px}
+.cinfo p{color:var(--mut);font-weight:300;font-size:.92rem;line-height:1.75;margin-bottom:16px}
 .mail-link{
-  display:inline-block;margin-top:18px;
-  font-family:var(--mono);font-size:clamp(.95rem,2.4vw,1.25rem);font-weight:700;
-  color:var(--acc);text-decoration:none;letter-spacing:.06em;
-  border-bottom:1px dashed rgba(0,255,156,.5);padding-bottom:4px;transition:.25s;
+  display:inline-block;font-family:var(--mono);font-size:clamp(.88rem,2vw,1.05rem);font-weight:700;
+  color:var(--acc);text-decoration:none;letter-spacing:.05em;
+  border-bottom:1px dashed rgba(0,255,156,.5);padding-bottom:4px;transition:.25s;margin-bottom:24px;align-self:flex-start;
 }
 .mail-link:hover{color:var(--acc2);border-color:var(--acc2);text-shadow:0 0 18px rgba(0,229,255,.5)}
-
-/* FOOTER */
-footer{
-  position:relative;z-index:5;
-  border-top:1px solid var(--line);background:var(--bg2);
-  padding:30px clamp(18px,4vw,44px);
-  display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;
-  font-family:var(--mono);font-size:.72rem;letter-spacing:.12em;color:var(--mut2);
+.socials{display:flex;gap:12px;margin-top:auto}
+.socials a{
+  width:42px;height:42px;display:flex;align-items:center;justify-content:center;
+  border:1px solid var(--line);color:var(--mut);transition:.25s;
 }
-footer a{color:var(--mut);text-decoration:none;margin-left:18px;transition:.2s}
-footer a:hover{color:var(--acc)}
+.socials a:hover{border-color:var(--acc);color:var(--acc);box-shadow:0 0 18px rgba(0,255,156,.25)}
+.socials svg{width:18px;height:18px;fill:currentColor}
+
+/* ---------- FOOTER ---------- */
+footer{position:relative;z-index:5;border-top:1px solid var(--line);background:var(--bg2)}
+.f-grid{
+  max-width:1160px;margin:0 auto;padding:54px clamp(18px,4vw,40px) 40px;
+  display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:40px;
+}
+@media (max-width:760px){.f-grid{grid-template-columns:1fr}}
+.f-brand .logo{margin-bottom:16px}
+.f-brand p{color:var(--mut);font-weight:300;font-size:.88rem;line-height:1.75;max-width:320px}
+.f-col h4{font-family:var(--mono);font-size:.7rem;letter-spacing:.3em;color:var(--acc2);text-transform:uppercase;margin-bottom:18px}
+.f-col a{
+  display:block;font-family:var(--mono);font-size:.78rem;letter-spacing:.12em;
+  color:var(--mut);text-decoration:none;margin-bottom:11px;transition:.2s;
+}
+.f-col a:hover{color:var(--acc)}
+.f-bottom{
+  border-top:1px solid rgba(0,255,156,.08);
+  padding:20px clamp(18px,4vw,40px);
+  display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;
+  font-family:var(--mono);font-size:.68rem;letter-spacing:.14em;color:var(--mut2);
+  max-width:1160px;margin:0 auto;
+}
+
+/* ÇEREZ BANDI */
+#cookieBar{
+  position:fixed;left:50%;bottom:18px;transform:translateX(-50%) translateY(140%);
+  z-index:9500;width:min(620px,calc(100vw - 30px));
+  background:rgba(5,10,8,.94);border:1px solid rgba(0,255,156,.35);
+  padding:16px 20px;display:flex;align-items:center;gap:16px;flex-wrap:wrap;
+  font-family:var(--mono);font-size:.74rem;color:var(--mut);line-height:1.6;
+  box-shadow:0 0 40px rgba(0,255,156,.12);backdrop-filter:blur(8px);
+  transition:transform .6s cubic-bezier(.22,1,.36,1);
+}
+#cookieBar.show{transform:translateX(-50%) translateY(0)}
+#cookieBar a{color:var(--acc2)}
+#cookieBar button{
+  margin-left:auto;background:var(--acc);border:none;color:#02130b;cursor:pointer;
+  font-family:var(--mono);font-size:.7rem;font-weight:700;letter-spacing:.2em;
+  text-transform:uppercase;padding:10px 18px;transition:.2s;
+  clip-path:polygon(0 0,calc(100% - 9px) 0,100% 9px,100% 100%,9px 100%,0 calc(100% - 9px));
+}
+#cookieBar button:hover{background:var(--acc2)}
 
 /* scroll-reveal helper */
 .fx{opacity:0;transform:translateY(44px)}
 
-@media (max-width:640px){
-  .nav-links a:nth-child(n+4){display:none}
+@media (max-width:700px){
+  .nav-links a:nth-child(n+4):not(.lang){display:none}
   .hud-meta{display:none}
   .hero-hudbar span:nth-child(2){display:none}
+  .reveal-panel h1 .row{white-space:normal}
+  .hero-sec .row{white-space:normal}
 }
 @media (prefers-reduced-motion:reduce){
-  .scroll-cue,.scroll-cue .bar{animation:none}
+  .scroll-cue,.scroll-cue .bar,.rp-cue{animation:none}
 }
 </style>
 
 <noscript>
 <style>
   #intro{height:100vh}
-  .hero{visibility:visible!important;opacity:1!important}
+  .reveal-panel{visibility:visible!important;opacity:1!important}
   #tunnel,.intro-hud,#skipIntro{display:none}
   nav{visibility:visible!important;opacity:1!important}
   .fx{opacity:1;transform:none}
-  .hero-frame i{transform:none!important}
+  .cframe i{transform:none!important}
+  [data-hreveal]{opacity:1!important;transform:none!important}
 </style>
 </noscript>
 </head>
@@ -331,13 +463,18 @@ footer a:hover{color:var(--acc)}
 
 <!-- ============ NAV ============ -->
 <nav id="mainNav" aria-label="Ana menü">
-  <a class="logo" href="#anasayfa">TAMGA<b>_</b>STUDIO</a>
+  <a class="logo" href="#top">
+    <img src="tamga-logo.jpg" alt="Tamga Studio logo">
+    <span>TAMGA<b>_</b>STUDIO</span>
+  </a>
   <div class="nav-links">
     <a href="#hizmetler">Hizmetler</a>
     <a href="#oyun">Oyunlar</a>
     <a href="#uygulamalar">Uygulamalar</a>
+    <a href="#kimiz">Hakkımızda</a>
+    <a href="blog.html">Devlog</a>
     <a href="#iletisim">İletişim</a>
-    <a href="about.html">Hakkımızda</a>
+    <a href="en.html" class="lang">EN</a>
   </div>
 </nav>
 
@@ -356,43 +493,28 @@ footer a:hover{color:var(--acc)}
   </div>
   <button id="skipIntro" type="button">İntroyu geç ≫</button>
 
-  <!-- HERO — revealed when the tunnel bursts -->
-  <section class="hero" id="anasayfa">
-    <div class="hero-frame" aria-hidden="true"><i class="t"></i><i class="r"></i><i class="b"></i><i class="l"></i></div>
-    <p class="hero-tag" data-reveal>tamga_studio.init( yıl: 2026 )</p>
+  <!-- TÜNEL SONU SAHNESİ: NELER YAPIYORUZ -->
+  <section class="reveal-panel" id="top">
+    <div class="cframe" aria-hidden="true"><i class="t"></i><i class="r"></i><i class="b"></i><i class="l"></i></div>
+    <p class="rp-kicker" data-reveal>TAMGA_STUDIO.BOOT_OK — SISTEM HAZIR</p>
     <h1>
-      <span class="row" id="decrypt1">YARATICI DİJİTAL</span>
-      <span class="row glow" id="decrypt2">ÇÖZÜMLER</span>
+      <span class="row" id="decrypt1">NELER</span>
+      <span class="row glow" id="decrypt2">YAPIYORUZ?</span>
     </h1>
-    <p class="hero-sub" data-reveal>Tamga Studio; HTML5 oyun geliştirme, web tasarım ve dijital pazarlama alanlarında markanızı büyütecek özgün projeler tasarlar.</p>
-    <div class="hero-cta" data-reveal>
-      <a class="btn btn-acc" href="#oyun">Projeleri Gör ▸</a>
-      <a class="btn btn-ghost" href="#iletisim">İletişime Geç</a>
+    <div class="rp-list">
+      <span data-reveal><b>[01]</b> HTML5 OYUN GELİŞTİRME — 60 FPS TARAYICI OYUNLARI</span>
+      <span data-reveal><b>[02]</b> WEB TASARIM & GELİŞTİRME — SİNEMATİK DENEYİMLER</span>
+      <span data-reveal><b>[03]</b> SAAS & UYGULAMA GELİŞTİRME — ÖLÇEKLENEBİLİR PLATFORMLAR</span>
+      <span data-reveal><b>[04]</b> DİJİTAL PAZARLAMA & MARKA KİMLİĞİ</span>
     </div>
-    <div class="hero-hudbar" data-reveal>
-      <span class="ok">● SYS.ONLINE</span>
-      <span>LAT 41.01 — LON 28.97</span>
-      <span>TAMGASTUDIO.COM</span>
-    </div>
+    <p class="rp-cue" data-reveal>Kaydırmaya devam et ▼</p>
   </section>
 </header>
 
 <!-- ============ MAIN ============ -->
 <main>
 
-  <!-- STATS -->
-  <section class="sec" style="padding-top:clamp(50px,8vh,80px)">
-    <div class="wrap">
-      <div class="stats fx">
-        <div class="stat"><h3><span class="count" data-count="8">0</span>+</h3><p>Yayınlanan Proje</p></div>
-        <div class="stat"><h3><span class="count" data-count="5">0</span>+</h3><p>Platform</p></div>
-        <div class="stat"><h3>2026</h3><p>Kuruluş Yılı</p></div>
-        <div class="stat"><h3>∞</h3><p>Hedef</p></div>
-      </div>
-    </div>
-  </section>
-
-  <!-- SERVICES -->
+  <!-- 01 — HİZMETLER -->
   <section class="sec" id="hizmetler">
     <div class="wrap">
       <div class="sec-head fx">
@@ -425,109 +547,396 @@ footer a:hover{color:var(--acc)}
     </div>
   </section>
 
-  <!-- GAMES -->
+  <!-- 02 — KİMİZ -->
+  <section class="sec" id="kimiz">
+    <div class="wrap">
+      <div class="sec-head fx">
+        <p class="sec-kicker">// 02 — kimiz?</p>
+        <h2 class="sec-title">Biz <em>Tamga Studio'yuz</em></h2>
+        <p class="sec-sub">Türkiye'den dünyaya açılan, oyun geliştirme ve dijital ajans hizmetleri sunan yaratıcı bir ekibiz.</p>
+      </div>
+
+      <div class="mission hud fx">
+        <h3>// Misyonumuz</h3>
+        <p>Eğlenceli, erişilebilir ve kaliteli dijital deneyimler üretmek. İlk oyunumuz Merge Fruit ile başladığımız bu yolculukta, global oyun pazarında Türkiye'yi temsil etmeyi hedefliyoruz. JavaScript, Python ve C++ ile uçtan uca geliştirme yapıyor; oyunlardan SaaS platformlarına kadar her projeyi aynı mühendislik disipliniyle ele alıyoruz.</p>
+      </div>
+
+      <div class="values">
+        <div class="value hud fx">
+          <span class="ic">🚀</span><h3>Yenilikçilik</h3>
+          <p>Her projede en güncel teknolojileri ve yaratıcı yaklaşımları kullanırız.</p>
+        </div>
+        <div class="value hud fx">
+          <span class="ic">🎮</span><h3>Oyun Odaklı</h3>
+          <p>HTML5 oyun geliştirme konusunda uzmanlaşmış, tarayıcı tabanlı deneyimler üretiyoruz.</p>
+        </div>
+        <div class="value hud fx">
+          <span class="ic">🤝</span><h3>Güvenilirlik</h3>
+          <p>Müşterilerimizle uzun vadeli ilişkiler kurarak projelerini sahipleniyoruz.</p>
+        </div>
+        <div class="value hud fx">
+          <span class="ic">🌍</span><h3>Global Vizyon</h3>
+          <p>CrazyGames ve Poki gibi global platformlarda Türk yapımı içerikler sunuyoruz.</p>
+        </div>
+      </div>
+
+      <div class="team">
+        <div class="member hud fx">
+          <div class="avatar">TY</div>
+          <div>
+            <h3>Taha Yağmur</h3>
+            <p class="role">Kurucu & Geliştirici</p>
+            <p>Oyun motorlarından web platformlarına; tasarımdan yayına kadar tüm süreci yöneten geliştirici.</p>
+          </div>
+        </div>
+        <div class="member hud fx">
+          <div class="avatar">+</div>
+          <div>
+            <h3>Ekibe Katıl</h3>
+            <p class="role">Sıradaki Sen Olabilirsin</p>
+            <p>Birlikte üretmek ister misin? <a href="mailto:info@tamgastudio.com">info@tamgastudio.com</a> adresine yaz.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 03 — SÜREÇ -->
+  <section class="sec" id="surec">
+    <div class="wrap">
+      <div class="sec-head fx">
+        <p class="sec-kicker">// 03 — nasıl çalışıyoruz?</p>
+        <h2 class="sec-title">Çalışma <em>Sürecimiz</em></h2>
+        <p class="sec-sub">Her proje aynı disiplinle ilerler: net hedef, sağlam mimari, ölçülebilir sonuç.</p>
+      </div>
+      <div class="steps">
+        <div class="step hud fx">
+          <span class="s-num">01</span>
+          <h3>Keşif & Analiz</h3>
+          <p>İhtiyacı dinler, hedef kitleyi ve rakipleri analiz eder, projenin yol haritasını birlikte çizeriz.</p>
+        </div>
+        <div class="step hud fx">
+          <span class="s-num">02</span>
+          <h3>Tasarım & Prototip</h3>
+          <p>Görsel kimlik ve deneyim tasarımı yapılır; oynanabilir/tıklanabilir prototiple fikri erkenden test ederiz.</p>
+        </div>
+        <div class="step hud fx">
+          <span class="s-num">03</span>
+          <h3>Geliştirme & Test</h3>
+          <p>JavaScript, Python veya C++ ile temiz mimaride geliştirir; performans ve cihaz testleriyle doğrularız.</p>
+        </div>
+        <div class="step hud fx">
+          <span class="s-num">04</span>
+          <h3>Yayın & Büyüme</h3>
+          <p>CrazyGames, Poki, Telegram veya web'de yayınlar; veriyle takip edip güncellemelerle büyütürüz.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 04 — ANA SAYFA SAHNESİ (HERO) -->
+  <section class="hero-sec" id="anasayfa">
+    <div class="cframe" aria-hidden="true"><i class="t"></i><i class="r"></i><i class="b"></i><i class="l"></i></div>
+    <p class="hero-tag" data-hreveal>TAMGA_STUDIO.INIT( YIL: 2026 )</p>
+    <h2 class="h-title">
+      <span class="row" id="heroD1">YARATICI DİJİTAL</span>
+      <span class="row glow" id="heroD2">ÇÖZÜMLER</span>
+    </h2>
+    <p class="hero-sub" data-hreveal>JavaScript, Python ve C++ ile uçtan uca geliştirme; WebGL tabanlı oyunlardan yapay zekâ destekli sistemlere kadar fikri koda, kodu deneyime dönüştürüyoruz. Tarayıcıda 60 FPS akan oyunlar, ölçeklenebilir SaaS platformları ve markanıza özel sinematik web deneyimleri inşa ediyoruz.</p>
+    <div class="hero-cta" data-hreveal>
+      <a class="btn btn-acc" href="#oyun">Projeleri Gör ▸</a>
+      <a class="btn btn-ghost" href="#iletisim">İletişime Geç</a>
+    </div>
+    <div class="hero-hudbar" data-hreveal>
+      <span class="ok">● SYS.ONLINE</span>
+      <span>STACK :: JS / PYTHON / C++ / WEBGL</span>
+      <span>TAMGASTUDIO.COM</span>
+    </div>
+  </section>
+
+  <!-- PLATFORM ŞERİDİ -->
+  <div class="platforms fx">
+    <div class="wrap">
+      <div class="plat-inner">
+        <span class="plat-label">// Yayınlandığımız platformlar</span>
+        <b>CRAZYGAMES</b><b>POKI</b><b>TELEGRAM</b><b>GITHUB</b><b>WEB</b>
+      </div>
+    </div>
+  </div>
+
+  <!-- STATS -->
+  <section class="sec" style="padding-top:clamp(50px,8vh,80px)">
+    <div class="wrap">
+      <div class="stats fx">
+        <div class="stat"><h3><span class="count" data-count="8">0</span>+</h3><p>Yayınlanan Proje</p></div>
+        <div class="stat"><h3><span class="count" data-count="5">0</span>+</h3><p>Platform</p></div>
+        <div class="stat"><h3>2026</h3><p>Kuruluş Yılı</p></div>
+        <div class="stat"><h3>∞</h3><p>Hedef</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 05 — OYUNLAR -->
   <section class="sec" id="oyun">
     <div class="wrap">
       <div class="sec-head fx">
-        <p class="sec-kicker">// 02 — oyunlar</p>
+        <p class="sec-kicker">// 04 — oyunlar</p>
         <h2 class="sec-title">Oyun <em>Arşivi</em></h2>
         <p class="sec-sub">Tarayıcında ücretsiz oyna. Kurulum yok, bekleme yok.</p>
       </div>
       <div class="proj-grid">
         <article class="proj hud fx">
           <div class="proj-top"><span class="idx">PRJ.001</span><span class="proj-tag tag-game">Oyun</span></div>
-          <div class="proj-art">🍇🍎🍊🥭🍉</div>
+          <img class="proj-img" src="img/merge-fruit.png" alt="Merge Fruit oyun görseli" loading="lazy">
           <h3>Merge Fruit</h3>
           <p>Meyveleri düşür, birleştir ve en yüksek skoru yakala. Bağımlılık yapan fizik tabanlı birleştirme oyunu.</p>
+          <details class="case">
+            <summary>Vaka Dosyası</summary>
+            <div>
+              <p><b>SORUN //</b> Mobilde de akıcı çalışan, anında oynanabilir bir fizik oyunu.</p>
+              <p><b>ÇÖZÜM //</b> Canvas tabanlı özel fizik motoru, dokunmatik öncelikli kontroller, localStorage ile kayıt.</p>
+              <p><b>SONUÇ //</b> Tarayıcıda saniyeler içinde açılan, platformlara yüklenebilir paket yapı.</p>
+            </div>
+          </details>
           <a class="btn btn-acc" href="merge-fruit/" data-boot="PRJ.001 :: MERGE_FRUIT">Hemen Oyna ▸</a>
         </article>
         <article class="proj hud fx">
           <div class="proj-top"><span class="idx">PRJ.002</span><span class="proj-tag tag-game">Oyun</span></div>
-          <div class="proj-art">⚔️🛡️🏰🔥💀</div>
+          <img class="proj-img" src="img/knight-rush.png" alt="Knight Rush oyun görseli" loading="lazy">
           <h3>Knight Rush</h3>
           <p>Kale savunma ve aksiyon bir arada! Düşman dalgalarını durdur ve kaleni koru.</p>
+          <details class="case">
+            <summary>Vaka Dosyası</summary>
+            <div>
+              <p><b>SORUN //</b> Dalga tabanlı savunma oyununda artan düşman sayısıyla performansı korumak.</p>
+              <p><b>ÇÖZÜM //</b> Nesne havuzu (object pooling), sprite atlas ve kademeli zorluk eğrisi.</p>
+              <p><b>SONUÇ //</b> Yoğun sahnelerde bile stabil kare hızıyla akıcı aksiyon.</p>
+            </div>
+          </details>
           <a class="btn btn-acc" href="knight-rush/" data-boot="PRJ.002 :: KNIGHT_RUSH">Hemen Oyna ▸</a>
         </article>
         <article class="proj hud fx">
           <div class="proj-top"><span class="idx">PRJ.003</span><span class="proj-tag tag-game">Oyun</span></div>
-          <div class="proj-art">⌨️🚀🏁🏆⚡</div>
+          <img class="proj-img" src="img/typerush.png" alt="TypeRush oyun görseli" loading="lazy">
           <h3>TypeRush</h3>
           <p>Klavyendeki hızı yarışa dök! Botlara karşı yarış, kelimeleri hatasız yaz ve bitişe ilk sen ulaş.</p>
+          <details class="case">
+            <summary>Vaka Dosyası</summary>
+            <div>
+              <p><b>SORUN //</b> Yazma pratiğini sıkıcı olmaktan çıkarıp yarış heyecanına dönüştürmek.</p>
+              <p><b>ÇÖZÜM //</b> Gerçek zamanlı bot rakipler, WPM ölçümü ve service worker ile çevrimdışı destek.</p>
+              <p><b>SONUÇ //</b> PWA olarak yüklenebilen, tekrar oynanabilirliği yüksek bir yarış deneyimi.</p>
+            </div>
+          </details>
           <a class="btn btn-acc" href="typerush/" data-boot="PRJ.003 :: TYPERUSH">Hemen Oyna ▸</a>
         </article>
       </div>
     </div>
   </section>
 
-  <!-- APPS -->
+  <!-- 06 — UYGULAMALAR -->
   <section class="sec" id="uygulamalar">
     <div class="wrap">
       <div class="sec-head fx">
-        <p class="sec-kicker">// 03 — uygulamalar & platformlar</p>
+        <p class="sec-kicker">// 05 — uygulamalar & platformlar</p>
         <h2 class="sec-title">Ürün <em>Laboratuvarı</em></h2>
         <p class="sec-sub">Geliştirdiğimiz uygulamalar ve canlı platformlar.</p>
       </div>
       <div class="proj-grid">
         <article class="proj hud fx">
           <div class="proj-top"><span class="idx">PRJ.004</span><span class="proj-tag tag-app">Uygulama</span></div>
-          <div class="proj-art">⚡💰🚀🤑📈</div>
+          <img class="proj-img" src="img/glitch.png" alt="Glitch Business uygulama görseli" loading="lazy">
           <h3>Glitch Business</h3>
           <p>Meme coin evreninde iş kuruyorsun! Tıkla, kazan, yükselt. Telegram Mini App olarak oynanan tap-to-earn uygulaması.</p>
+          <details class="case">
+            <summary>Vaka Dosyası</summary>
+            <div>
+              <p><b>SORUN //</b> Telegram ekosisteminde çalışan, hafif ve bağımlılık yaratan bir mini app.</p>
+              <p><b>ÇÖZÜM //</b> Telegram WebApp API entegrasyonu, kademeli yükseltme ekonomisi, tek dosyalık hızlı yükleme.</p>
+              <p><b>SONUÇ //</b> Mesajlaşma uygulamasından çıkmadan saniyede açılan oyun deneyimi.</p>
+            </div>
+          </details>
           <a class="btn btn-ghost" href="glitch/" data-boot="PRJ.004 :: GLITCH_BUSINESS">Uygulamayı Aç ▸</a>
         </article>
         <article class="proj hud fx">
           <div class="proj-top"><span class="idx">PRJ.005</span><span class="proj-tag tag-app">Uygulama</span></div>
-          <div class="proj-art">📈💧💪💳✅</div>
+          <img class="proj-img" src="img/saas-panel.png" alt="SaaS Kontrol Paneli görseli" loading="lazy">
           <h3>SaaS Kontrol Paneli</h3>
           <p>Kişisel görevlerini, bütçeni, su tüketimini ve spor hedeflerini tek bir ekrandan takip et.</p>
+          <details class="case">
+            <summary>Vaka Dosyası</summary>
+            <div>
+              <p><b>SORUN //</b> Dağınık kişisel takip araçlarını tek panelde toplamak.</p>
+              <p><b>ÇÖZÜM //</b> Modüler widget mimarisi, grafiklerle görselleştirme, tamamen istemci tarafı veri.</p>
+              <p><b>SONUÇ //</b> Kayıt gerektirmeyen, anında kullanılan kişisel dashboard.</p>
+            </div>
+          </details>
           <a class="btn btn-ghost" href="saas-panel/" data-boot="PRJ.005 :: SAAS_PANEL">Uygulamayı Aç ▸</a>
         </article>
         <article class="proj hud fx">
           <div class="proj-top"><span class="idx">PRJ.006</span><span class="proj-tag tag-app">Uygulama</span></div>
-          <div class="proj-art">✈️🚢⚡👨‍🔬🧪</div>
+          <img class="proj-img" src="img/science-lab.png" alt="Fen Laboratuvarı simülasyon görseli" loading="lazy">
           <h3>Fen Laboratuvarı</h3>
           <p>Aerodinamik, hidrodinamik ve elektrik devrelerini 2D ortamda interaktif olarak test et ve öğren.</p>
+          <details class="case">
+            <summary>Vaka Dosyası</summary>
+            <div>
+              <p><b>SORUN //</b> Fen kavramlarını ders kitabından çıkarıp deneyerek öğretmek.</p>
+              <p><b>ÇÖZÜM //</b> Gerçek formüllere dayalı 2D fizik simülasyonları, parametreleri canlı değiştirme.</p>
+              <p><b>SONUÇ //</b> Tarayıcıda çalışan, kurulumsuz interaktif eğitim aracı.</p>
+            </div>
+          </details>
           <a class="btn btn-ghost" href="science-lab/" data-boot="PRJ.006 :: SCIENCE_LAB">Simülasyonu Başlat ▸</a>
         </article>
         <article class="proj hud fx">
           <div class="proj-top"><span class="idx">PRJ.007</span><span class="proj-tag tag-web">Platform</span></div>
-          <div class="proj-art">🔗📱✨🎨📈</div>
+          <img class="proj-img" src="img/bionests.png" alt="Bionests platform görseli" loading="lazy">
           <h3>Bionests</h3>
           <p>Tüm linklerini tek bir güzel sayfada topla. Premium temalar, widget'lar ve istatistiklerle yeni nesil bio link platformu.</p>
+          <details class="case">
+            <summary>Vaka Dosyası</summary>
+            <div>
+              <p><b>SORUN //</b> Sosyal medya biyografisine sığmayan dijital varlığı tek adreste sunmak.</p>
+              <p><b>ÇÖZÜM //</b> Tema motoru, widget sistemi ve tıklama istatistikleriyle tam donanımlı platform.</p>
+              <p><b>SONUÇ //</b> Canlıda çalışan, kendi alan adında yayında olan SaaS ürünü.</p>
+            </div>
+          </details>
           <a class="btn btn-ghost" href="https://bionests.com" target="_blank" rel="noopener noreferrer">Ziyaret Et ▸</a>
         </article>
         <article class="proj hud fx">
           <div class="proj-top"><span class="idx">PRJ.008</span><span class="proj-tag tag-web">Platform</span></div>
-          <div class="proj-art">🚛📍🗺️🏢📊</div>
+          <img class="proj-img" src="img/flotixs.png" alt="Flotixs filo yönetim sistemi görseli" loading="lazy">
           <h3>Flotixs</h3>
           <p>Filo Yönetim ve Araç Takip Sistemi. Şirketinin lojistik operasyonlarını tek ekrandan verimli şekilde kontrol et.</p>
+          <details class="case">
+            <summary>Vaka Dosyası</summary>
+            <div>
+              <p><b>SORUN //</b> Dağınık filo verilerini tek operasyon ekranında toplamak.</p>
+              <p><b>ÇÖZÜM //</b> Araç takip entegrasyonu, harita görselleştirme ve raporlama modülleri.</p>
+              <p><b>SONUÇ //</b> Lojistik ekiplerinin günlük operasyonu yönettiği canlı sistem.</p>
+            </div>
+          </details>
           <a class="btn btn-ghost" href="https://flotixs.com" target="_blank" rel="noopener noreferrer">Sisteme Git ▸</a>
         </article>
       </div>
     </div>
   </section>
 
-  <!-- CONTACT -->
+  <!-- 07 — DEVLOG TEASER -->
+  <section class="sec" id="devlog">
+    <div class="wrap">
+      <div class="sec-head fx">
+        <p class="sec-kicker">// 06 — devlog</p>
+        <h2 class="sec-title">Geliştirici <em>Günlüğü</em></h2>
+        <p class="sec-sub">Perde arkası: projelerimizi nasıl tasarlayıp kodladığımızı anlatıyoruz.</p>
+      </div>
+      <div class="blog-grid">
+        <a class="post hud fx" href="blog.html#merge-fruit">
+          <span class="date">LOG.001 — 2026</span>
+          <h3>Merge Fruit'i Nasıl Yaptık?</h3>
+          <p>Fizik tabanlı birleştirme oyununun tasarım kararları, performans optimizasyonları ve yayın süreci.</p>
+          <span class="more">Okumaya devam et ▸</span>
+        </a>
+        <a class="post hud fx" href="blog.html#kod-tuneli">
+          <span class="date">LOG.002 — 2026</span>
+          <h3>Kod Tüneli: Sinematik Açılışın Perde Arkası</h3>
+          <p>Bu sitenin açılışındaki 3D kod tüneli tek bir canvas üzerinde nasıl çalışıyor? Perspektif matematiği ve render döngüsü.</p>
+          <span class="more">Okumaya devam et ▸</span>
+        </a>
+        <a class="post hud fx" href="blog.html#typerush">
+          <span class="date">LOG.003 — 2026</span>
+          <h3>TypeRush: Botlara Karşı Yazma Yarışı Tasarlamak</h3>
+          <p>Adil hissettiren bot rakipler, WPM ölçümü ve bir PWA'nın çevrimdışı çalışır hâle getirilmesi.</p>
+          <span class="more">Okumaya devam et ▸</span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- 08 — İLETİŞİM -->
   <section class="sec" id="iletisim">
     <div class="wrap">
-      <div class="contact-box hud fx">
-        <p class="sec-kicker">// 04 — bağlantı kur</p>
+      <div class="sec-head fx">
+        <p class="sec-kicker">// 07 — bağlantı kur</p>
         <h2 class="sec-title">Birlikte <em>Çalışalım</em></h2>
-        <p>Projeniz için bizimle iletişime geçin.</p>
-        <a class="mail-link" href="mailto:ceo@bionests.com">ceo@bionests.com</a>
+        <p class="sec-sub">Projenizi anlatın, 24 saat içinde dönüş yapalım.</p>
+      </div>
+      <div class="contact-grid">
+        <form class="cform hud fx" action="https://formsubmit.co/info@tamgastudio.com" method="POST">
+          <input type="hidden" name="_subject" value="tamgastudio.com — Yeni iletişim formu mesajı">
+          <input type="hidden" name="_captcha" value="false">
+          <input type="text" name="_honey" style="display:none">
+          <label for="cf-name">İsim</label>
+          <input id="cf-name" type="text" name="name" placeholder="Adınız" required>
+          <label for="cf-mail">E-posta</label>
+          <input id="cf-mail" type="email" name="email" placeholder="ornek@mail.com" required>
+          <label for="cf-msg">Mesaj</label>
+          <textarea id="cf-msg" name="message" rows="5" placeholder="Projenizden bahsedin..." required></textarea>
+          <button class="btn btn-acc" type="submit">Gönder ▸</button>
+        </form>
+        <div class="cinfo hud fx">
+          <h3>// Doğrudan ulaş</h3>
+          <p>Form yerine e-posta tercih ediyorsanız:</p>
+          <a class="mail-link" href="mailto:info@tamgastudio.com">info@tamgastudio.com</a>
+          <p>Bizi takip edin:</p>
+          <div class="socials">
+            <a href="https://github.com/tahayagmur" target="_blank" rel="noopener noreferrer" aria-label="GitHub" title="GitHub">
+              <svg viewBox="0 0 16 16"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09 2 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg>
+            </a>
+            <a href="#" aria-label="X (Twitter) — yakında" title="X — yakında">
+              <svg viewBox="0 0 16 16"><path d="M12.6.75h2.45L9.7 6.88 16 15.25h-4.93L7.2 10.2l-4.43 5.05H.32l5.73-6.55L0 .75h5.06l3.49 4.62L12.6.75Zm-.86 13.03h1.36L4.32 2.14H2.87l8.87 11.64Z"/></svg>
+            </a>
+            <a href="#" aria-label="Instagram — yakında" title="Instagram — yakında">
+              <svg viewBox="0 0 16 16"><path d="M8 0C5.83 0 5.55.01 4.7.05 3.85.09 3.27.22 2.76.42c-.53.2-.97.48-1.42.92-.44.45-.72.9-.92 1.42-.2.51-.33 1.09-.37 1.94C.01 5.55 0 5.83 0 8s.01 2.45.05 3.3c.04.85.17 1.43.37 1.94.2.53.48.97.92 1.42.45.44.9.72 1.42.92.51.2 1.09.33 1.94.37.85.04 1.13.05 3.3.05s2.45-.01 3.3-.05c.85-.04 1.43-.17 1.94-.37.53-.2.97-.48 1.42-.92.44-.45.72-.9.92-1.42.2-.51.33-1.09.37-1.94.04-.85.05-1.13.05-3.3s-.01-2.45-.05-3.3c-.04-.85-.17-1.43-.37-1.94-.2-.53-.48-.97-.92-1.42-.45-.44-.9-.72-1.42-.92-.51-.2-1.09-.33-1.94-.37C10.45.01 10.17 0 8 0Zm0 1.44c2.14 0 2.39.01 3.23.05.78.04 1.2.17 1.49.28.37.14.64.32.92.6.28.28.46.55.6.92.11.28.24.71.28 1.49.04.84.05 1.09.05 3.23s-.01 2.39-.05 3.23c-.04.78-.17 1.2-.28 1.49-.14.37-.32.64-.6.92-.28.28-.55.46-.92.6-.28.11-.71.24-1.49.28-.84.04-1.09.05-3.23.05s-2.39-.01-3.23-.05c-.78-.04-1.2-.17-1.49-.28a2.5 2.5 0 0 1-.92-.6 2.5 2.5 0 0 1-.6-.92c-.11-.28-.24-.71-.28-1.49-.04-.84-.05-1.09-.05-3.23s.01-2.39.05-3.23c.04-.78.17-1.2.28-1.49.14-.37.32-.64.6-.92.28-.28.55-.46.92-.6.28-.11.71-.24 1.49-.28.84-.04 1.09-.05 3.23-.05Zm0 2.45a4.11 4.11 0 1 0 0 8.22 4.11 4.11 0 0 0 0-8.22Zm0 6.78a2.67 2.67 0 1 1 0-5.34 2.67 2.67 0 0 1 0 5.34Zm5.23-6.94a.96.96 0 1 1-1.92 0 .96.96 0 0 1 1.92 0Z"/></svg>
+            </a>
+            <a href="#" aria-label="LinkedIn — yakında" title="LinkedIn — yakında">
+              <svg viewBox="0 0 16 16"><path d="M0 1.15C0 .52.52 0 1.18 0h13.64C15.48 0 16 .52 16 1.15v13.7c0 .63-.52 1.15-1.18 1.15H1.18A1.16 1.16 0 0 1 0 14.85V1.15Zm4.94 12.24V6.17H2.54v7.22h2.4ZM3.74 5.18c.84 0 1.36-.55 1.36-1.24-.02-.71-.52-1.25-1.34-1.25-.82 0-1.36.54-1.36 1.25 0 .69.52 1.24 1.32 1.24h.02Zm3.53 8.21h2.4V9.36c0-.22.02-.43.08-.59.17-.43.57-.88 1.23-.88.87 0 1.22.66 1.22 1.63v3.87h2.4V9.25c0-2.22-1.18-3.25-2.76-3.25-1.27 0-1.84.7-2.16 1.19h.02V6.17h-2.4c.03.68 0 7.22 0 7.22Z"/></svg>
+            </a>
+          </div>
+        </div>
       </div>
     </div>
   </section>
 
 </main>
 
+<!-- ============ FOOTER ============ -->
 <footer>
-  <span>© 2026 TAMGA STUDIO — TÜM HAKLARI SAKLIDIR.</span>
-  <div>
-    <a href="privacy-policy.html">Gizlilik Politikası</a>
-    <a href="about.html">Hakkımızda</a>
+  <div class="f-grid">
+    <div class="f-brand">
+      <a class="logo" href="#top">
+        <img src="tamga-logo.jpg" alt="Tamga Studio logo">
+        <span>TAMGA<b>_</b>STUDIO</span>
+      </a>
+      <p>Türkiye'den dünyaya; oyunlar, uygulamalar ve sinematik web deneyimleri üreten dijital stüdyo.</p>
+    </div>
+    <div class="f-col">
+      <h4>// Site</h4>
+      <a href="#hizmetler">Hizmetler</a>
+      <a href="#oyun">Oyunlar</a>
+      <a href="#uygulamalar">Uygulamalar</a>
+      <a href="blog.html">Devlog</a>
+      <a href="en.html">English</a>
+    </div>
+    <div class="f-col">
+      <h4>// Kurumsal</h4>
+      <a href="about.html">Hakkımızda</a>
+      <a href="privacy-policy.html">Gizlilik Politikası</a>
+      <a href="mailto:info@tamgastudio.com">info@tamgastudio.com</a>
+      <a href="https://github.com/tahayagmur" target="_blank" rel="noopener noreferrer">GitHub</a>
+    </div>
+  </div>
+  <div class="f-bottom">
+    <span>© 2026 TAMGA STUDIO — TÜM HAKLARI SAKLIDIR.</span>
+    <span>TAMGASTUDIO.COM // V2.0</span>
   </div>
 </footer>
+
+<!-- ÇEREZ BANDI -->
+<div id="cookieBar" role="dialog" aria-label="Çerez bildirimi">
+  <span>Bu site, deneyimi iyileştirmek ve reklam göstermek için çerez kullanır. Detay: <a href="privacy-policy.html">Gizlilik Politikası</a></span>
+  <button id="cookieOk" type="button">Kabul Et</button>
+</div>
 
 <!-- ============ LIBS (CDN) ============ -->
 <script src="fx.js" defer></script>
@@ -537,8 +946,8 @@ footer a:hover{color:var(--acc)}
 
 <script>
 /* ================================================================
-   TAMGA STUDIO — CINEMATIC ENGINE
-   Canvas 3D code tunnel  +  Lenis smooth scroll  +  GSAP bridge
+   TAMGA STUDIO — CINEMATIC ENGINE v2
+   Canvas 3D code tunnel + Lenis + GSAP ScrollTrigger
    ================================================================ */
 (function () {
   'use strict';
@@ -547,9 +956,10 @@ footer a:hover{color:var(--acc)}
   if (!window.gsap || !window.ScrollTrigger) {
     var s = document.createElement('style');
     s.textContent = '.fx{opacity:1!important;transform:none!important}' +
-      '.hero{visibility:visible!important;opacity:1!important}' +
+      '.reveal-panel{visibility:visible!important;opacity:1!important}' +
       'nav{visibility:visible!important;opacity:1!important}' +
-      '.hero-frame i{transform:none!important}' +
+      '.cframe i{transform:none!important}' +
+      '[data-hreveal]{opacity:1!important;transform:none!important}' +
       '#tunnel,.intro-hud,#skipIntro{display:none}';
     document.head.appendChild(s);
     return;
@@ -612,7 +1022,7 @@ footer a:hover{color:var(--acc)}
   ];
 
   /* ----------------------------------------------------------------
-     2. SYNTAX TOKENIZER  (one-time, per line)
+     2. SYNTAX TOKENIZER
   ---------------------------------------------------------------- */
   var KEYWORDS = ('const let var function return new class extends export default import await async ' +
     'if else for while do switch case break continue void static template typename auto delete ' +
@@ -623,11 +1033,11 @@ footer a:hover{color:var(--acc)}
   KEYWORDS.forEach(function (k) { KW[k] = 1; });
 
   var COL = {
-    kw:  '#00ff9c',   // hacker green
-    fn:  '#00e5ff',   // cyber cyan
-    str: '#e8c170',   // amber strings
+    kw:  '#00ff9c',
+    fn:  '#00e5ff',
+    str: '#e8c170',
     num: '#7ee8fa',
-    com: '#3e5247',   // muted comment green-gray
+    com: '#3e5247',
     pun: '#566069',
     id:  '#9fb4c7'
   };
@@ -644,7 +1054,6 @@ footer a:hover{color:var(--acc)}
       else if (/^[A-Za-z_]/.test(t)) c = KW[t] ? COL.kw : COL.id;
       else if (/^\s+$/.test(t)) c = null;
       else c = COL.pun;
-      // function-call heuristic: identifier followed by "("
       if (out.length && prev && prev.c === COL.id && t.charAt(0) === '(') prev.c = COL.fn;
       var tok = { t: t, c: c };
       out.push(tok);
@@ -656,7 +1065,7 @@ footer a:hover{color:var(--acc)}
   var TOKENIZED = CODE.map(function (l) { return { tokens: tokenize(l), len: l.length }; });
 
   /* ----------------------------------------------------------------
-     3. TUNNEL RENDERER  (single canvas, rAF, perspective math)
+     3. TUNNEL RENDERER
   ---------------------------------------------------------------- */
   var tunnel = document.getElementById('tunnel');
   var tctx = tunnel.getContext('2d', { alpha: false });
@@ -664,12 +1073,12 @@ footer a:hover{color:var(--acc)}
   var DPR = Math.min(window.devicePixelRatio || 1, 1.75);
   var W = 0, H = 0, CX = 0, CY = 0;
 
-  var DEPTH = 1400;        // virtual tunnel depth
-  var FOCAL = 420;         // focal length
-  var NEAR  = 26;          // near plane
-  var TRAVEL = DEPTH * 2.6;// total camera travel across the scroll
+  var DEPTH = 1400;
+  var FOCAL = 420;
+  var NEAR  = 26;
+  var TRAVEL = DEPTH * 2.6;
   var BASE_FONT = 15;
-  var CHAR_W = 0.6;        // JetBrains Mono advance ratio (em)
+  var CHAR_W = 0.6;
 
   var lines = [];
   var state = { p: 0, drift: 0, stageAlpha: 1, revealed: false };
@@ -685,7 +1094,6 @@ footer a:hover{color:var(--acc)}
       y: rand(-1.15, 1.15),
       z: rand(0, DEPTH),
       vy: rand(0.03, 0.11),
-      glitchT: rand(0, 100),
       phase: rand(0, Math.PI * 2)
     };
   }
@@ -710,20 +1118,16 @@ footer a:hover{color:var(--acc)}
     var dt = Math.min((now - lastT) / 1000 || 0.016, 0.05);
     lastT = now;
 
-    if (state.stageAlpha <= 0.01) return; // stage hidden → skip work
+    if (state.stageAlpha <= 0.01) return;
 
-    // background
     tctx.globalAlpha = 1;
     tctx.fillStyle = '#050607';
     tctx.fillRect(0, 0, W, H);
 
-    // camera: idle forward drift + scroll-driven travel
     state.drift += dt * 26 * (1 - Math.min(state.p * 3, 1) * 0.4);
     var camZ = state.drift + state.p * TRAVEL;
 
-    // rain slows as the tunnel flight takes over
     var rainAmt = 1 - Math.min(state.p * 4, 1) * 0.88;
-    // extra punch-in speed near the end (breach feel)
     var breach = Math.max(0, (state.p - 0.7) / 0.3);
 
     var t = now / 1000;
@@ -732,34 +1136,31 @@ footer a:hover{color:var(--acc)}
     for (var i = 0; i < lines.length; i++) {
       var L = lines[i];
 
-      // matrix rain (phase 1) — fades out as we fly
       if (rainAmt > 0.02) {
         L.y += L.vy * dt * rainAmt * 2.2;
         if (L.y > 1.2) { L.y = -1.2; L.x = (Math.random() < 0.5 ? -1 : 1) * rand(0.10, 1); }
       }
 
       var rel = L.z - camZ;
-      rel = ((rel % DEPTH) + DEPTH) % DEPTH;          // endless wrap
+      rel = ((rel % DEPTH) + DEPTH) % DEPTH;
       if (rel < 0.5) continue;
 
-      var s = FOCAL / rel;                            // perspective scale
-      var fs = BASE_FONT * s;
+      var sc = FOCAL / rel;
+      var fs = BASE_FONT * sc;
       if (fs < 2.4 || fs > 360) continue;
 
-      var sx = CX + L.x * spreadX * s * 0.45;
-      var sy = CY + L.y * spreadY * s * 0.45;
+      var sx = CX + L.x * spreadX * sc * 0.45;
+      var sy = CY + L.y * spreadY * sc * 0.45;
 
-      // depth fades: far fade-in, near fade-out ("passes behind your head")
       var aFar  = Math.min((DEPTH - rel) / (DEPTH * 0.38), 1);
       var aNear = Math.min(Math.max((rel - NEAR) / (NEAR * 2.4), 0), 1);
       var flick = 0.72 + 0.28 * Math.sin(L.phase + t * 2.6);
       var alpha = aFar * aNear * flick;
       if (alpha < 0.02) continue;
 
-      // chromatic-ish glow on close lines
-      if (s > 1.6) {
+      if (sc > 1.6) {
         tctx.shadowColor = 'rgba(0,255,156,0.55)';
-        tctx.shadowBlur = Math.min(s * 4, 22);
+        tctx.shadowBlur = Math.min(sc * 4, 22);
       } else tctx.shadowBlur = 0;
 
       tctx.font = fs + 'px "JetBrains Mono", monospace';
@@ -778,7 +1179,6 @@ footer a:hover{color:var(--acc)}
     }
     tctx.shadowBlur = 0;
 
-    // ---- glitch slices (CRT shimmer) ----
     var gProb = 0.012 + breach * 0.12;
     if (Math.random() < gProb) {
       var slices = 1 + ((Math.random() * 3) | 0);
@@ -787,14 +1187,13 @@ footer a:hover{color:var(--acc)}
         var off = rand(-18, 18) * (1 + breach * 2);
         try {
           tctx.drawImage(tunnel, 0, gy * DPR, tunnel.width, gh * DPR, off, gy, W, gh);
-        } catch (e) { /* canvas busy — skip slice */ }
+        } catch (e) {}
       }
       tctx.globalAlpha = 0.05;
       tctx.fillStyle = Math.random() < 0.5 ? '#00ff9c' : '#00e5ff';
       tctx.fillRect(0, Math.random() * H, W, 1.5);
     }
 
-    // subtle moving CRT line
     tctx.globalAlpha = 0.04;
     tctx.fillStyle = '#9dffd9';
     tctx.fillRect(0, (t * 38) % H, W, 2);
@@ -802,7 +1201,7 @@ footer a:hover{color:var(--acc)}
   }
 
   /* ----------------------------------------------------------------
-     4. BACKGROUND MATRIX  (perpetual, behind homepage)
+     4. BACKGROUND MATRIX
   ---------------------------------------------------------------- */
   var bg = document.getElementById('bgMatrix');
   var bctx = bg.getContext('2d');
@@ -811,7 +1210,7 @@ footer a:hover{color:var(--acc)}
 
   function resizeBG() {
     bW = window.innerWidth; bH = window.innerHeight;
-    bg.width = bW; bg.height = bH; // 1x — it's blurred behind everything
+    bg.width = bW; bg.height = bH;
     var n = Math.ceil(bW / bFS);
     bCols.length = 0;
     for (var i = 0; i < n; i++) bCols.push(Math.random() * -100);
@@ -820,7 +1219,7 @@ footer a:hover{color:var(--acc)}
   }
 
   function renderBG(now) {
-    if (now - bTimer < 66) return; // ~15fps is plenty for ambience
+    if (now - bTimer < 66) return;
     bTimer = now;
     bctx.fillStyle = 'rgba(0,0,0,0.08)';
     bctx.fillRect(0, 0, bW, bH);
@@ -835,7 +1234,7 @@ footer a:hover{color:var(--acc)}
   }
 
   /* ----------------------------------------------------------------
-     5. LENIS SMOOTH SCROLL  +  GSAP TICKER BRIDGE
+     5. LENIS + GSAP TICKER
   ---------------------------------------------------------------- */
   var lenis = null;
   if (!REDUCED && typeof Lenis !== 'undefined') {
@@ -858,7 +1257,7 @@ footer a:hover{color:var(--acc)}
   }
 
   /* ----------------------------------------------------------------
-     6. TEXT DECRYPT / SCRAMBLE EFFECT
+     6. TEXT DECRYPT EFFECT
   ---------------------------------------------------------------- */
   var SCRAMBLE = '!<>-_\\/[]{}—=+*^?#______01';
   function decrypt(el, duration) {
@@ -882,22 +1281,20 @@ footer a:hover{color:var(--acc)}
   }
 
   /* ----------------------------------------------------------------
-     7. REVEAL TIMELINE  (tunnel burst → HUD homepage)
+     7. REVEAL TIMELINE (tünel patlar → "NELER YAPIYORUZ" sahnesi)
   ---------------------------------------------------------------- */
   var reveal = gsap.timeline({
     paused: true,
     defaults: { ease: 'power3.out' },
     onStart: function () {
-      decrypt(document.getElementById('decrypt1'), 0.9);
-      setTimeout(function () { decrypt(document.getElementById('decrypt2'), 0.9); }, 250);
+      decrypt(document.getElementById('decrypt1'), 0.8);
+      setTimeout(function () { decrypt(document.getElementById('decrypt2'), 0.9); }, 220);
     }
   });
 
   reveal
-    // burst flash
     .to('#burstFlash', { opacity: 1, duration: 0.12, ease: 'power1.in' }, 0)
     .to('#burstFlash', { opacity: 0, duration: 0.6, ease: 'power2.out' }, 0.12)
-    // the tunnel shatters past the viewer
     .to('#tunnel', {
       opacity: 0, scale: 1.9, filter: 'blur(14px)', duration: 0.9, ease: 'power2.inOut',
       onUpdate: function () { state.stageAlpha = 1 - this.progress(); },
@@ -905,19 +1302,18 @@ footer a:hover{color:var(--acc)}
     }, 0)
     .to('#introHud', { autoAlpha: 0, duration: 0.35 }, 0)
     .to('#skipIntro', { autoAlpha: 0, duration: 0.35 }, 0)
-    // homepage HUD assembles
-    .to('.hero', { autoAlpha: 1, duration: 0.45 }, 0.25)
-    .to('.hero-frame .t', { scaleX: 1, duration: 0.8, ease: 'power4.inOut' }, 0.35)
-    .to('.hero-frame .b', { scaleX: 1, duration: 0.8, ease: 'power4.inOut' }, 0.35)
-    .to('.hero-frame .l', { scaleY: 1, duration: 0.8, ease: 'power4.inOut' }, 0.5)
-    .to('.hero-frame .r', { scaleY: 1, duration: 0.8, ease: 'power4.inOut' }, 0.5)
-    .fromTo('.hero [data-reveal]',
+    .to('.reveal-panel', { autoAlpha: 1, duration: 0.45 }, 0.25)
+    .to('.reveal-panel .cframe .t', { scaleX: 1, duration: 0.8, ease: 'power4.inOut' }, 0.35)
+    .to('.reveal-panel .cframe .b', { scaleX: 1, duration: 0.8, ease: 'power4.inOut' }, 0.35)
+    .to('.reveal-panel .cframe .l', { scaleY: 1, duration: 0.8, ease: 'power4.inOut' }, 0.5)
+    .to('.reveal-panel .cframe .r', { scaleY: 1, duration: 0.8, ease: 'power4.inOut' }, 0.5)
+    .fromTo('.reveal-panel [data-reveal]',
       { y: 42, autoAlpha: 0 },
-      { y: 0, autoAlpha: 1, duration: 0.85, stagger: 0.12 }, 0.4)
+      { y: 0, autoAlpha: 1, duration: 0.85, stagger: 0.1 }, 0.4)
     .to('#mainNav', { autoAlpha: 1, y: 0, duration: 0.6, startAt: { y: -24 } }, 0.7);
 
   /* ----------------------------------------------------------------
-     8. SCROLLTRIGGER — pin the intro & drive the camera
+     8. SCROLLTRIGGER — intro pin + kamera
   ---------------------------------------------------------------- */
   var introST = null;
 
@@ -931,7 +1327,6 @@ footer a:hover{color:var(--acc)}
       anticipatePin: 1,
       onUpdate: function (self) {
         state.p = self.progress;
-        // fade the HUD chrome as soon as flight begins
         if (!state.revealed) {
           var hudA = 1 - Math.min(self.progress * 5, 1);
           gsap.set('#introHud', { opacity: hudA });
@@ -946,24 +1341,52 @@ footer a:hover{color:var(--acc)}
       }
     });
   } else {
-    // reduced motion: no flight — show homepage immediately
     state.p = 1; state.revealed = true; state.stageAlpha = 0;
     gsap.set('#tunnel', { opacity: 0 });
     gsap.set('#introHud, #skipIntro', { autoAlpha: 0 });
-    gsap.set('.hero', { autoAlpha: 1 });
-    gsap.set('.hero [data-reveal]', { autoAlpha: 1, y: 0 });
-    gsap.set('.hero-frame i', { scale: 1, scaleX: 1, scaleY: 1 });
+    gsap.set('.reveal-panel', { autoAlpha: 1 });
+    gsap.set('.reveal-panel [data-reveal]', { autoAlpha: 1, y: 0 });
+    gsap.set('.cframe i', { scale: 1, scaleX: 1, scaleY: 1 });
     gsap.set('#mainNav', { autoAlpha: 1 });
   }
 
-  // skip button → jump to the end of the pinned flight
   document.getElementById('skipIntro').addEventListener('click', function () {
     var end = introST ? introST.end : window.innerHeight;
     scrollToTarget(end + 2);
   });
 
   /* ----------------------------------------------------------------
-     9. CONTENT SECTION REVEALS + COUNTERS
+     9. HERO SAHNESİ (ana sayfaya geliş — scroll ile tetiklenir)
+  ---------------------------------------------------------------- */
+  var heroTL = gsap.timeline({
+    paused: true,
+    defaults: { ease: 'power3.out' },
+    onStart: function () {
+      decrypt(document.getElementById('heroD1'), 0.9);
+      setTimeout(function () { decrypt(document.getElementById('heroD2'), 0.9); }, 250);
+    }
+  });
+  heroTL
+    .to('#anasayfa .cframe .t', { scaleX: 1, duration: 0.8, ease: 'power4.inOut' }, 0)
+    .to('#anasayfa .cframe .b', { scaleX: 1, duration: 0.8, ease: 'power4.inOut' }, 0)
+    .to('#anasayfa .cframe .l', { scaleY: 1, duration: 0.8, ease: 'power4.inOut' }, 0.15)
+    .to('#anasayfa .cframe .r', { scaleY: 1, duration: 0.8, ease: 'power4.inOut' }, 0.15)
+    .fromTo('#anasayfa [data-hreveal]',
+      { y: 42, autoAlpha: 0 },
+      { y: 0, autoAlpha: 1, duration: 0.85, stagger: 0.12 }, 0.1);
+
+  if (!REDUCED) {
+    gsap.set('#anasayfa [data-hreveal]', { autoAlpha: 0 });
+    ScrollTrigger.create({
+      trigger: '#anasayfa', start: 'top 62%', once: true,
+      onEnter: function () { heroTL.play(); }
+    });
+  } else {
+    gsap.set('#anasayfa .cframe i', { scaleX: 1, scaleY: 1 });
+  }
+
+  /* ----------------------------------------------------------------
+     10. SECTION REVEALS + COUNTERS
   ---------------------------------------------------------------- */
   gsap.utils.toArray('.fx').forEach(function (el) {
     gsap.fromTo(el,
@@ -989,7 +1412,7 @@ footer a:hover{color:var(--acc)}
   });
 
   /* ----------------------------------------------------------------
-     10. NAV ANCHORS (Lenis-aware) + MAILTO TOAST
+     11. NAV ANCHORS + MAILTO TOAST + ÇEREZ BANDI
   ---------------------------------------------------------------- */
   document.querySelectorAll('a[href^="#"]').forEach(function (a) {
     a.addEventListener('click', function (e) {
@@ -998,7 +1421,7 @@ footer a:hover{color:var(--acc)}
       var target = document.querySelector(id);
       if (!target) return;
       e.preventDefault();
-      if (id === '#anasayfa') { scrollToTarget(0); return; }
+      if (id === '#top') { scrollToTarget(0); return; }
       scrollToTarget(target, -70);
     });
   });
@@ -1025,8 +1448,21 @@ footer a:hover{color:var(--acc)}
     });
   });
 
+  /* çerez bandı */
+  (function () {
+    var ok = false;
+    try { ok = localStorage.getItem('tamga-cookie-ok') === '1'; } catch (e) {}
+    if (ok) return;
+    var bar = document.getElementById('cookieBar');
+    setTimeout(function () { bar.classList.add('show'); }, 2200);
+    document.getElementById('cookieOk').addEventListener('click', function () {
+      try { localStorage.setItem('tamga-cookie-ok', '1'); } catch (e) {}
+      bar.classList.remove('show');
+    });
+  })();
+
   /* ----------------------------------------------------------------
-     11. RESIZE / INIT
+     12. RESIZE / INIT
   ---------------------------------------------------------------- */
   var rT;
   window.addEventListener('resize', function () {
@@ -1038,11 +1474,6 @@ footer a:hover{color:var(--acc)}
 
   resizeTunnel();
   resizeBG();
-
-  // ensure fonts are ready so the canvas monospace metrics are correct
-  if (document.fonts && document.fonts.ready) {
-    document.fonts.ready.then(function () { /* glyphs hot — nothing else needed */ });
-  }
 })();
 </script>
 

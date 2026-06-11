@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://tamgastudio.com/sitemap.xml

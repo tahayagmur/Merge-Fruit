@@ -2,10 +2,19 @@
 <html lang="tr">
 <head>
 <meta charset="UTF-8">
-<link rel="icon" type="image/jpeg" href="tamga-logo.jpg">
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="alternate icon" type="image/jpeg" href="tamga-logo.jpg">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Hakkımızda – Tamga Studio</title>
 <meta name="description" content="Tamga Studio hakkında bilgi edinin. Türkiye'den küresel oyun ve dijital ajans deneyimi.">
+<link rel="canonical" href="https://tamgastudio.com/about.html">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://tamgastudio.com/about.html">
+<meta property="og:title" content="Hakkımızda – Tamga Studio">
+<meta property="og:description" content="Türkiye'den dünyaya açılan, oyun geliştirme ve dijital ajans hizmetleri sunan yaratıcı bir ekibiz.">
+<meta property="og:image" content="https://tamgastudio.com/tamga-logo.jpg">
+<meta property="og:locale" content="tr_TR">
+<meta name="twitter:card" content="summary">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Space+Grotesk:wght@300;400;500;600;700&family=Syncopate:wght@400;700&display=swap" rel="stylesheet">
@@ -34,7 +43,9 @@ nav{
   background:rgba(8,10,11,.78);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
   border-bottom:1px solid var(--line);
 }
-.logo{font-family:var(--disp);font-weight:700;font-size:.95rem;letter-spacing:.18em;color:var(--txt);text-decoration:none;white-space:nowrap}
+.logo{display:flex;align-items:center;gap:11px;text-decoration:none;white-space:nowrap}
+.logo img{width:28px;height:28px;object-fit:cover;border:1px solid var(--line);display:block}
+.logo span{font-family:var(--disp);font-weight:700;font-size:.92rem;letter-spacing:.18em;color:var(--txt)}
 .logo b{color:var(--acc);font-weight:700}
 .nav-links{display:flex;align-items:center;gap:clamp(12px,2.4vw,30px)}
 .nav-links a{font-family:var(--mono);font-size:.74rem;letter-spacing:.18em;text-transform:uppercase;color:var(--mut);text-decoration:none;transition:.2s;white-space:nowrap}
@@ -118,10 +129,11 @@ footer a:hover{color:var(--acc)}
 <canvas id="bgMatrix" aria-hidden="true"></canvas>
 
 <nav aria-label="Ana menü">
-  <a class="logo" href="/">TAMGA<b>_</b>STUDIO</a>
+  <a class="logo" href="/"><img src="tamga-logo.jpg" alt="Tamga Studio logo"><span>TAMGA<b>_</b>STUDIO</span></a>
   <div class="nav-links">
     <a href="/">Ana Sayfa</a>
     <a href="/#oyun">Oyunlar</a>
+    <a href="blog.html">Devlog</a>
     <a href="privacy-policy.html">Gizlilik</a>
   </div>
 </nav>
@@ -167,7 +179,7 @@ footer a:hover{color:var(--acc)}
       <p class="kicker">// 02 — bağlantı kur</p>
       <h2>Birlikte Bir Şeyler <em>Yapalım</em></h2>
       <p>Oyun geliştirme, web tasarım veya dijital pazarlama için bize ulaşın.</p>
-      <a href="mailto:ceo@bionests.com" class="btn btn-acc">📧 İletişime Geç ▸</a>
+      <a href="mailto:info@tamgastudio.com" class="btn btn-acc">📧 İletişime Geç ▸</a>
       <a href="merge-fruit/" class="btn btn-ghost" data-boot="PRJ.001 :: MERGE_FRUIT">🎮 Oyunu Oyna ▸</a>
     </section>
 

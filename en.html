@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="alternate icon" type="image/jpeg" href="tamga-logo.jpg">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tamga Studio – Digital Agency & Game Development</title>
+<meta name="description" content="Tamga Studio: a Turkish digital studio building browser games, SaaS platforms and cinematic web experiences with JavaScript, Python and C++.">
+<link rel="canonical" href="https://tamgastudio.com/en.html">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://tamgastudio.com/en.html">
+<meta property="og:title" content="Tamga Studio – Digital Agency & Game Development">
+<meta property="og:description" content="Browser games running at 60 FPS, scalable SaaS platforms and cinematic web experiences.">
+<meta property="og:image" content="https://tamgastudio.com/tamga-logo.jpg">
+<meta property="og:locale" content="en_US">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Space+Grotesk:wght@300;400;500;600;700&family=Syncopate:wght@400;700&display=swap" rel="stylesheet">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3066824413621209" crossorigin="anonymous"></script>
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#0a0a0c;--bg2:#050607;
+  --panel:rgba(13,18,16,.62);
+  --line:rgba(0,255,156,.14);
+  --acc:#00ff9c;--acc2:#00e5ff;--amber:#e8c170;
+  --txt:#e6edf3;--mut:#8b98a5;--mut2:#525e6b;
+  --mono:'JetBrains Mono',ui-monospace,monospace;
+  --sans:'Space Grotesk',system-ui,sans-serif;
+  --disp:'Syncopate',sans-serif;
+}
+body{background:var(--bg);color:var(--txt);font-family:var(--sans);overflow-x:hidden;-webkit-font-smoothing:antialiased}
+::selection{background:var(--acc);color:#031}
+#bgMatrix{position:fixed;inset:0;width:100%;height:100%;z-index:0;opacity:.07;pointer-events:none}
+
+nav{
+  position:sticky;top:0;z-index:90;
+  display:flex;justify-content:space-between;align-items:center;
+  padding:14px clamp(18px,4vw,44px);
+  background:rgba(8,10,11,.78);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+  border-bottom:1px solid var(--line);
+}
+.logo{display:flex;align-items:center;gap:11px;text-decoration:none;white-space:nowrap}
+.logo img{width:28px;height:28px;object-fit:cover;border:1px solid var(--line);display:block}
+.logo span{font-family:var(--disp);font-weight:700;font-size:.9rem;letter-spacing:.18em;color:var(--txt)}
+.logo b{color:var(--acc);font-weight:700}
+.nav-links{display:flex;align-items:center;gap:clamp(12px,2.4vw,30px)}
+.nav-links a{font-family:var(--mono);font-size:.74rem;letter-spacing:.18em;text-transform:uppercase;color:var(--mut);text-decoration:none;transition:.2s;white-space:nowrap}
+.nav-links a:hover{color:var(--acc);text-shadow:0 0 14px rgba(0,255,156,.6)}
+.nav-links a.lang{border:1px solid rgba(0,229,255,.4);color:var(--acc2);padding:4px 9px}
+
+main{position:relative;z-index:5}
+.wrap{max-width:1100px;margin:0 auto;padding:0 clamp(18px,4vw,40px)}
+
+.hero{padding:clamp(80px,14vh,130px) 0 clamp(50px,8vh,70px);text-align:center}
+.kicker{font-family:var(--mono);font-size:.78rem;letter-spacing:.3em;color:var(--acc);text-transform:uppercase;margin-bottom:22px}
+.kicker::before{content:'> '}
+.hero h1{font-family:var(--disp);font-size:clamp(1.6rem,5.4vw,3.6rem);font-weight:700;letter-spacing:.05em;text-transform:uppercase;line-height:1.2}
+.hero h1 em{
+  font-style:normal;
+  background:linear-gradient(90deg,var(--acc),var(--acc2));
+  -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;
+  filter:drop-shadow(0 0 18px rgba(0,255,156,.3));
+}
+.hero p{color:var(--mut);font-weight:300;max-width:640px;margin:24px auto 36px;line-height:1.8;font-size:1.02rem}
+.btn{
+  display:inline-block;font-family:var(--mono);font-size:.8rem;font-weight:700;
+  letter-spacing:.22em;text-transform:uppercase;text-decoration:none;
+  padding:16px 32px;margin:6px;transition:.25s;
+  clip-path:polygon(0 0,calc(100% - 14px) 0,100% 14px,100% 100%,14px 100%,0 calc(100% - 14px));
+}
+.btn-acc{background:var(--acc);color:#02130b}
+.btn-acc:hover{background:var(--acc2);box-shadow:0 0 34px rgba(0,229,255,.45);transform:translateY(-2px)}
+.btn-ghost{background:rgba(0,255,156,.05);color:var(--acc);border:1px solid rgba(0,255,156,.4)}
+.btn-ghost:hover{background:rgba(0,255,156,.14);transform:translateY(-2px)}
+
+.sec{padding:clamp(50px,8vh,80px) 0}
+.sec-kicker{font-family:var(--mono);font-size:.74rem;letter-spacing:.32em;color:var(--acc2);text-transform:uppercase;margin-bottom:14px}
+.sec-title{font-family:var(--disp);font-size:clamp(1.2rem,3vw,1.9rem);font-weight:700;letter-spacing:.05em;text-transform:uppercase;margin-bottom:36px}
+.sec-title em{font-style:normal;color:var(--acc)}
+
+.hud{position:relative;background:var(--panel);border:1px solid var(--line);backdrop-filter:blur(6px)}
+.hud::before,.hud::after{content:'';position:absolute;width:15px;height:15px;border:2px solid var(--acc);transition:.3s}
+.hud::before{top:-2px;left:-2px;border-right:0;border-bottom:0}
+.hud::after{bottom:-2px;right:-2px;border-left:0;border-top:0}
+.hud:hover{border-color:rgba(0,255,156,.4)}
+
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:22px}
+.proj{display:flex;flex-direction:column;padding:24px}
+.proj-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;font-family:var(--mono)}
+.proj-top .idx{font-size:.68rem;letter-spacing:.25em;color:var(--mut2)}
+.proj-tag{font-size:.6rem;font-weight:700;letter-spacing:.25em;text-transform:uppercase;padding:5px 10px;border:1px solid}
+.tag-game{color:var(--acc);border-color:rgba(0,255,156,.45);background:rgba(0,255,156,.07)}
+.tag-app{color:var(--acc2);border-color:rgba(0,229,255,.45);background:rgba(0,229,255,.07)}
+.tag-web{color:var(--amber);border-color:rgba(232,193,112,.45);background:rgba(232,193,112,.07)}
+.proj-img{width:100%;aspect-ratio:16/10;object-fit:cover;display:block;border:1px solid var(--line);margin-bottom:16px;background:var(--bg2)}
+.proj h3{font-size:1.12rem;font-weight:700;margin-bottom:8px}
+.proj p{color:var(--mut);font-size:.88rem;font-weight:300;line-height:1.65;margin-bottom:18px;flex:1}
+.proj .btn{align-self:flex-start;padding:12px 22px;font-size:.7rem;margin:0}
+
+.contact{padding:clamp(36px,6vw,56px);text-align:center;margin-bottom:90px}
+.contact p{color:var(--mut);font-weight:300;margin-bottom:20px}
+.mail-link{font-family:var(--mono);font-size:clamp(.95rem,2.4vw,1.2rem);font-weight:700;color:var(--acc);text-decoration:none;border-bottom:1px dashed rgba(0,255,156,.5);padding-bottom:4px}
+.mail-link:hover{color:var(--acc2);border-color:var(--acc2)}
+
+footer{
+  position:relative;z-index:5;border-top:1px solid var(--line);background:var(--bg2);
+  padding:30px clamp(18px,4vw,44px);
+  display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;
+  font-family:var(--mono);font-size:.72rem;letter-spacing:.12em;color:var(--mut2);
+}
+footer a{color:var(--mut);text-decoration:none;margin-left:18px;transition:.2s}
+footer a:hover{color:var(--acc)}
+</style>
+</head>
+<body>
+
+<canvas id="bgMatrix" aria-hidden="true"></canvas>
+
+<nav aria-label="Main menu">
+  <a class="logo" href="en.html"><img src="tamga-logo.jpg" alt="Tamga Studio logo"><span>TAMGA<b>_</b>STUDIO</span></a>
+  <div class="nav-links">
+    <a href="#work">Work</a>
+    <a href="#contact">Contact</a>
+    <a href="/" class="lang">TR</a>
+  </div>
+</nav>
+
+<main>
+  <div class="wrap">
+
+    <header class="hero">
+      <p class="kicker">TAMGA_STUDIO.INIT( LANG: EN )</p>
+      <h1>Creative Digital <em>Solutions</em></h1>
+      <p>We are a Turkish digital studio building end-to-end with JavaScript, Python and C++ — browser games running at 60 FPS, scalable SaaS platforms and cinematic web experiences that turn ideas into code, and code into experiences.</p>
+      <a class="btn btn-acc" href="#work">View Projects ▸</a>
+      <a class="btn btn-ghost" href="#contact">Get In Touch</a>
+    </header>
+
+    <section class="sec" id="work">
+      <p class="sec-kicker">// 01 — selected work</p>
+      <h2 class="sec-title">Project <em>Archive</em></h2>
+      <div class="grid">
+        <article class="proj hud">
+          <div class="proj-top"><span class="idx">PRJ.001</span><span class="proj-tag tag-game">Game</span></div>
+          <img class="proj-img" src="img/merge-fruit.png" alt="Merge Fruit game screenshot" loading="lazy">
+          <h3>Merge Fruit</h3>
+          <p>Drop fruits, merge them and chase the high score. A physics-based merge game playable free in your browser.</p>
+          <a class="btn btn-acc" href="merge-fruit/">Play Now ▸</a>
+        </article>
+        <article class="proj hud">
+          <div class="proj-top"><span class="idx">PRJ.002</span><span class="proj-tag tag-game">Game</span></div>
+          <img class="proj-img" src="img/knight-rush.png" alt="Knight Rush game screenshot" loading="lazy">
+          <h3>Knight Rush</h3>
+          <p>Castle defense meets action. Stop the enemy waves and protect your keep.</p>
+          <a class="btn btn-acc" href="knight-rush/">Play Now ▸</a>
+        </article>
+        <article class="proj hud">
+          <div class="proj-top"><span class="idx">PRJ.003</span><span class="proj-tag tag-game">Game</span></div>
+          <img class="proj-img" src="img/typerush.png" alt="TypeRush game screenshot" loading="lazy">
+          <h3>TypeRush</h3>
+          <p>Turn your typing speed into a race. Compete against bots, type accurately and cross the finish line first.</p>
+          <a class="btn btn-acc" href="typerush/">Play Now ▸</a>
+        </article>
+        <article class="proj hud">
+          <div class="proj-top"><span class="idx">PRJ.004</span><span class="proj-tag tag-app">App</span></div>
+          <img class="proj-img" src="img/glitch.png" alt="Glitch Business app screenshot" loading="lazy">
+          <h3>Glitch Business</h3>
+          <p>Build your empire in the meme-coin universe. A tap-to-earn Telegram Mini App.</p>
+          <a class="btn btn-ghost" href="glitch/">Open App ▸</a>
+        </article>
+        <article class="proj hud">
+          <div class="proj-top"><span class="idx">PRJ.005</span><span class="proj-tag tag-app">App</span></div>
+          <img class="proj-img" src="img/saas-panel.png" alt="SaaS dashboard screenshot" loading="lazy">
+          <h3>SaaS Dashboard</h3>
+          <p>Track your tasks, budget, hydration and fitness goals from a single personal dashboard.</p>
+          <a class="btn btn-ghost" href="saas-panel/">Open App ▸</a>
+        </article>
+        <article class="proj hud">
+          <div class="proj-top"><span class="idx">PRJ.006</span><span class="proj-tag tag-app">App</span></div>
+          <img class="proj-img" src="img/science-lab.png" alt="Science Lab simulation screenshot" loading="lazy">
+          <h3>Science Lab</h3>
+          <p>Test aerodynamics, hydrodynamics and electric circuits interactively in a 2D sandbox.</p>
+          <a class="btn btn-ghost" href="science-lab/">Start Simulation ▸</a>
+        </article>
+        <article class="proj hud">
+          <div class="proj-top"><span class="idx">PRJ.007</span><span class="proj-tag tag-web">Platform</span></div>
+          <img class="proj-img" src="img/bionests.png" alt="Bionests platform screenshot" loading="lazy">
+          <h3>Bionests</h3>
+          <p>All your links on one beautiful page. A next-gen bio link platform with premium themes, widgets and analytics.</p>
+          <a class="btn btn-ghost" href="https://bionests.com" target="_blank" rel="noopener noreferrer">Visit ▸</a>
+        </article>
+        <article class="proj hud">
+          <div class="proj-top"><span class="idx">PRJ.008</span><span class="proj-tag tag-web">Platform</span></div>
+          <img class="proj-img" src="img/flotixs.png" alt="Flotixs fleet management screenshot" loading="lazy">
+          <h3>Flotixs</h3>
+          <p>Fleet management and vehicle tracking system. Control your logistics operations from a single screen.</p>
+          <a class="btn btn-ghost" href="https://flotixs.com" target="_blank" rel="noopener noreferrer">Open System ▸</a>
+        </article>
+      </div>
+    </section>
+
+    <section class="sec" id="contact">
+      <div class="contact hud">
+        <p class="sec-kicker">// 02 — connect</p>
+        <h2 class="sec-title">Let's Build <em>Together</em></h2>
+        <p>Tell us about your project — games, web or digital marketing.</p>
+        <a class="mail-link" href="mailto:info@tamgastudio.com">info@tamgastudio.com</a>
+      </div>
+    </section>
+
+  </div>
+</main>
+
+<footer>
+  <span>© 2026 TAMGA STUDIO — ALL RIGHTS RESERVED.</span>
+  <div>
+    <a href="/">Türkçe</a>
+    <a href="privacy-policy.html">Privacy</a>
+  </div>
+</footer>
+
+<script>
+(function(){
+  'use strict';
+  var bg=document.getElementById('bgMatrix'),ctx=bg.getContext('2d');
+  var cols=[],FS=14,W=0,H=0,timer=0;
+  var GLYPHS='01アイウエオカキクケコ<>/{}[]=+*#$&%!?;:'.split('');
+  function resize(){
+    W=window.innerWidth;H=window.innerHeight;bg.width=W;bg.height=H;
+    var n=Math.ceil(W/FS);cols.length=0;
+    for(var i=0;i<n;i++)cols.push(Math.random()*-100);
+    ctx.fillStyle='#000';ctx.fillRect(0,0,W,H);
+  }
+  function step(now){
+    requestAnimationFrame(step);
+    if(now-timer<66)return;timer=now;
+    ctx.fillStyle='rgba(0,0,0,0.08)';ctx.fillRect(0,0,W,H);
+    ctx.font=FS+'px "JetBrains Mono",monospace';
+    for(var i=0;i<cols.length;i++){
+      var ch=GLYPHS[(Math.random()*GLYPHS.length)|0];
+      ctx.fillStyle=Math.random()<0.08?'#aaffdd':'#00ff9c';
+      ctx.fillText(ch,i*FS,cols[i]*FS);
+      if(cols[i]*FS>H&&Math.random()>0.975)cols[i]=0;
+      cols[i]++;
+    }
+  }
+  resize();window.addEventListener('resize',resize);
+  if(!window.matchMedia('(prefers-reduced-motion: reduce)').matches)requestAnimationFrame(step);
+})();
+</script>
+<script src="fx.js" defer></script>
+
+</body>
+</html>

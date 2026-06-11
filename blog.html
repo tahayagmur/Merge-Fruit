@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="alternate icon" type="image/jpeg" href="tamga-logo.jpg">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Devlog – Tamga Studio</title>
+<meta name="description" content="Tamga Studio geliştirici günlüğü: oyunlarımızı ve uygulamalarımızı nasıl tasarlayıp kodladığımızı anlatıyoruz.">
+<link rel="canonical" href="https://tamgastudio.com/blog.html">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://tamgastudio.com/blog.html">
+<meta property="og:title" content="Devlog – Tamga Studio">
+<meta property="og:description" content="Perde arkası: projelerimizi nasıl tasarlayıp kodladığımızı anlatıyoruz.">
+<meta property="og:image" content="https://tamgastudio.com/tamga-logo.jpg">
+<meta name="twitter:card" content="summary">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Space+Grotesk:wght@300;400;500;600;700&family=Syncopate:wght@400;700&display=swap" rel="stylesheet">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3066824413621209" crossorigin="anonymous"></script>
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#0a0a0c;--bg2:#050607;
+  --panel:rgba(13,18,16,.62);
+  --line:rgba(0,255,156,.14);
+  --acc:#00ff9c;--acc2:#00e5ff;--amber:#e8c170;
+  --txt:#e6edf3;--mut:#8b98a5;--mut2:#525e6b;
+  --mono:'JetBrains Mono',ui-monospace,monospace;
+  --sans:'Space Grotesk',system-ui,sans-serif;
+  --disp:'Syncopate',sans-serif;
+}
+body{background:var(--bg);color:var(--txt);font-family:var(--sans);overflow-x:hidden;-webkit-font-smoothing:antialiased}
+::selection{background:var(--acc);color:#031}
+#bgMatrix{position:fixed;inset:0;width:100%;height:100%;z-index:0;opacity:.07;pointer-events:none}
+
+nav{
+  position:sticky;top:0;z-index:90;
+  display:flex;justify-content:space-between;align-items:center;
+  padding:14px clamp(18px,4vw,44px);
+  background:rgba(8,10,11,.78);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+  border-bottom:1px solid var(--line);
+}
+.logo{display:flex;align-items:center;gap:11px;text-decoration:none;white-space:nowrap}
+.logo img{width:28px;height:28px;object-fit:cover;border:1px solid var(--line);display:block}
+.logo span{font-family:var(--disp);font-weight:700;font-size:.9rem;letter-spacing:.18em;color:var(--txt)}
+.logo b{color:var(--acc);font-weight:700}
+.nav-links{display:flex;align-items:center;gap:clamp(12px,2.4vw,30px)}
+.nav-links a{font-family:var(--mono);font-size:.74rem;letter-spacing:.18em;text-transform:uppercase;color:var(--mut);text-decoration:none;transition:.2s;white-space:nowrap}
+.nav-links a:hover{color:var(--acc);text-shadow:0 0 14px rgba(0,255,156,.6)}
+
+main{position:relative;z-index:5}
+.wrap{max-width:860px;margin:0 auto;padding:0 clamp(18px,4vw,40px)}
+
+.page-hero{padding:clamp(60px,10vh,90px) 0 clamp(30px,5vh,44px)}
+.kicker{font-family:var(--mono);font-size:.74rem;letter-spacing:.32em;color:var(--acc2);text-transform:uppercase;margin-bottom:16px}
+.kicker::before{content:'> '}
+h1.title{font-family:var(--disp);font-size:clamp(1.3rem,3.8vw,2.3rem);font-weight:700;letter-spacing:.05em;text-transform:uppercase;line-height:1.3}
+h1.title em{font-style:normal;color:var(--acc)}
+.page-hero>p{color:var(--mut);font-weight:300;margin-top:16px;line-height:1.75;max-width:560px}
+
+article{
+  position:relative;background:var(--panel);border:1px solid var(--line);
+  backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);
+  padding:clamp(26px,5vw,44px);margin-bottom:36px;scroll-margin-top:90px;
+}
+article::before,article::after{content:'';position:absolute;width:15px;height:15px;border:2px solid var(--acc)}
+article::before{top:-2px;left:-2px;border-right:0;border-bottom:0}
+article::after{bottom:-2px;right:-2px;border-left:0;border-top:0}
+article .date{font-family:var(--mono);font-size:.68rem;letter-spacing:.28em;color:var(--mut2);text-transform:uppercase;display:block;margin-bottom:14px}
+article h2{font-family:var(--disp);font-size:clamp(1rem,2.6vw,1.45rem);font-weight:700;letter-spacing:.04em;text-transform:uppercase;line-height:1.4;margin-bottom:20px}
+article h2 em{font-style:normal;color:var(--acc)}
+article h3{font-family:var(--mono);font-size:.82rem;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--acc2);margin:26px 0 10px}
+article p{color:var(--mut);font-weight:300;line-height:1.85;font-size:.95rem;margin-bottom:14px}
+article code{
+  font-family:var(--mono);font-size:.84em;color:var(--acc);
+  background:rgba(0,255,156,.07);border:1px solid rgba(0,255,156,.18);padding:1px 6px;
+}
+article .tags{margin-top:18px;display:flex;gap:10px;flex-wrap:wrap}
+article .tags span{
+  font-family:var(--mono);font-size:.62rem;letter-spacing:.22em;text-transform:uppercase;
+  color:var(--acc2);border:1px solid rgba(0,229,255,.35);padding:5px 10px;
+}
+.back-btn{
+  display:inline-block;margin:10px 0 80px;
+  font-family:var(--mono);font-size:.78rem;font-weight:700;letter-spacing:.22em;text-transform:uppercase;
+  color:var(--acc);text-decoration:none;border:1px solid rgba(0,255,156,.4);padding:14px 26px;transition:.25s;
+  clip-path:polygon(0 0,calc(100% - 12px) 0,100% 12px,100% 100%,12px 100%,0 calc(100% - 12px));
+}
+.back-btn:hover{background:rgba(0,255,156,.12);box-shadow:0 0 24px rgba(0,255,156,.25)}
+
+footer{
+  position:relative;z-index:5;border-top:1px solid var(--line);background:var(--bg2);
+  padding:30px clamp(18px,4vw,44px);
+  display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;
+  font-family:var(--mono);font-size:.72rem;letter-spacing:.12em;color:var(--mut2);
+}
+footer a{color:var(--mut);text-decoration:none;margin-left:18px;transition:.2s}
+footer a:hover{color:var(--acc)}
+</style>
+</head>
+<body>
+
+<canvas id="bgMatrix" aria-hidden="true"></canvas>
+
+<nav aria-label="Ana menü">
+  <a class="logo" href="/"><img src="tamga-logo.jpg" alt="Tamga Studio logo"><span>TAMGA<b>_</b>STUDIO</span></a>
+  <div class="nav-links">
+    <a href="/">Ana Sayfa</a>
+    <a href="/#oyun">Oyunlar</a>
+    <a href="about.html">Hakkımızda</a>
+  </div>
+</nav>
+
+<main>
+  <div class="wrap">
+
+    <header class="page-hero">
+      <p class="kicker">tamga_studio.devlog( )</p>
+      <h1 class="title">Geliştirici <em>Günlüğü</em></h1>
+      <p>Projelerimizin perde arkası: tasarım kararları, teknik zorluklar ve öğrendiklerimiz.</p>
+    </header>
+
+    <article id="merge-fruit">
+      <span class="date">LOG.001 — 2026</span>
+      <h2>Merge Fruit'i <em>Nasıl Yaptık?</em></h2>
+      <p>Merge Fruit, stüdyomuzun ilk yayınlanan oyunu. Hedefimiz netti: tarayıcıda saniyeler içinde açılan, dokunmatik ekranda da klavyede de aynı keyfi veren, fizik tabanlı bir birleştirme oyunu.</p>
+      <h3>// Fizik motoru</h3>
+      <p>Hazır bir fizik kütüphanesi yerine oyunun ihtiyacına göre sadeleştirilmiş kendi çarpışma sistemimizi yazdık. Meyveler daire olarak modellendiği için çarpışma testi <code>Math.hypot(dx, dy) &lt; r1 + r2</code> kadar basit tutulabildi; bu da düşük donanımlı telefonlarda bile akıcı bir deneyim sağladı.</p>
+      <h3>// Birleştirme hissi</h3>
+      <p>İki meyve birleştiğinde oyuncunun "doyurucu" bir geri bildirim alması gerekiyordu. Ölçek yaylanması, parçacık efekti ve skor sayacının aynı karede tetiklenmesi üzerine epey ince ayar yaptık. Oyun hissinin yarısı bu küçük detaylarda saklı.</p>
+      <h3>// Yayın</h3>
+      <p>Oyun kendi sitemizde yayında; CrazyGames gibi platformlara yükleme için paket yapısını baştan platform gereksinimlerine uygun kurduk. Skor ve ilerleme yalnızca oyuncunun tarayıcısında, localStorage'da tutuluyor.</p>
+      <div class="tags"><span>JavaScript</span><span>Canvas</span><span>Fizik</span><span>HTML5</span></div>
+    </article>
+
+    <article id="kod-tuneli">
+      <span class="date">LOG.002 — 2026</span>
+      <h2>Kod Tüneli: <em>Sinematik Açılışın</em> Perde Arkası</h2>
+      <p>Sitemize ilk girdiğinizde gördüğünüz kod yağmuru ve scroll ile içine uçtuğunuz 3D tünel, yüzlerce DOM elemanı yerine tek bir <code>&lt;canvas&gt;</code> üzerinde çiziliyor. Neden? Çünkü tarayıcıda yüzlerce elemanı 3D ölçeklemek performansı öldürür; canvas üzerinde ise her kare tek render geçişinde tamamlanır.</p>
+      <h3>// Perspektif matematiği</h3>
+      <p>Her kod satırının sanal bir derinliği (z) var. Ekrandaki boyutu klasik perspektif bölmesiyle hesaplanıyor: <code>scale = FOCAL / (z - kamera.z)</code>. Scroll ilerledikçe kamera ileri gidiyor; yakınlaşan satırlar üstel olarak büyüyor ve "kafanızın yanından geçip" kayboluyor.</p>
+      <h3>// Scroll köprüsü</h3>
+      <p>Lenis pürüzsüz kaydırmayı, GSAP ScrollTrigger ise scroll pozisyonunu kamera derinliğine çeviren köprüyü yönetiyor. Belirli bir eşikte zaman çizelgesi tetikleniyor: tünel parlamayla dağılıyor ve site kendini gösteriyor.</p>
+      <h3>// Detaylar</h3>
+      <p>Gerçekçilik için satırlar gerçek JavaScript, C++ ve Python sözdiziminden oluşuyor ve basit bir tokenizer ile renklendiriliyor. CRT tarama çizgileri ve rastgele glitch dilimleri de retro-terminal dokusunu tamamlıyor.</p>
+      <div class="tags"><span>Canvas</span><span>GSAP</span><span>Lenis</span><span>WebGL-Style</span></div>
+    </article>
+
+    <article id="typerush">
+      <span class="date">LOG.003 — 2026</span>
+      <h2>TypeRush: <em>Botlara Karşı</em> Yazma Yarışı Tasarlamak</h2>
+      <p>TypeRush'ın çıkış noktası basitti: yazma pratiği sıkıcı, yarışmak eğlenceli. İkisini birleştirince ortaya botlara karşı klavye yarışı çıktı.</p>
+      <h3>// Adil hissettiren botlar</h3>
+      <p>Botlar sabit hızda yazsaydı ya hep kazanır ya hep kaybederdiniz. Bunun yerine her bota dalgalanan bir WPM profili verdik: tur boyunca hızlanıp yavaşlıyorlar, küçük "hata duraksamaları" yaşıyorlar. Böylece yarışın sonu son kelimeye kadar belli olmuyor.</p>
+      <h3>// WPM ölçümü</h3>
+      <p>Hız, endüstri standardı olan 5 karakter = 1 kelime kabulüyle hesaplanıyor. Hatalı vuruşlar düzeltilene kadar ilerlemeyi kilitliyor; bu da gerçek doğruluğu ödüllendiriyor.</p>
+      <h3>// PWA & çevrimdışı</h3>
+      <p>Oyun bir service worker ile statik varlıklarını önbelleğe alıyor: bir kez açtıysanız internetsiz de oynayabilirsiniz. Manifest sayesinde telefona uygulama gibi eklenebiliyor.</p>
+      <div class="tags"><span>JavaScript</span><span>PWA</span><span>Service Worker</span><span>UX</span></div>
+    </article>
+
+    <a class="back-btn" href="/">◂ Ana Sayfaya Dön</a>
+
+  </div>
+</main>
+
+<footer>
+  <span>© 2026 TAMGA STUDIO — TÜM HAKLARI SAKLIDIR.</span>
+  <div>
+    <a href="about.html">Hakkımızda</a>
+    <a href="privacy-policy.html">Gizlilik</a>
+    <a href="/">Ana Sayfa</a>
+  </div>
+</footer>
+
+<script>
+(function(){
+  'use strict';
+  var bg=document.getElementById('bgMatrix'),ctx=bg.getContext('2d');
+  var cols=[],FS=14,W=0,H=0,timer=0;
+  var GLYPHS='01アイウエオカキクケコ<>/{}[]=+*#$&%!?;:'.split('');
+  function resize(){
+    W=window.innerWidth;H=window.innerHeight;bg.width=W;bg.height=H;
+    var n=Math.ceil(W/FS);cols.length=0;
+    for(var i=0;i<n;i++)cols.push(Math.random()*-100);
+    ctx.fillStyle='#000';ctx.fillRect(0,0,W,H);
+  }
+  function step(now){
+    requestAnimationFrame(step);
+    if(now-timer<66)return;timer=now;
+    ctx.fillStyle='rgba(0,0,0,0.08)';ctx.fillRect(0,0,W,H);
+    ctx.font=FS+'px "JetBrains Mono",monospace';
+    for(var i=0;i<cols.length;i++){
+      var ch=GLYPHS[(Math.random()*GLYPHS.length)|0];
+      ctx.fillStyle=Math.random()<0.08?'#aaffdd':'#00ff9c';
+      ctx.fillText(ch,i*FS,cols[i]*FS);
+      if(cols[i]*FS>H&&Math.random()>0.975)cols[i]=0;
+      cols[i]++;
+    }
+  }
+  resize();window.addEventListener('resize',resize);
+  if(!window.matchMedia('(prefers-reduced-motion: reduce)').matches)requestAnimationFrame(step);
+})();
+</script>
+<script src="fx.js" defer></script>
+
+</body>
+</html>

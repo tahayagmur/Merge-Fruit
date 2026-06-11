@@ -2,9 +2,16 @@
 <html lang="tr">
 <head>
 <meta charset="UTF-8">
-<link rel="icon" type="image/jpeg" href="tamga-logo.jpg">
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="alternate icon" type="image/jpeg" href="tamga-logo.jpg">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Gizlilik Politikası – Tamga Studio</title>
+<link rel="canonical" href="https://tamgastudio.com/privacy-policy.html">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://tamgastudio.com/privacy-policy.html">
+<meta property="og:title" content="Gizlilik Politikası – Tamga Studio">
+<meta property="og:image" content="https://tamgastudio.com/tamga-logo.jpg">
+<meta name="twitter:card" content="summary">
 <meta name="description" content="Tamga Studio gizlilik politikası: tamgastudio.com üzerinde hangi verilerin toplandığını ve nasıl kullanıldığını öğrenin.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -34,7 +41,9 @@ nav{
   background:rgba(8,10,11,.78);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
   border-bottom:1px solid var(--line);
 }
-.logo{font-family:var(--disp);font-weight:700;font-size:.95rem;letter-spacing:.18em;color:var(--txt);text-decoration:none;white-space:nowrap}
+.logo{display:flex;align-items:center;gap:11px;text-decoration:none;white-space:nowrap}
+.logo img{width:28px;height:28px;object-fit:cover;border:1px solid var(--line);display:block}
+.logo span{font-family:var(--disp);font-weight:700;font-size:.92rem;letter-spacing:.18em;color:var(--txt)}
 .logo b{color:var(--acc);font-weight:700}
 .nav-links{display:flex;align-items:center;gap:clamp(12px,2.4vw,30px)}
 .nav-links a{font-family:var(--mono);font-size:.74rem;letter-spacing:.18em;text-transform:uppercase;color:var(--mut);text-decoration:none;transition:.2s;white-space:nowrap}
@@ -95,10 +104,11 @@ footer a:hover{color:var(--acc)}
 <canvas id="bgMatrix" aria-hidden="true"></canvas>
 
 <nav aria-label="Ana menü">
-  <a class="logo" href="/">TAMGA<b>_</b>STUDIO</a>
+  <a class="logo" href="/"><img src="tamga-logo.jpg" alt="Tamga Studio logo"><span>TAMGA<b>_</b>STUDIO</span></a>
   <div class="nav-links">
     <a href="/">Ana Sayfa</a>
     <a href="about.html">Hakkımızda</a>
+    <a href="blog.html">Devlog</a>
   </div>
 </nav>
 
@@ -146,7 +156,7 @@ footer a:hover{color:var(--acc)}
       <p>Hizmetlerimiz 13 yaş altı çocuklara yönelik değildir. 13 yaşından küçük kullanıcılardan bilerek kişisel veri toplamıyoruz.</p>
 
       <h2>// 08 — İletişim</h2>
-      <p>Gizlilik politikamızla ilgili sorularınız için: <a href="mailto:ceo@bionests.com">ceo@bionests.com</a></p>
+      <p>Gizlilik politikamızla ilgili sorularınız için: <a href="mailto:info@tamgastudio.com">info@tamgastudio.com</a></p>
     </article>
 
   </div>

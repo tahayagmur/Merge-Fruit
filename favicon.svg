@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <rect width="64" height="64" rx="10" fill="#050607"/>
+  <rect x="3" y="3" width="58" height="58" rx="8" fill="none" stroke="#00ff9c" stroke-opacity=".35" stroke-width="2"/>
+  <path d="M14 8 h10 v2 h-10 z M8 8 h2 v10 h-2 z" fill="#00ff9c" opacity=".8"/>
+  <path d="M40 54 h10 v2 h-10 z M54 46 h2 v10 h-2 z" fill="#00ff9c" opacity=".8"/>
+  <text x="32" y="42" font-family="monospace" font-size="30" font-weight="bold" fill="#00ff9c" text-anchor="middle">T_</text>
+</svg>
