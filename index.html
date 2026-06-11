@@ -6,69 +6,333 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Tamga Studio – Dijital Ajans & Oyun Geliştirme</title>
 <meta name="description" content="Tamga Studio: Mobil oyunlar, web tasarım ve dijital pazarlama alanında yaratıcı çözümler üreten Türk dijital ajansı.">
-<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800;900&display=swap" rel="stylesheet">
+
+<!-- FONTS -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Space+Grotesk:wght@300;400;500;600;700&family=Syncopate:wght@400;700&display=swap" rel="stylesheet">
+
+<!-- ADSENSE -->
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3066824413621209" crossorigin="anonymous"></script>
+
 <style>
-*{margin:0;padding:0;box-sizing:border-box;font-family:'Outfit',sans-serif}
-:root{--primary:#ff477e;--secondary:#fce043;--dark:#0f0a1e;--purple:#6d28d9}
-body{background:var(--dark);color:#fff;overflow-x:hidden}
+/* ============================================================
+   TAMGA STUDIO — CINEMATIC CODE-TUNNEL LANDING
+   ============================================================ */
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
 
-/* NAV */
-nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:18px 40px;display:flex;justify-content:space-between;align-items:center;background:rgba(15,10,30,.85);backdrop-filter:blur(12px);border-bottom:1px solid rgba(255,255,255,.08)}
-.logo{font-size:1.5rem;font-weight:900;background:linear-gradient(90deg,#ff477e,#a855f7);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-nav a{color:rgba(255,255,255,.75);text-decoration:none;margin-left:28px;font-size:.95rem;font-weight:600;transition:.2s}
-nav a:hover{color:#fff}
+:root{
+  --bg:#0a0a0c;
+  --bg2:#050607;
+  --panel:rgba(13,18,16,.62);
+  --line:rgba(0,255,156,.14);
+  --line2:rgba(0,229,255,.16);
+  --acc:#00ff9c;          /* hacker green   */
+  --acc2:#00e5ff;         /* cyber cyan     */
+  --amber:#e8c170;
+  --txt:#e6edf3;
+  --mut:#8b98a5;
+  --mut2:#525e6b;
+  --mono:'JetBrains Mono',ui-monospace,monospace;
+  --sans:'Space Grotesk',system-ui,sans-serif;
+  --disp:'Syncopate',sans-serif;
+}
 
-/* HERO */
-.hero{min-height:100vh;display:flex;align-items:center;justify-content:center;text-align:center;padding:100px 20px 60px;background:radial-gradient(ellipse at 50% 0%,rgba(109,40,217,.35) 0%,transparent 70%)}
-.hero h1{font-size:clamp(2.5rem,6vw,5rem);font-weight:900;line-height:1.1;margin-bottom:20px}
-.hero h1 span{background:linear-gradient(90deg,#ff477e,#fce043);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-.hero p{font-size:1.2rem;color:rgba(255,255,255,.65);max-width:600px;margin:0 auto 36px;line-height:1.7}
-.btn-primary{display:inline-block;padding:16px 36px;background:linear-gradient(135deg,#ff477e,#a855f7);border-radius:50px;color:#fff;text-decoration:none;font-weight:800;font-size:1.05rem;margin:8px;box-shadow:0 8px 30px rgba(255,71,126,.35);transition:.2s}
-.btn-primary:hover{transform:translateY(-2px);box-shadow:0 12px 40px rgba(255,71,126,.5)}
-.btn-secondary{display:inline-block;padding:16px 36px;border:2px solid rgba(255,255,255,.25);border-radius:50px;color:#fff;text-decoration:none;font-weight:700;font-size:1.05rem;margin:8px;transition:.2s}
-.btn-secondary:hover{border-color:#fff;background:rgba(255,255,255,.08)}
+html{scroll-behavior:auto}
+html.lenis,html.lenis body{height:auto}
+.lenis.lenis-smooth{scroll-behavior:auto!important}
+
+body{
+  background:var(--bg);
+  color:var(--txt);
+  font-family:var(--sans);
+  overflow-x:hidden;
+  -webkit-font-smoothing:antialiased;
+}
+::selection{background:var(--acc);color:#031}
+
+/* ---------- BACKGROUND MATRIX (perpetual, low opacity) ---------- */
+#bgMatrix{
+  position:fixed;inset:0;width:100%;height:100%;
+  z-index:0;opacity:.07;pointer-events:none;
+}
+
+/* ---------- INTRO / TUNNEL STAGE ---------- */
+#intro{
+  position:relative;
+  height:100vh;height:100svh;
+  background:var(--bg2);
+  overflow:hidden;
+  z-index:5;
+}
+#tunnel{
+  position:absolute;inset:0;width:100%;height:100%;
+  display:block;z-index:1;
+  will-change:transform,opacity,filter;
+}
+/* CRT scanlines + vignette over the tunnel */
+.crt{
+  position:absolute;inset:0;z-index:2;pointer-events:none;
+  background:
+    repeating-linear-gradient(0deg,rgba(0,0,0,.16) 0 1px,transparent 1px 3px),
+    radial-gradient(ellipse at center,transparent 38%,rgba(0,0,0,.72) 100%);
+  mix-blend-mode:multiply;
+}
+.flash{
+  position:absolute;inset:0;z-index:4;pointer-events:none;
+  background:radial-gradient(circle at center,rgba(180,255,224,.95),rgba(0,255,156,.35) 45%,transparent 75%);
+  opacity:0;
+}
+
+/* intro HUD chrome */
+.intro-hud{position:absolute;inset:0;z-index:3;pointer-events:none;font-family:var(--mono)}
+.hud-corner{position:absolute;width:26px;height:26px;border:1px solid rgba(0,255,156,.45)}
+.hud-corner.tl{top:18px;left:18px;border-right:0;border-bottom:0}
+.hud-corner.tr{top:18px;right:18px;border-left:0;border-bottom:0}
+.hud-corner.bl{bottom:18px;left:18px;border-right:0;border-top:0}
+.hud-corner.br{bottom:18px;right:18px;border-left:0;border-top:0}
+.boot-line{
+  position:absolute;top:26px;left:58px;
+  font-size:11px;letter-spacing:.14em;color:rgba(0,255,156,.75);
+  text-transform:uppercase;white-space:nowrap;
+}
+.boot-line .cursor{display:inline-block;width:7px;height:12px;background:var(--acc);
+  vertical-align:-2px;margin-left:4px;animation:blink 1s steps(1) infinite}
+@keyframes blink{50%{opacity:0}}
+.hud-meta{
+  position:absolute;top:26px;right:58px;
+  font-size:10px;letter-spacing:.18em;color:rgba(0,229,255,.55);
+  text-align:right;line-height:1.9;text-transform:uppercase;
+}
+.scroll-cue{
+  position:absolute;left:50%;bottom:42px;transform:translateX(-50%);
+  display:flex;flex-direction:column;align-items:center;gap:10px;
+  font-size:11px;letter-spacing:.4em;color:rgba(230,237,243,.8);
+  text-transform:uppercase;animation:cuePulse 2.4s ease-in-out infinite;
+}
+.scroll-cue .bar{width:1px;height:46px;background:linear-gradient(to bottom,var(--acc),transparent);
+  animation:cueDrop 1.8s ease-in-out infinite}
+@keyframes cuePulse{0%,100%{opacity:.9}50%{opacity:.35}}
+@keyframes cueDrop{0%{transform:scaleY(.2);transform-origin:top}55%{transform:scaleY(1)}100%{transform:scaleY(.2);transform-origin:bottom}}
+#skipIntro{
+  position:absolute;right:22px;bottom:22px;z-index:5;pointer-events:auto;
+  background:transparent;border:1px solid rgba(139,152,165,.35);color:var(--mut);
+  font-family:var(--mono);font-size:10px;letter-spacing:.25em;text-transform:uppercase;
+  padding:9px 16px;cursor:pointer;transition:.25s;
+}
+#skipIntro:hover{border-color:var(--acc);color:var(--acc);box-shadow:0 0 18px rgba(0,255,156,.25)}
+
+/* ---------- HERO (revealed inside the pinned intro) ---------- */
+.hero{
+  position:absolute;inset:0;z-index:3;
+  display:flex;flex-direction:column;justify-content:center;align-items:center;
+  text-align:center;padding:90px 24px 70px;
+  visibility:hidden;opacity:0;
+}
+.hero-frame{
+  position:absolute;inset:clamp(14px,3vw,34px);
+  pointer-events:none;
+}
+.hero-frame i{position:absolute;background:linear-gradient(90deg,var(--acc),var(--acc2));opacity:.5}
+.hero-frame .t{top:0;left:0;right:0;height:1px;transform:scaleX(0);transform-origin:left}
+.hero-frame .b{bottom:0;left:0;right:0;height:1px;transform:scaleX(0);transform-origin:right}
+.hero-frame .l{top:0;bottom:0;left:0;width:1px;transform:scaleY(0);transform-origin:top}
+.hero-frame .r{top:0;bottom:0;right:0;width:1px;transform:scaleY(0);transform-origin:bottom}
+
+.hero-tag{
+  font-family:var(--mono);font-size:clamp(10px,1.4vw,13px);
+  letter-spacing:.3em;color:var(--acc);text-transform:uppercase;
+  margin-bottom:26px;
+}
+.hero-tag::before{content:'> '}
+.hero h1{
+  font-family:var(--disp);
+  font-size:clamp(1.7rem,6.4vw,4.6rem);
+  font-weight:700;line-height:1.14;letter-spacing:.04em;
+  text-transform:uppercase;
+}
+.hero h1 .row{display:block;white-space:nowrap}
+.hero h1 .glow{
+  background:linear-gradient(90deg,var(--acc) 0%,var(--acc2) 100%);
+  -webkit-background-clip:text;background-clip:text;
+  -webkit-text-fill-color:transparent;
+  filter:drop-shadow(0 0 22px rgba(0,255,156,.35));
+}
+.hero-sub{
+  max-width:640px;margin:30px auto 40px;
+  color:var(--mut);font-size:clamp(.95rem,1.6vw,1.12rem);
+  font-weight:300;line-height:1.8;
+}
+.hero-cta{display:flex;gap:18px;flex-wrap:wrap;justify-content:center}
+
+.btn{
+  display:inline-block;position:relative;
+  font-family:var(--mono);font-size:.82rem;font-weight:700;
+  letter-spacing:.22em;text-transform:uppercase;text-decoration:none;
+  padding:17px 34px;transition:.25s;
+  clip-path:polygon(0 0,calc(100% - 14px) 0,100% 14px,100% 100%,14px 100%,0 calc(100% - 14px));
+}
+.btn-acc{background:var(--acc);color:#02130b}
+.btn-acc:hover{background:var(--acc2);box-shadow:0 0 34px rgba(0,229,255,.45);transform:translateY(-2px)}
+.btn-ghost{background:rgba(0,255,156,.05);color:var(--acc);border:1px solid rgba(0,255,156,.4)}
+.btn-ghost:hover{background:rgba(0,255,156,.14);box-shadow:0 0 24px rgba(0,255,156,.25);transform:translateY(-2px)}
+
+.hero-hudbar{
+  position:absolute;left:clamp(14px,3vw,34px);right:clamp(14px,3vw,34px);bottom:clamp(26px,4vh,46px);
+  display:flex;justify-content:space-between;gap:14px;
+  font-family:var(--mono);font-size:10px;letter-spacing:.2em;
+  color:var(--mut2);text-transform:uppercase;
+}
+.hero-hudbar .ok{color:var(--acc)}
+.hero-hudbar span{white-space:nowrap}
+
+/* ---------- NAV ---------- */
+nav{
+  position:fixed;top:0;left:0;right:0;z-index:90;
+  display:flex;justify-content:space-between;align-items:center;
+  padding:16px clamp(18px,4vw,44px);
+  background:rgba(8,10,11,.78);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+  border-bottom:1px solid var(--line);
+  visibility:hidden;opacity:0;
+}
+.logo{
+  font-family:var(--disp);font-weight:700;font-size:.95rem;letter-spacing:.18em;
+  color:var(--txt);text-decoration:none;white-space:nowrap;
+}
+.logo b{color:var(--acc);font-weight:700}
+.nav-links{display:flex;align-items:center;gap:clamp(12px,2.4vw,30px)}
+.nav-links a{
+  font-family:var(--mono);font-size:.74rem;letter-spacing:.18em;text-transform:uppercase;
+  color:var(--mut);text-decoration:none;transition:.2s;white-space:nowrap;
+}
+.nav-links a:hover{color:var(--acc);text-shadow:0 0 14px rgba(0,255,156,.6)}
+
+/* ---------- MAIN CONTENT ---------- */
+main{position:relative;z-index:5;background:transparent}
+.wrap{max-width:1160px;margin:0 auto;padding:0 clamp(18px,4vw,40px)}
+
+.sec{padding:clamp(70px,11vh,120px) 0;position:relative}
+.sec-head{margin-bottom:clamp(36px,6vh,60px)}
+.sec-kicker{
+  font-family:var(--mono);font-size:.74rem;letter-spacing:.32em;
+  color:var(--acc2);text-transform:uppercase;margin-bottom:14px;
+}
+.sec-title{
+  font-family:var(--disp);font-size:clamp(1.35rem,3.6vw,2.3rem);
+  font-weight:700;letter-spacing:.05em;text-transform:uppercase;line-height:1.25;
+}
+.sec-title em{font-style:normal;color:var(--acc)}
+.sec-sub{color:var(--mut);font-weight:300;margin-top:14px;max-width:600px;line-height:1.75}
+
+/* HUD panel w/ corner brackets */
+.hud{
+  position:relative;background:var(--panel);
+  border:1px solid var(--line);
+  backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);
+}
+.hud::before,.hud::after{content:'';position:absolute;width:15px;height:15px;border:2px solid var(--acc);transition:.3s}
+.hud::before{top:-2px;left:-2px;border-right:0;border-bottom:0}
+.hud::after{bottom:-2px;right:-2px;border-left:0;border-top:0}
+.hud:hover{border-color:rgba(0,255,156,.4);box-shadow:0 0 38px rgba(0,255,156,.07)}
+.hud:hover::before,.hud:hover::after{width:24px;height:24px}
 
 /* STATS */
-.stats{display:flex;justify-content:center;gap:60px;padding:50px 20px;border-top:1px solid rgba(255,255,255,.07);border-bottom:1px solid rgba(255,255,255,.07);flex-wrap:wrap}
-.stat h3{font-size:2.5rem;font-weight:900;color:var(--secondary)}
-.stat p{color:rgba(255,255,255,.55);font-size:.9rem;margin-top:4px}
+.stats{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+  gap:1px;background:var(--line);border:1px solid var(--line);
+}
+.stat{background:rgba(10,10,12,.82);padding:36px 22px;text-align:center}
+.stat h3{
+  font-family:var(--mono);font-size:clamp(1.9rem,4vw,2.7rem);font-weight:700;
+  color:var(--acc);text-shadow:0 0 26px rgba(0,255,156,.35);
+}
+.stat p{font-family:var(--mono);font-size:.72rem;letter-spacing:.22em;color:var(--mut);text-transform:uppercase;margin-top:10px}
 
 /* SERVICES */
-.section{padding:80px 20px;max-width:1100px;margin:0 auto}
-.section-title{text-align:center;font-size:2.2rem;font-weight:800;margin-bottom:12px}
-.section-title span{color:var(--primary)}
-.section-sub{text-align:center;color:rgba(255,255,255,.5);margin-bottom:50px;font-size:1rem}
-.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:24px}
-.card{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:20px;padding:30px;transition:.25s}
-.card:hover{background:rgba(255,255,255,.07);transform:translateY(-4px)}
-.card-icon{font-size:2.5rem;margin-bottom:16px}
-.card h3{font-size:1.15rem;font-weight:800;margin-bottom:10px}
-.card p{color:rgba(255,255,255,.55);line-height:1.6;font-size:.93rem}
+.svc-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:22px}
+.svc{padding:32px 26px;transition:transform .3s}
+.svc:hover{transform:translateY(-5px)}
+.svc .num{font-family:var(--mono);font-size:.7rem;letter-spacing:.3em;color:var(--mut2);display:block;margin-bottom:18px}
+.svc .ic{font-size:2rem;margin-bottom:16px;display:block;filter:drop-shadow(0 0 12px rgba(0,255,156,.3))}
+.svc h3{font-size:1.05rem;font-weight:600;letter-spacing:.04em;margin-bottom:12px}
+.svc p{color:var(--mut);font-size:.9rem;font-weight:300;line-height:1.7}
 
-/* GAME SHOWCASE */
-.showcase{background:linear-gradient(135deg,rgba(109,40,217,.2),rgba(255,71,126,.1));border:1px solid rgba(255,255,255,.08);border-radius:28px;padding:50px;display:flex;align-items:center;gap:50px;flex-wrap:wrap;margin:0 20px}
-.showcase-text h2{font-size:2rem;font-weight:800;margin-bottom:12px}
-.showcase-text p{color:rgba(255,255,255,.6);line-height:1.7;margin-bottom:24px;max-width:480px}
-.showcase-img{flex:1;min-width:200px;text-align:center;font-size:8rem}
+/* PROJECT CARDS */
+.proj-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:24px}
+.proj{display:flex;flex-direction:column;padding:28px;overflow:hidden}
+.proj-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;font-family:var(--mono)}
+.proj-top .idx{font-size:.7rem;letter-spacing:.25em;color:var(--mut2)}
+.proj-tag{
+  font-size:.62rem;font-weight:700;letter-spacing:.25em;text-transform:uppercase;
+  padding:5px 10px;border:1px solid;
+}
+.tag-game{color:var(--acc);border-color:rgba(0,255,156,.45);background:rgba(0,255,156,.07)}
+.tag-app{color:var(--acc2);border-color:rgba(0,229,255,.45);background:rgba(0,229,255,.07)}
+.tag-web{color:var(--amber);border-color:rgba(232,193,112,.45);background:rgba(232,193,112,.07)}
+.proj-art{
+  font-size:2.6rem;line-height:1.25;margin-bottom:20px;
+  filter:drop-shadow(0 6px 18px rgba(0,0,0,.6));
+}
+.proj h3{font-size:1.25rem;font-weight:700;letter-spacing:.03em;margin-bottom:10px}
+.proj p{color:var(--mut);font-size:.9rem;font-weight:300;line-height:1.7;flex:1;margin-bottom:24px}
+.proj .btn{align-self:flex-start;padding:13px 24px;font-size:.72rem}
 
 /* CONTACT */
-.contact{background:rgba(255,255,255,.03);border-radius:28px;padding:60px 40px;text-align:center;margin:0 20px 80px;border:1px solid rgba(255,255,255,.07)}
-.contact h2{font-size:2rem;font-weight:800;margin-bottom:12px}
-.contact p{color:rgba(255,255,255,.55);margin-bottom:28px}
-.contact a{color:var(--secondary);text-decoration:none;font-weight:700}
+.contact-box{padding:clamp(40px,7vw,70px);text-align:center}
+.contact-box .sec-title{margin-bottom:14px}
+.contact-box p{color:var(--mut);font-weight:300;margin-bottom:8px}
+.mail-link{
+  display:inline-block;margin-top:18px;
+  font-family:var(--mono);font-size:clamp(.95rem,2.4vw,1.25rem);font-weight:700;
+  color:var(--acc);text-decoration:none;letter-spacing:.06em;
+  border-bottom:1px dashed rgba(0,255,156,.5);padding-bottom:4px;transition:.25s;
+}
+.mail-link:hover{color:var(--acc2);border-color:var(--acc2);text-shadow:0 0 18px rgba(0,229,255,.5)}
 
 /* FOOTER */
-footer{padding:30px 40px;border-top:1px solid rgba(255,255,255,.07);display:flex;justify-content:space-between;align-items:center;flex-wrap:gap;color:rgba(255,255,255,.35);font-size:.85rem;flex-wrap:wrap;gap:10px}
-footer a{color:rgba(255,255,255,.4);text-decoration:none;margin-left:16px}
-footer a:hover{color:#fff}
+footer{
+  position:relative;z-index:5;
+  border-top:1px solid var(--line);background:var(--bg2);
+  padding:30px clamp(18px,4vw,44px);
+  display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;
+  font-family:var(--mono);font-size:.72rem;letter-spacing:.12em;color:var(--mut2);
+}
+footer a{color:var(--mut);text-decoration:none;margin-left:18px;transition:.2s}
+footer a:hover{color:var(--acc)}
+
+/* scroll-reveal helper */
+.fx{opacity:0;transform:translateY(44px)}
+
+@media (max-width:640px){
+  .nav-links a:nth-child(n+4){display:none}
+  .hud-meta{display:none}
+  .hero-hudbar span:nth-child(2){display:none}
+}
+@media (prefers-reduced-motion:reduce){
+  .scroll-cue,.scroll-cue .bar{animation:none}
+}
 </style>
+
+<noscript>
+<style>
+  #intro{height:100vh}
+  .hero{visibility:visible!important;opacity:1!important}
+  #tunnel,.intro-hud,#skipIntro{display:none}
+  nav{visibility:visible!important;opacity:1!important}
+  .fx{opacity:1;transform:none}
+  .hero-frame i{transform:none!important}
+</style>
+</noscript>
 </head>
 <body>
 
-<nav>
-  <div class="logo">TAMGA STUDIO</div>
-  <div>
+<!-- perpetual low-opacity matrix behind everything -->
+<canvas id="bgMatrix" aria-hidden="true"></canvas>
+
+<!-- ============ NAV ============ -->
+<nav id="mainNav" aria-label="Ana menü">
+  <a class="logo" href="#anasayfa">TAMGA<b>_</b>STUDIO</a>
+  <div class="nav-links">
     <a href="#hizmetler">Hizmetler</a>
     <a href="#oyun">Oyunlar</a>
     <a href="#uygulamalar">Uygulamalar</a>
@@ -77,171 +341,708 @@ footer a:hover{color:#fff}
   </div>
 </nav>
 
-<!-- HERO -->
-<section class="hero">
-  <div>
-    <h1>Yaratıcı Dijital<br><span>Çözümler Üretiyoruz</span></h1>
-    <p>Tamga Studio; mobil oyun geliştirme, web tasarım ve dijital pazarlama alanlarında markanızı büyütecek özgün projeler tasarlar.</p>
-    <a href="#hizmetler" class="btn-primary">Hizmetlerimiz</a>
-    <a href="merge-fruit/" class="btn-secondary">🎮 Oyunu Oyna</a>
+<!-- ============ INTRO: CODE TUNNEL (pinned) ============ -->
+<header id="intro">
+  <canvas id="tunnel" aria-hidden="true"></canvas>
+  <div class="crt" aria-hidden="true"></div>
+  <div class="flash" id="burstFlash" aria-hidden="true"></div>
+
+  <div class="intro-hud" id="introHud" aria-hidden="true">
+    <i class="hud-corner tl"></i><i class="hud-corner tr"></i>
+    <i class="hud-corner bl"></i><i class="hud-corner br"></i>
+    <div class="boot-line">TAMGA.STUDIO // BOOT_SEQUENCE_v2026<span class="cursor"></span></div>
+    <div class="hud-meta">SYS :: ONLINE<br>MEM :: 64K OK<br>NET :: SECURE</div>
+    <div class="scroll-cue"><span>Sisteme gir — kaydır</span><span class="bar"></span></div>
   </div>
-</section>
+  <button id="skipIntro" type="button">İntroyu geç ≫</button>
 
-<!-- STATS -->
-<div style="background:rgba(255,255,255,.02)">
-<div class="stats">
-  <div class="stat"><h3>2</h3><p>Yayınlanan Ürün</p></div>
-  <div class="stat"><h3>3+</h3><p>Platform</p></div>
-  <div class="stat"><h3>2026</h3><p>Kuruluş Yılı</p></div>
-  <div class="stat"><h3>∞</h3><p>Hedef</p></div>
-</div>
-</div>
-
-<!-- SERVICES -->
-<div id="hizmetler">
-<div class="section">
-  <h2 class="section-title">Neler <span>Yapıyoruz?</span></h2>
-  <p class="section-sub">Dijital dünyada öne çıkmanız için ihtiyacınız olan her şey</p>
-  <div class="cards">
-    <div class="card">
-      <div class="card-icon">🎮</div>
-      <h3>HTML5 Oyun Geliştirme</h3>
-      <p>Tarayıcı tabanlı, mobil uyumlu ve CrazyGames, Poki gibi platformlarda yayınlanabilir oyunlar geliştiriyoruz.</p>
+  <!-- HERO — revealed when the tunnel bursts -->
+  <section class="hero" id="anasayfa">
+    <div class="hero-frame" aria-hidden="true"><i class="t"></i><i class="r"></i><i class="b"></i><i class="l"></i></div>
+    <p class="hero-tag" data-reveal>tamga_studio.init( yıl: 2026 )</p>
+    <h1>
+      <span class="row" id="decrypt1">YARATICI DİJİTAL</span>
+      <span class="row glow" id="decrypt2">ÇÖZÜMLER</span>
+    </h1>
+    <p class="hero-sub" data-reveal>Tamga Studio; HTML5 oyun geliştirme, web tasarım ve dijital pazarlama alanlarında markanızı büyütecek özgün projeler tasarlar.</p>
+    <div class="hero-cta" data-reveal>
+      <a class="btn btn-acc" href="#oyun">Projeleri Gör ▸</a>
+      <a class="btn btn-ghost" href="#iletisim">İletişime Geç</a>
     </div>
-    <div class="card">
-      <div class="card-icon">🌐</div>
-      <h3>Web Tasarım & Geliştirme</h3>
-      <p>Modern, hızlı ve SEO uyumlu web siteleri tasarlayarak markanızın online varlığını güçlendiriyoruz.</p>
+    <div class="hero-hudbar" data-reveal>
+      <span class="ok">● SYS.ONLINE</span>
+      <span>LAT 41.01 — LON 28.97</span>
+      <span>TAMGASTUDIO.COM</span>
     </div>
-    <div class="card">
-      <div class="card-icon">📱</div>
-      <h3>Dijital Pazarlama</h3>
-      <p>Sosyal medya yönetimi, içerik üretimi ve dijital reklam stratejileriyle hedef kitlenize ulaşıyoruz.</p>
+  </section>
+</header>
+
+<!-- ============ MAIN ============ -->
+<main>
+
+  <!-- STATS -->
+  <section class="sec" style="padding-top:clamp(50px,8vh,80px)">
+    <div class="wrap">
+      <div class="stats fx">
+        <div class="stat"><h3><span class="count" data-count="8">0</span>+</h3><p>Yayınlanan Proje</p></div>
+        <div class="stat"><h3><span class="count" data-count="5">0</span>+</h3><p>Platform</p></div>
+        <div class="stat"><h3>2026</h3><p>Kuruluş Yılı</p></div>
+        <div class="stat"><h3>∞</h3><p>Hedef</p></div>
+      </div>
     </div>
-    <div class="card">
-      <div class="card-icon">💡</div>
-      <h3>Marka Kimliği</h3>
-      <p>Logo, renk paleti ve görsel kimlik çalışmalarıyla markanızı rakiplerinizden ayırt ediyoruz.</p>
+  </section>
+
+  <!-- SERVICES -->
+  <section class="sec" id="hizmetler">
+    <div class="wrap">
+      <div class="sec-head fx">
+        <p class="sec-kicker">// 01 — yetenekler</p>
+        <h2 class="sec-title">Neler <em>Yapıyoruz?</em></h2>
+        <p class="sec-sub">Dijital dünyada öne çıkmanız için ihtiyacınız olan her şey.</p>
+      </div>
+      <div class="svc-grid">
+        <div class="svc hud fx">
+          <span class="num">[ 01 ]</span><span class="ic">🎮</span>
+          <h3>HTML5 Oyun Geliştirme</h3>
+          <p>Tarayıcı tabanlı, mobil uyumlu ve CrazyGames, Poki gibi platformlarda yayınlanabilir oyunlar geliştiriyoruz.</p>
+        </div>
+        <div class="svc hud fx">
+          <span class="num">[ 02 ]</span><span class="ic">🌐</span>
+          <h3>Web Tasarım & Geliştirme</h3>
+          <p>Modern, hızlı ve SEO uyumlu web siteleri tasarlayarak markanızın online varlığını güçlendiriyoruz.</p>
+        </div>
+        <div class="svc hud fx">
+          <span class="num">[ 03 ]</span><span class="ic">📱</span>
+          <h3>Dijital Pazarlama</h3>
+          <p>Sosyal medya yönetimi, içerik üretimi ve dijital reklam stratejileriyle hedef kitlenize ulaşıyoruz.</p>
+        </div>
+        <div class="svc hud fx">
+          <span class="num">[ 04 ]</span><span class="ic">💡</span>
+          <h3>Marka Kimliği</h3>
+          <p>Logo, renk paleti ve görsel kimlik çalışmalarıyla markanızı rakiplerinizden ayırt ediyoruz.</p>
+        </div>
+      </div>
     </div>
-  </div>
-</div>
-</div>
+  </section>
 
-<!-- GAME SHOWCASE -->
-<div id="oyun" style="max-width:1100px;margin:0 auto 80px">
-<div class="showcase">
-  <div class="showcase-text">
-    <h2>🍉 Merge Fruit</h2>
-    <p>İlk oyunumuzu yayınladık! Meyveleri düşürün, birleştirin ve en yüksek skoru yakalayın. Tarayıcınızda ücretsiz oynayın.</p>
-    <a href="merge-fruit/" class="btn-primary">Hemen Oyna</a>
-  </div>
-  <div class="showcase-img">🍇🍎🍊<br>🥭🍉</div>
-</div>
+  <!-- GAMES -->
+  <section class="sec" id="oyun">
+    <div class="wrap">
+      <div class="sec-head fx">
+        <p class="sec-kicker">// 02 — oyunlar</p>
+        <h2 class="sec-title">Oyun <em>Arşivi</em></h2>
+        <p class="sec-sub">Tarayıcında ücretsiz oyna. Kurulum yok, bekleme yok.</p>
+      </div>
+      <div class="proj-grid">
+        <article class="proj hud fx">
+          <div class="proj-top"><span class="idx">PRJ.001</span><span class="proj-tag tag-game">Oyun</span></div>
+          <div class="proj-art">🍇🍎🍊🥭🍉</div>
+          <h3>Merge Fruit</h3>
+          <p>Meyveleri düşür, birleştir ve en yüksek skoru yakala. Bağımlılık yapan fizik tabanlı birleştirme oyunu.</p>
+          <a class="btn btn-acc" href="merge-fruit/">Hemen Oyna ▸</a>
+        </article>
+        <article class="proj hud fx">
+          <div class="proj-top"><span class="idx">PRJ.002</span><span class="proj-tag tag-game">Oyun</span></div>
+          <div class="proj-art">⚔️🛡️🏰🔥💀</div>
+          <h3>Knight Rush</h3>
+          <p>Kale savunma ve aksiyon bir arada! Düşman dalgalarını durdur ve kaleni koru.</p>
+          <a class="btn btn-acc" href="knight-rush/">Hemen Oyna ▸</a>
+        </article>
+        <article class="proj hud fx">
+          <div class="proj-top"><span class="idx">PRJ.003</span><span class="proj-tag tag-game">Oyun</span></div>
+          <div class="proj-art">⌨️🚀🏁🏆⚡</div>
+          <h3>TypeRush</h3>
+          <p>Klavyendeki hızı yarışa dök! Botlara karşı yarış, kelimeleri hatasız yaz ve bitişe ilk sen ulaş.</p>
+          <a class="btn btn-acc" href="typerush/">Hemen Oyna ▸</a>
+        </article>
+      </div>
+    </div>
+  </section>
 
-<div class="showcase" style="margin-top:40px; background:linear-gradient(135deg,rgba(255,68,68,.1),rgba(200,0,0,.1));border-color:rgba(255,68,68,.2)">
-  <div class="showcase-text">
-    <h2>⚔️ Knight Rush</h2>
-    <p>Kale savunma ve aksiyon bir arada! Düşman dalgalarını durdurun ve kalenizi koruyun. Tarayıcınızda ücretsiz oynayın.</p>
-    <a href="knight-rush/" class="btn-primary" style="background:linear-gradient(135deg,#ff4444,#cc0000)">Hemen Oyna</a>
-  </div>
-  <div class="showcase-img">⚔️🛡️🏰<br>🔥💀</div>
-</div>
+  <!-- APPS -->
+  <section class="sec" id="uygulamalar">
+    <div class="wrap">
+      <div class="sec-head fx">
+        <p class="sec-kicker">// 03 — uygulamalar & platformlar</p>
+        <h2 class="sec-title">Ürün <em>Laboratuvarı</em></h2>
+        <p class="sec-sub">Geliştirdiğimiz uygulamalar ve canlı platformlar.</p>
+      </div>
+      <div class="proj-grid">
+        <article class="proj hud fx">
+          <div class="proj-top"><span class="idx">PRJ.004</span><span class="proj-tag tag-app">Uygulama</span></div>
+          <div class="proj-art">⚡💰🚀🤑📈</div>
+          <h3>Glitch Business</h3>
+          <p>Meme coin evreninde iş kuruyorsun! Tıkla, kazan, yükselt. Telegram Mini App olarak oynanan tap-to-earn uygulaması.</p>
+          <a class="btn btn-ghost" href="glitch/">Uygulamayı Aç ▸</a>
+        </article>
+        <article class="proj hud fx">
+          <div class="proj-top"><span class="idx">PRJ.005</span><span class="proj-tag tag-app">Uygulama</span></div>
+          <div class="proj-art">📈💧💪💳✅</div>
+          <h3>SaaS Kontrol Paneli</h3>
+          <p>Kişisel görevlerini, bütçeni, su tüketimini ve spor hedeflerini tek bir ekrandan takip et.</p>
+          <a class="btn btn-ghost" href="saas-panel/">Uygulamayı Aç ▸</a>
+        </article>
+        <article class="proj hud fx">
+          <div class="proj-top"><span class="idx">PRJ.006</span><span class="proj-tag tag-app">Uygulama</span></div>
+          <div class="proj-art">✈️🚢⚡👨‍🔬🧪</div>
+          <h3>Fen Laboratuvarı</h3>
+          <p>Aerodinamik, hidrodinamik ve elektrik devrelerini 2D ortamda interaktif olarak test et ve öğren.</p>
+          <a class="btn btn-ghost" href="science-lab/">Simülasyonu Başlat ▸</a>
+        </article>
+        <article class="proj hud fx">
+          <div class="proj-top"><span class="idx">PRJ.007</span><span class="proj-tag tag-web">Platform</span></div>
+          <div class="proj-art">🔗📱✨🎨📈</div>
+          <h3>Bionests</h3>
+          <p>Tüm linklerini tek bir güzel sayfada topla. Premium temalar, widget'lar ve istatistiklerle yeni nesil bio link platformu.</p>
+          <a class="btn btn-ghost" href="https://bionests.com" target="_blank" rel="noopener noreferrer">Ziyaret Et ▸</a>
+        </article>
+        <article class="proj hud fx">
+          <div class="proj-top"><span class="idx">PRJ.008</span><span class="proj-tag tag-web">Platform</span></div>
+          <div class="proj-art">🚛📍🗺️🏢📊</div>
+          <h3>Flotixs</h3>
+          <p>Filo Yönetim ve Araç Takip Sistemi. Şirketinin lojistik operasyonlarını tek ekrandan verimli şekilde kontrol et.</p>
+          <a class="btn btn-ghost" href="https://flotixs.com" target="_blank" rel="noopener noreferrer">Sisteme Git ▸</a>
+        </article>
+      </div>
+    </div>
+  </section>
 
-<div class="showcase" style="margin-top:40px; background:linear-gradient(135deg,rgba(108,92,231,.1),rgba(162,155,254,.1));border-color:rgba(108,92,231,.2)">
-  <div class="showcase-text">
-    <h2>⌨️ TypeRush</h2>
-    <p>Klavyendeki hızı yarışa dök! Botlara karşı yarış, kelimeleri hatasız yaz ve bitiş çizgisine ilk ulaşan sen ol.</p>
-    <a href="typerush/" class="btn-primary" style="background:linear-gradient(135deg,#6c5ce7,#a29bfe)">Hemen Oyna</a>
-  </div>
-  <div class="showcase-img">⌨️🚀🏁<br>🏆⚡</div>
-</div>
-</div>
+  <!-- CONTACT -->
+  <section class="sec" id="iletisim">
+    <div class="wrap">
+      <div class="contact-box hud fx">
+        <p class="sec-kicker">// 04 — bağlantı kur</p>
+        <h2 class="sec-title">Birlikte <em>Çalışalım</em></h2>
+        <p>Projeniz için bizimle iletişime geçin.</p>
+        <a class="mail-link" href="mailto:ceo@bionests.com">ceo@bionests.com</a>
+      </div>
+    </div>
+  </section>
 
-<!-- APPS SHOWCASE -->
-<div id="uygulamalar" style="max-width:1100px;margin:0 auto 80px">
-<div class="showcase" style="background:linear-gradient(135deg,rgba(0,255,100,.1),rgba(0,150,255,.1));border-color:rgba(0,255,100,.2)">
-  <div class="showcase-text">
-    <h2>⚡ Glitch Business</h2>
-    <p>Meme coin evreninde iş kuruyorsun! Tıkla, kazan, yükselt. Telegram Mini App olarak oynanan tap-to-earn uygulaması.</p>
-    <a href="glitch/" class="btn-primary" style="background:linear-gradient(135deg,#00ff64,#0088ff)">Uygulamayı Aç</a>
-  </div>
-  <div class="showcase-img">⚡💰🚀<br>🤑📈</div>
-</div>
-
-<div class="showcase" style="margin-top:40px; background:linear-gradient(135deg,rgba(99,102,241,.1),rgba(139,92,246,.1));border-color:rgba(99,102,241,.2)">
-  <div class="showcase-text">
-    <h2>📊 SaaS Kontrol Paneli</h2>
-    <p>Kişisel görevlerinizi, bütçenizi, su tüketiminizi ve spor hedeflerinizi tek bir ekrandan takip edin.</p>
-    <a href="saas-panel/" class="btn-primary" style="background:linear-gradient(135deg,#6366f1,#8b5cf6)">Uygulamayı Aç</a>
-  </div>
-  <div class="showcase-img">📈💧💪<br>💳✅</div>
-</div>
-
-<div class="showcase" style="margin-top:40px; background:linear-gradient(135deg,rgba(56,189,248,.1),rgba(14,165,233,.1));border-color:rgba(56,189,248,.2)">
-  <div class="showcase-text">
-    <h2>🔬 Fen Laboratuvarı</h2>
-    <p>Aerodinamik, hidrodinamik ve elektrik devrelerini 2D ortamda interaktif olarak test edin ve öğrenin.</p>
-    <a href="science-lab/" class="btn-primary" style="background:linear-gradient(135deg,#38bdf8,#0ea5e9)">Simülasyonu Başlat</a>
-  </div>
-  <div class="showcase-img">✈️🚢⚡<br>👨‍🔬🧪</div>
-</div>
-
-<div class="showcase" style="margin-top:40px; background:linear-gradient(135deg,rgba(244,63,94,.1),rgba(217,70,239,.1));border-color:rgba(244,63,94,.2)">
-  <div class="showcase-text">
-    <h2>🔗 Bionests</h2>
-    <p>Tüm linklerinizi tek bir güzel sayfada toplayın. Premium temalar, widget'lar ve istatistiklerle yeni nesil bio link platformu.</p>
-    <a href="https://bionests.com" target="_blank" rel="noopener noreferrer" class="btn-primary" style="background:linear-gradient(135deg,#f43f5e,#d946ef)">Ziyaret Et</a>
-  </div>
-  <div class="showcase-img">🔗📱✨<br>🎨📈</div>
-</div>
-
-<div class="showcase" style="margin-top:40px; background:linear-gradient(135deg,rgba(31,56,100,.1),rgba(47,117,182,.1));border-color:rgba(47,117,182,.2)">
-  <div class="showcase-text">
-    <h2>🚛 Flotixs</h2>
-    <p>Filo Yönetim ve Araç Takip Sistemi. Şirketinizin lojistik operasyonlarını tek ekrandan verimli bir şekilde kontrol edin.</p>
-    <a href="https://flotixs.com" target="_blank" rel="noopener noreferrer" class="btn-primary" style="background:linear-gradient(135deg,#1F3864,#2F75B6)">Sisteme Git</a>
-  </div>
-  <div class="showcase-img">🚛📍🗺️<br>🏢📊</div>
-</div>
-</div>
-
-<!-- CONTACT -->
-<div id="iletisim" style="max-width:1100px;margin:0 auto">
-<div class="contact">
-  <h2>Birlikte Çalışalım</h2>
-  <p>Projeniz için bizimle iletişime geçin.</p>
-  <p>📧 <a href="mailto:ceo@bionests.com" style="color: #f1c40f; text-decoration: none; font-weight: bold;">ceo@bionests.com</a></p>
-</div>
-</div>
+</main>
 
 <footer>
-  <span>© 2026 Tamga Studio. Tüm hakları saklıdır.</span>
+  <span>© 2026 TAMGA STUDIO — TÜM HAKLARI SAKLIDIR.</span>
   <div>
     <a href="privacy-policy.html">Gizlilik Politikası</a>
     <a href="about.html">Hakkımızda</a>
   </div>
 </footer>
 
+<!-- ============ LIBS (CDN) ============ -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="https://unpkg.com/lenis@1.1.18/dist/lenis.min.js"></script>
+
 <script>
-document.querySelectorAll('a[href^="mailto:"]').forEach(link => {
-  link.addEventListener('click', (e) => {
-    const email = link.getAttribute('href').replace('mailto:', '');
-    navigator.clipboard.writeText(email).catch(() => {});
-    
-    let toast = document.getElementById('mailToast');
-    if (!toast) {
-      toast = document.createElement('div');
-      toast.id = 'mailToast';
-      toast.style.cssText = 'position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:rgba(108,92,231,0.95);color:white;padding:12px 24px;border-radius:30px;font-family:sans-serif;font-weight:bold;z-index:9999;box-shadow:0 10px 30px rgba(0,0,0,0.5);opacity:0;transition:opacity 0.3s;pointer-events:none;text-align:center;backdrop-filter:blur(5px);';
-      document.body.appendChild(toast);
+/* ================================================================
+   TAMGA STUDIO — CINEMATIC ENGINE
+   Canvas 3D code tunnel  +  Lenis smooth scroll  +  GSAP bridge
+   ================================================================ */
+(function () {
+  'use strict';
+
+  /* CDN failure guard: if GSAP didn't load, show the site statically */
+  if (!window.gsap || !window.ScrollTrigger) {
+    var s = document.createElement('style');
+    s.textContent = '.fx{opacity:1!important;transform:none!important}' +
+      '.hero{visibility:visible!important;opacity:1!important}' +
+      'nav{visibility:visible!important;opacity:1!important}' +
+      '.hero-frame i{transform:none!important}' +
+      '#tunnel,.intro-hud,#skipIntro{display:none}';
+    document.head.appendChild(s);
+    return;
+  }
+
+  gsap.registerPlugin(ScrollTrigger);
+
+  var REDUCED = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* ----------------------------------------------------------------
+     1. SOURCE CODE POOL  (JS / C++ / Python — realistic syntax)
+  ---------------------------------------------------------------- */
+  var CODE = [
+    'const engine = new RenderLoop({ fps: 144, vsync: true });',
+    'function project(x, y, z) { return FOCAL / (z - cam.z); }',
+    'requestAnimationFrame(update); // 16.6ms budget',
+    'let buffer = new Float32Array(VERTEX_COUNT * 3);',
+    'if (entity.health <= 0) world.despawn(entity.id);',
+    'export default class TunnelRenderer extends Engine {}',
+    'await fetch("/api/v2/telemetry", { method: "POST" });',
+    'ctx.fillText(token.value, px, sy); // raster pass',
+    'const lerp = (a, b, t) => a + (b - a) * t;',
+    'matrix.translate(0, 0, -depth * progress);',
+    'socket.on("frame", (data) => decode(data.payload));',
+    'return Math.hypot(dx, dy) < radius * scale;',
+    'document.querySelector("#root").appendChild(node);',
+    'const hash = crypto.randomUUID().slice(0, 8);',
+    'gsap.to(camera, { z: depth, ease: "expo.inOut" });',
+    'localStorage = null; // state lives in memory',
+    'for (let i = lines.length - 1; i >= 0; i--) draw(lines[i]);',
+    'std::vector<Mesh> meshes; meshes.reserve(1024);',
+    'template <typename T> T clamp(T v, T lo, T hi);',
+    'auto* ptr = static_cast<uint8_t*>(malloc(size));',
+    '#include <iostream> // stdout stream',
+    'void Renderer::flush() { glDrawArrays(GL_TRIANGLES, 0, n); }',
+    'if (depth_buffer[i] > z) { depth_buffer[i] = z; }',
+    'constexpr float FOV = 75.0f * DEG2RAD;',
+    'delete[] heap_block; heap_block = nullptr;',
+    'while (queue.pop(task)) { pool.dispatch(task); }',
+    'namespace tamga { struct Vec3 { float x, y, z; }; }',
+    'static_assert(sizeof(Vertex) == 32, "pack error");',
+    'def update(self, dt: float) -> None:',
+    'import numpy as np # vectorized math',
+    'frame = np.zeros((1080, 1920, 3), dtype=np.uint8)',
+    'with open("scene.json") as f: data = json.load(f)',
+    'class Camera: __slots__ = ("pos", "fov", "near")',
+    'result = [t for t in tokens if t.depth < NEAR_PLANE]',
+    'async def stream(): yield await reader.read(4096)',
+    'if __name__ == "__main__": main(sys.argv[1:])',
+    'lambda z: focal / max(z, 1e-6) # perspective divide',
+    'try: gpu.compile(shader) except GLError as e: log(e)',
+    '0x7FFA42B1 :: PUSH RBP ; MOV RBP, RSP',
+    'git push origin main --force-with-lease',
+    'npm run build && node dist/server.js --port 443',
+    'SELECT id, score FROM runs ORDER BY score DESC LIMIT 10;',
+    'kernel void shade(global float4* px, const float t)',
+    '[OK] compiled 412 modules in 1.84s — 0 warnings',
+    'sys.heap :: 64512 KB free / tunnel.alloc OK',
+    '>>> tamga.studio.boot(sequence="v2026")'
+  ];
+
+  /* ----------------------------------------------------------------
+     2. SYNTAX TOKENIZER  (one-time, per line)
+  ---------------------------------------------------------------- */
+  var KEYWORDS = ('const let var function return new class extends export default import await async ' +
+    'if else for while do switch case break continue void static template typename auto delete ' +
+    'namespace struct constexpr static_assert def import with as try except lambda yield None ' +
+    'True False self this null nullptr include using public private float int uint8_t bool ' +
+    'SELECT FROM ORDER BY DESC LIMIT kernel global PUSH MOV').split(' ');
+  var KW = {};
+  KEYWORDS.forEach(function (k) { KW[k] = 1; });
+
+  var COL = {
+    kw:  '#00ff9c',   // hacker green
+    fn:  '#00e5ff',   // cyber cyan
+    str: '#e8c170',   // amber strings
+    num: '#7ee8fa',
+    com: '#3e5247',   // muted comment green-gray
+    pun: '#566069',
+    id:  '#9fb4c7'
+  };
+
+  function tokenize(text) {
+    var out = [];
+    var re = /(\/\/.*$|#(?!include).*$|"[^"]*"|'[^']*'|`[^`]*`|\b\d[\w.]*\b|\b[A-Za-z_]\w*\b|\s+|[^\sA-Za-z0-9]+)/g;
+    var m, prev = null;
+    while ((m = re.exec(text)) !== null) {
+      var t = m[0], c;
+      if (/^(\/\/|#(?!include))/.test(t)) c = COL.com;
+      else if (/^["'`]/.test(t)) c = COL.str;
+      else if (/^\d/.test(t)) c = COL.num;
+      else if (/^[A-Za-z_]/.test(t)) c = KW[t] ? COL.kw : COL.id;
+      else if (/^\s+$/.test(t)) c = null;
+      else c = COL.pun;
+      // function-call heuristic: identifier followed by "("
+      if (out.length && prev && prev.c === COL.id && t.charAt(0) === '(') prev.c = COL.fn;
+      var tok = { t: t, c: c };
+      out.push(tok);
+      if (c) prev = tok;
     }
-    toast.innerHTML = '📧 E-posta kopyalandı:<br><span style="color:#f1c40f;font-weight:normal;">' + email + '</span>';
-    toast.style.opacity = '1';
-    
-    if (window.toastTimeout) clearTimeout(window.toastTimeout);
-    window.toastTimeout = setTimeout(() => { toast.style.opacity = '0'; }, 3500);
+    return out;
+  }
+
+  var TOKENIZED = CODE.map(function (l) { return { tokens: tokenize(l), len: l.length }; });
+
+  /* ----------------------------------------------------------------
+     3. TUNNEL RENDERER  (single canvas, rAF, perspective math)
+  ---------------------------------------------------------------- */
+  var tunnel = document.getElementById('tunnel');
+  var tctx = tunnel.getContext('2d', { alpha: false });
+
+  var DPR = Math.min(window.devicePixelRatio || 1, 1.75);
+  var W = 0, H = 0, CX = 0, CY = 0;
+
+  var DEPTH = 1400;        // virtual tunnel depth
+  var FOCAL = 420;         // focal length
+  var NEAR  = 26;          // near plane
+  var TRAVEL = DEPTH * 2.6;// total camera travel across the scroll
+  var BASE_FONT = 15;
+  var CHAR_W = 0.6;        // JetBrains Mono advance ratio (em)
+
+  var lines = [];
+  var state = { p: 0, drift: 0, stageAlpha: 1, revealed: false };
+
+  function rand(a, b) { return a + Math.random() * (b - a); }
+
+  function makeLine() {
+    var src = TOKENIZED[(Math.random() * TOKENIZED.length) | 0];
+    var sx = (Math.random() < 0.5 ? -1 : 1) * rand(0.10, 1);
+    return {
+      tokens: src.tokens, len: src.len,
+      x: sx,
+      y: rand(-1.15, 1.15),
+      z: rand(0, DEPTH),
+      vy: rand(0.03, 0.11),
+      glitchT: rand(0, 100),
+      phase: rand(0, Math.PI * 2)
+    };
+  }
+
+  function buildLines() {
+    var target = Math.max(60, Math.min(150, (W * H) / 11000 | 0));
+    lines.length = 0;
+    for (var i = 0; i < target; i++) lines.push(makeLine());
+  }
+
+  function resizeTunnel() {
+    var r = tunnel.parentElement.getBoundingClientRect();
+    W = r.width; H = r.height;
+    tunnel.width = W * DPR; tunnel.height = H * DPR;
+    tctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+    CX = W / 2; CY = H / 2;
+    buildLines();
+  }
+
+  var lastT = 0;
+  function renderTunnel(now) {
+    var dt = Math.min((now - lastT) / 1000 || 0.016, 0.05);
+    lastT = now;
+
+    if (state.stageAlpha <= 0.01) return; // stage hidden → skip work
+
+    // background
+    tctx.globalAlpha = 1;
+    tctx.fillStyle = '#050607';
+    tctx.fillRect(0, 0, W, H);
+
+    // camera: idle forward drift + scroll-driven travel
+    state.drift += dt * 26 * (1 - Math.min(state.p * 3, 1) * 0.4);
+    var camZ = state.drift + state.p * TRAVEL;
+
+    // rain slows as the tunnel flight takes over
+    var rainAmt = 1 - Math.min(state.p * 4, 1) * 0.88;
+    // extra punch-in speed near the end (breach feel)
+    var breach = Math.max(0, (state.p - 0.7) / 0.3);
+
+    var t = now / 1000;
+    var spreadX = W * 0.92, spreadY = H * 0.86;
+
+    for (var i = 0; i < lines.length; i++) {
+      var L = lines[i];
+
+      // matrix rain (phase 1) — fades out as we fly
+      if (rainAmt > 0.02) {
+        L.y += L.vy * dt * rainAmt * 2.2;
+        if (L.y > 1.2) { L.y = -1.2; L.x = (Math.random() < 0.5 ? -1 : 1) * rand(0.10, 1); }
+      }
+
+      var rel = L.z - camZ;
+      rel = ((rel % DEPTH) + DEPTH) % DEPTH;          // endless wrap
+      if (rel < 0.5) continue;
+
+      var s = FOCAL / rel;                            // perspective scale
+      var fs = BASE_FONT * s;
+      if (fs < 2.4 || fs > 360) continue;
+
+      var sx = CX + L.x * spreadX * s * 0.45;
+      var sy = CY + L.y * spreadY * s * 0.45;
+
+      // depth fades: far fade-in, near fade-out ("passes behind your head")
+      var aFar  = Math.min((DEPTH - rel) / (DEPTH * 0.38), 1);
+      var aNear = Math.min(Math.max((rel - NEAR) / (NEAR * 2.4), 0), 1);
+      var flick = 0.72 + 0.28 * Math.sin(L.phase + t * 2.6);
+      var alpha = aFar * aNear * flick;
+      if (alpha < 0.02) continue;
+
+      // chromatic-ish glow on close lines
+      if (s > 1.6) {
+        tctx.shadowColor = 'rgba(0,255,156,0.55)';
+        tctx.shadowBlur = Math.min(s * 4, 22);
+      } else tctx.shadowBlur = 0;
+
+      tctx.font = fs + 'px "JetBrains Mono", monospace';
+      var cw = fs * CHAR_W;
+      var px = sx - (L.len * cw) / 2;
+      var toks = L.tokens;
+      for (var k = 0; k < toks.length; k++) {
+        var tok = toks[k];
+        if (tok.c) {
+          tctx.globalAlpha = alpha;
+          tctx.fillStyle = tok.c;
+          tctx.fillText(tok.t, px, sy);
+        }
+        px += tok.t.length * cw;
+      }
+    }
+    tctx.shadowBlur = 0;
+
+    // ---- glitch slices (CRT shimmer) ----
+    var gProb = 0.012 + breach * 0.12;
+    if (Math.random() < gProb) {
+      var slices = 1 + ((Math.random() * 3) | 0);
+      for (var g = 0; g < slices; g++) {
+        var gy = Math.random() * H, gh = rand(2, 14);
+        var off = rand(-18, 18) * (1 + breach * 2);
+        try {
+          tctx.drawImage(tunnel, 0, gy * DPR, tunnel.width, gh * DPR, off, gy, W, gh);
+        } catch (e) { /* canvas busy — skip slice */ }
+      }
+      tctx.globalAlpha = 0.05;
+      tctx.fillStyle = Math.random() < 0.5 ? '#00ff9c' : '#00e5ff';
+      tctx.fillRect(0, Math.random() * H, W, 1.5);
+    }
+
+    // subtle moving CRT line
+    tctx.globalAlpha = 0.04;
+    tctx.fillStyle = '#9dffd9';
+    tctx.fillRect(0, (t * 38) % H, W, 2);
+    tctx.globalAlpha = 1;
+  }
+
+  /* ----------------------------------------------------------------
+     4. BACKGROUND MATRIX  (perpetual, behind homepage)
+  ---------------------------------------------------------------- */
+  var bg = document.getElementById('bgMatrix');
+  var bctx = bg.getContext('2d');
+  var bCols = [], bFS = 14, bW = 0, bH = 0, bTimer = 0;
+  var GLYPHS = '01アイウエオカキクケコ<>/{}[]=+*#$&%!?;:'.split('');
+
+  function resizeBG() {
+    bW = window.innerWidth; bH = window.innerHeight;
+    bg.width = bW; bg.height = bH; // 1x — it's blurred behind everything
+    var n = Math.ceil(bW / bFS);
+    bCols.length = 0;
+    for (var i = 0; i < n; i++) bCols.push(Math.random() * -100);
+    bctx.fillStyle = '#000';
+    bctx.fillRect(0, 0, bW, bH);
+  }
+
+  function renderBG(now) {
+    if (now - bTimer < 66) return; // ~15fps is plenty for ambience
+    bTimer = now;
+    bctx.fillStyle = 'rgba(0,0,0,0.08)';
+    bctx.fillRect(0, 0, bW, bH);
+    bctx.font = bFS + 'px "JetBrains Mono", monospace';
+    for (var i = 0; i < bCols.length; i++) {
+      var ch = GLYPHS[(Math.random() * GLYPHS.length) | 0];
+      bctx.fillStyle = Math.random() < 0.08 ? '#aaffdd' : '#00ff9c';
+      bctx.fillText(ch, i * bFS, bCols[i] * bFS);
+      if (bCols[i] * bFS > bH && Math.random() > 0.975) bCols[i] = 0;
+      bCols[i]++;
+    }
+  }
+
+  /* ----------------------------------------------------------------
+     5. LENIS SMOOTH SCROLL  +  GSAP TICKER BRIDGE
+  ---------------------------------------------------------------- */
+  var lenis = null;
+  if (!REDUCED && typeof Lenis !== 'undefined') {
+    lenis = new Lenis({ lerp: 0.085, wheelMultiplier: 1, smoothWheel: true });
+    lenis.on('scroll', ScrollTrigger.update);
+  }
+
+  gsap.ticker.add(function (time) {
+    var ms = time * 1000;
+    if (lenis) lenis.raf(ms);
+    renderTunnel(ms);
+    renderBG(ms);
   });
-});
+  gsap.ticker.lagSmoothing(0);
+
+  function scrollToTarget(target, offset) {
+    if (lenis) lenis.scrollTo(target, { offset: offset || 0, duration: 1.4, easing: function (x) { return 1 - Math.pow(1 - x, 4); } });
+    else if (typeof target === 'number') window.scrollTo(0, target + (offset || 0));
+    else document.querySelector(target).scrollIntoView({ behavior: 'smooth' });
+  }
+
+  /* ----------------------------------------------------------------
+     6. TEXT DECRYPT / SCRAMBLE EFFECT
+  ---------------------------------------------------------------- */
+  var SCRAMBLE = '!<>-_\\/[]{}—=+*^?#______01';
+  function decrypt(el, duration) {
+    var finalText = el.getAttribute('data-final') || el.textContent;
+    el.setAttribute('data-final', finalText);
+    var steps = Math.ceil((duration || 0.9) * 30);
+    var frame = 0;
+    var tick = setInterval(function () {
+      frame++;
+      var prog = frame / steps;
+      var out = '';
+      for (var i = 0; i < finalText.length; i++) {
+        if (finalText.charAt(i) === ' ') { out += ' '; continue; }
+        out += (i / finalText.length < prog)
+          ? finalText.charAt(i)
+          : SCRAMBLE[(Math.random() * SCRAMBLE.length) | 0];
+      }
+      el.textContent = out;
+      if (frame >= steps) { el.textContent = finalText; clearInterval(tick); }
+    }, 33);
+  }
+
+  /* ----------------------------------------------------------------
+     7. REVEAL TIMELINE  (tunnel burst → HUD homepage)
+  ---------------------------------------------------------------- */
+  var reveal = gsap.timeline({
+    paused: true,
+    defaults: { ease: 'power3.out' },
+    onStart: function () {
+      decrypt(document.getElementById('decrypt1'), 0.9);
+      setTimeout(function () { decrypt(document.getElementById('decrypt2'), 0.9); }, 250);
+    }
+  });
+
+  reveal
+    // burst flash
+    .to('#burstFlash', { opacity: 1, duration: 0.12, ease: 'power1.in' }, 0)
+    .to('#burstFlash', { opacity: 0, duration: 0.6, ease: 'power2.out' }, 0.12)
+    // the tunnel shatters past the viewer
+    .to('#tunnel', {
+      opacity: 0, scale: 1.9, filter: 'blur(14px)', duration: 0.9, ease: 'power2.inOut',
+      onUpdate: function () { state.stageAlpha = 1 - this.progress(); },
+      onReverseComplete: function () { state.stageAlpha = 1; }
+    }, 0)
+    .to('#introHud', { autoAlpha: 0, duration: 0.35 }, 0)
+    .to('#skipIntro', { autoAlpha: 0, duration: 0.35 }, 0)
+    // homepage HUD assembles
+    .to('.hero', { autoAlpha: 1, duration: 0.45 }, 0.25)
+    .to('.hero-frame .t', { scaleX: 1, duration: 0.8, ease: 'power4.inOut' }, 0.35)
+    .to('.hero-frame .b', { scaleX: 1, duration: 0.8, ease: 'power4.inOut' }, 0.35)
+    .to('.hero-frame .l', { scaleY: 1, duration: 0.8, ease: 'power4.inOut' }, 0.5)
+    .to('.hero-frame .r', { scaleY: 1, duration: 0.8, ease: 'power4.inOut' }, 0.5)
+    .fromTo('.hero [data-reveal]',
+      { y: 42, autoAlpha: 0 },
+      { y: 0, autoAlpha: 1, duration: 0.85, stagger: 0.12 }, 0.4)
+    .to('#mainNav', { autoAlpha: 1, y: 0, duration: 0.6, startAt: { y: -24 } }, 0.7);
+
+  /* ----------------------------------------------------------------
+     8. SCROLLTRIGGER — pin the intro & drive the camera
+  ---------------------------------------------------------------- */
+  var introST = null;
+
+  if (!REDUCED) {
+    introST = ScrollTrigger.create({
+      trigger: '#intro',
+      start: 'top top',
+      end: '+=280%',
+      pin: true,
+      scrub: true,
+      anticipatePin: 1,
+      onUpdate: function (self) {
+        state.p = self.progress;
+        // fade the HUD chrome as soon as flight begins
+        if (!state.revealed) {
+          var hudA = 1 - Math.min(self.progress * 5, 1);
+          gsap.set('#introHud', { opacity: hudA });
+        }
+        if (self.progress > 0.78 && !state.revealed) {
+          state.revealed = true;
+          reveal.timeScale(1).play();
+        } else if (self.progress < 0.68 && state.revealed) {
+          state.revealed = false;
+          reveal.timeScale(1.6).reverse();
+        }
+      }
+    });
+  } else {
+    // reduced motion: no flight — show homepage immediately
+    state.p = 1; state.revealed = true; state.stageAlpha = 0;
+    gsap.set('#tunnel', { opacity: 0 });
+    gsap.set('#introHud, #skipIntro', { autoAlpha: 0 });
+    gsap.set('.hero', { autoAlpha: 1 });
+    gsap.set('.hero [data-reveal]', { autoAlpha: 1, y: 0 });
+    gsap.set('.hero-frame i', { scale: 1, scaleX: 1, scaleY: 1 });
+    gsap.set('#mainNav', { autoAlpha: 1 });
+  }
+
+  // skip button → jump to the end of the pinned flight
+  document.getElementById('skipIntro').addEventListener('click', function () {
+    var end = introST ? introST.end : window.innerHeight;
+    scrollToTarget(end + 2);
+  });
+
+  /* ----------------------------------------------------------------
+     9. CONTENT SECTION REVEALS + COUNTERS
+  ---------------------------------------------------------------- */
+  gsap.utils.toArray('.fx').forEach(function (el) {
+    gsap.fromTo(el,
+      { y: 44, autoAlpha: 0 },
+      {
+        y: 0, autoAlpha: 1, duration: 0.9, ease: 'power3.out',
+        scrollTrigger: { trigger: el, start: 'top 86%', once: true }
+      });
+  });
+
+  gsap.utils.toArray('.count').forEach(function (el) {
+    var target = parseInt(el.getAttribute('data-count'), 10) || 0;
+    var obj = { v: 0 };
+    ScrollTrigger.create({
+      trigger: el, start: 'top 90%', once: true,
+      onEnter: function () {
+        gsap.to(obj, {
+          v: target, duration: 1.4, ease: 'power2.out',
+          onUpdate: function () { el.textContent = Math.round(obj.v); }
+        });
+      }
+    });
+  });
+
+  /* ----------------------------------------------------------------
+     10. NAV ANCHORS (Lenis-aware) + MAILTO TOAST
+  ---------------------------------------------------------------- */
+  document.querySelectorAll('a[href^="#"]').forEach(function (a) {
+    a.addEventListener('click', function (e) {
+      var id = a.getAttribute('href');
+      if (id.length < 2) return;
+      var target = document.querySelector(id);
+      if (!target) return;
+      e.preventDefault();
+      if (id === '#anasayfa') { scrollToTarget(0); return; }
+      scrollToTarget(target, -70);
+    });
+  });
+
+  document.querySelectorAll('a[href^="mailto:"]').forEach(function (link) {
+    link.addEventListener('click', function () {
+      var email = link.getAttribute('href').replace('mailto:', '');
+      if (navigator.clipboard) navigator.clipboard.writeText(email).catch(function () {});
+      var toast = document.getElementById('mailToast');
+      if (!toast) {
+        toast = document.createElement('div');
+        toast.id = 'mailToast';
+        toast.style.cssText = 'position:fixed;bottom:20px;left:50%;transform:translateX(-50%);' +
+          'background:rgba(5,10,8,.92);border:1px solid rgba(0,255,156,.5);color:#e6edf3;' +
+          'padding:12px 24px;font-family:JetBrains Mono,monospace;font-size:13px;z-index:9999;' +
+          'box-shadow:0 0 30px rgba(0,255,156,.25);opacity:0;transition:opacity .3s;' +
+          'pointer-events:none;text-align:center;backdrop-filter:blur(6px)';
+        document.body.appendChild(toast);
+      }
+      toast.innerHTML = '📧 E-posta kopyalandı:<br><span style="color:#00ff9c">' + email + '</span>';
+      toast.style.opacity = '1';
+      if (window.toastTimeout) clearTimeout(window.toastTimeout);
+      window.toastTimeout = setTimeout(function () { toast.style.opacity = '0'; }, 3500);
+    });
+  });
+
+  /* ----------------------------------------------------------------
+     11. RESIZE / INIT
+  ---------------------------------------------------------------- */
+  var rT;
+  window.addEventListener('resize', function () {
+    clearTimeout(rT);
+    rT = setTimeout(function () {
+      resizeTunnel(); resizeBG(); ScrollTrigger.refresh();
+    }, 150);
+  });
+
+  resizeTunnel();
+  resizeBG();
+
+  // ensure fonts are ready so the canvas monospace metrics are correct
+  if (document.fonts && document.fonts.ready) {
+    document.fonts.ready.then(function () { /* glyphs hot — nothing else needed */ });
+  }
+})();
 </script>
 
 </body>
