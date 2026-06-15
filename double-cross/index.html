@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate" />
+<meta http-equiv="Pragma" content="no-cache" />
+<title>Double Cross — 3D Open World</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html,body { width:100%; height:100%; overflow:hidden; background:#0a0b14; font-family:'Segoe UI',system-ui,sans-serif; color:#fff; }
+  #c { display:block; width:100%; height:100%; }
+  .hud { position:fixed; pointer-events:none; text-shadow:0 2px 4px rgba(0,0,0,.8); user-select:none; }
+  #hp     { left:20px; bottom:54px; width:220px; }
+  #hpbar  { width:220px; height:18px; background:#3a0d12; border:2px solid #fff; border-radius:8px; overflow:hidden; }
+  #hpfill { height:100%; width:100%; background:#2ecc71; transition:width .2s; }
+  #hptext { font-size:13px; font-weight:700; margin-top:2px; }
+  #stam   { left:20px; bottom:84px; width:180px; }
+  #stambar{ width:180px; height:10px; background:#10261a; border:2px solid #fff; border-radius:6px; overflow:hidden; }
+  #stamfill{ height:100%; width:100%; background:#f1c40f; transition:width .1s; }
+  #money  { right:24px; top:20px; font-size:26px; font-weight:800; color:#ffd24a; }
+  #score  { right:24px; top:54px; font-size:15px; color:#bbb; }
+  #level  { right:24px; top:76px; font-size:15px; font-weight:700; color:#00d2ff; }
+  #weapon { left:20px; bottom:22px; font-size:16px; font-weight:700; color:#ffa030; }
+  #wanted { left:50%; top:16px; transform:translateX(-50%); font-size:24px; font-weight:800; letter-spacing:3px; }
+  #mission{ right:24px; top:96px; width:280px; text-align:right; font-size:14px; line-height:1.45; }
+  #mission b { color:#ffd24a; }
+  #prompt { left:50%; bottom:120px; transform:translateX(-50%); font-size:18px; color:#00d2ff; font-weight:700; }
+  #msg    { left:50%; top:120px; transform:translateX(-50%); font-size:20px; color:#ffd24a; font-weight:800; text-align:center; }
+  #speedo { right:24px; bottom:30px; font-size:20px; color:#00d2ff; font-weight:800; }
+  #mini   { position:fixed; right:16px; bottom:90px; width:170px; height:170px; border:2px solid #fff; border-radius:10px; background:#11131f; }
+
+  /* dialog */
+  #dialog { position:fixed; left:50%; bottom:40px; transform:translateX(-50%); width:min(760px,90%);
+            background:rgba(8,10,24,.92); border:2px solid #ffd24a; border-radius:14px; padding:18px 22px; display:none; pointer-events:none; }
+  #dlgName { color:#ffd24a; font-weight:800; font-size:18px; margin-bottom:6px; }
+  #dlgText { font-size:17px; line-height:1.5; min-height:48px; }
+  #dlgHint { text-align:right; color:#9aa; font-size:13px; margin-top:8px; }
+
+  /* shop */
+  #shop { position:fixed; left:50%; top:50%; transform:translate(-50%,-50%); width:420px;
+          background:rgba(8,10,28,.96); border:2px solid #ffd24a; border-radius:16px; padding:24px; display:none; }
+  #shop h2 { text-align:center; color:#ffd24a; margin-bottom:6px; }
+  #shopMoney { text-align:center; color:#2ecc71; margin-bottom:16px; }
+  #shopList { max-height:46vh; overflow-y:auto; }
+  .shopItem { display:flex; justify-content:space-between; padding:12px 14px; border-radius:10px; margin-bottom:6px; cursor:pointer; }
+  .shopItem:hover { background:rgba(255,255,255,.06); }
+  .shopItem.sel { background:rgba(0,210,255,.15); outline:1px solid #00d2ff; }
+  .shopItem .pr { color:#ffd24a; font-weight:700; }
+  .shopItem small { display:block; color:#9aa; font-size:12px; }
+  #shopHint { text-align:center; color:#9aa; font-size:13px; margin-top:12px; }
+
+  /* menu */
+  #menu { position:fixed; inset:0; background:radial-gradient(ellipse at 50% 30%, #1a1d3a, #06070f);
+          display:flex; flex-direction:column; align-items:center; justify-content:center; }
+  #menu h1 { font-size:84px; font-weight:900; letter-spacing:-2px; line-height:.9;
+             background:linear-gradient(135deg,#ff5470,#ffd24a); -webkit-background-clip:text; background-clip:text; color:transparent; }
+  #menu .sub { color:#aab; margin:10px 0 40px; font-size:18px; }
+  .mbtn { width:300px; padding:16px; margin:8px; font-size:20px; font-weight:800; border:none; border-radius:14px; cursor:pointer;
+          background:linear-gradient(135deg,#6c5ce7,#00d2ff); color:#fff; transition:.2s; }
+  .mbtn:hover { transform:translateY(-2px); box-shadow:0 12px 30px rgba(108,92,231,.5); }
+  .mbtn.alt { background:rgba(255,255,255,.08); }
+  #menu .help { position:absolute; bottom:24px; color:#778; font-size:13px; text-align:center; width:90%; }
+
+  #pause { position:fixed; inset:0; background:rgba(0,0,0,.65); display:none; flex-direction:column; align-items:center; justify-content:center; }
+  #pause h2 { font-size:46px; margin-bottom:20px; }
+
+  #settings { position:fixed; inset:0; background:rgba(0,0,0,.78); display:none; align-items:center; justify-content:center; z-index:60; }
+  #settings .setBox { background:#161a2e; border:1px solid #333a5c; border-radius:16px; padding:28px 32px; width:min(460px,92%); box-shadow:0 20px 60px rgba(0,0,0,.6); }
+  #settings h2 { font-size:30px; margin:0 0 18px; text-align:center; }
+  #settings .setRow { display:flex; align-items:center; gap:14px; margin:16px 0; font-size:16px; color:#cdd; }
+  #settings .setRow span { flex:1; }
+  #settings .setRow input[type=range] { flex:2; accent-color:#6c5ce7; }
+  #settings .setRow b { width:54px; text-align:right; color:#fff; }
+  #settings .mbtn { width:100%; margin-top:18px; }
+
+  /* dinamik nişangah (GTA tarzı) */
+  #crosshair { position:fixed; left:50%; top:50%; width:0; height:0; pointer-events:none; display:none; z-index:30; }
+  #crosshair .ch-dot { position:absolute; left:0; top:0; width:3px; height:3px; border-radius:50%;
+        background:var(--ch-col,#fff); transform:translate(-50%,-50%); box-shadow:0 0 2px rgba(0,0,0,.9); }
+  #crosshair .ch { position:absolute; left:0; top:0; background:var(--ch-col,#fff); box-shadow:0 0 2px rgba(0,0,0,.9); }
+  #crosshair .ch-t, #crosshair .ch-b { width:2px; height:7px; }
+  #crosshair .ch-l, #crosshair .ch-r { width:7px; height:2px; }
+
+  /* silah çarkı */
+  /* SİNEMATİK */
+  #cine { position:fixed; inset:0; background:#05060c; z-index:90; display:none; flex-direction:column;
+          align-items:center; justify-content:center; cursor:pointer; }
+  #cine .cineBar { position:absolute; left:0; width:100%; height:11vh; background:#000; }
+  #cine .cineBar.top { top:0; } #cine .cineBar.bottom { bottom:0; }
+  .cineMid { max-width:760px; padding:0 8vw; text-align:center; animation:cineFade .6s ease; }
+  #cineSpeaker { color:#ffd24a; font-weight:800; font-size:20px; letter-spacing:2px; text-transform:uppercase; margin-bottom:14px; }
+  #cineText { color:#fff; font-size:30px; font-weight:700; line-height:1.4; }
+  #cineSub { color:#aab; font-size:19px; font-style:italic; line-height:1.6; }
+  #cineChoice { display:flex; flex-direction:column; gap:14px; margin-top:34px; }
+  .cineBtn { background:rgba(255,255,255,.06); border:2px solid #2a3050; color:#fff; padding:18px 24px;
+             border-radius:14px; font-size:19px; font-weight:800; cursor:pointer; transition:.18s; font-family:inherit; }
+  .cineBtn:hover { border-color:#00d2ff; transform:translateY(-2px); }
+  #cineHint { position:absolute; bottom:13vh; color:#889; font-size:14px; text-shadow:0 2px 6px #000; }
+  @keyframes cineFade { from{opacity:0; transform:translateY(10px);} to{opacity:1; transform:none;} }
+  /* film modu: 3D sahne arkada görünür, sadece bantlar + altyazı */
+  #cine.movie { background:transparent; }
+  #cine.movie .cineMid { position:absolute; bottom:14vh; max-width:840px; }
+  #cine.movie #cineText, #cine.movie #cineSub, #cine.movie #cineSpeaker { text-shadow:0 2px 10px #000, 0 0 4px #000; }
+  #cine.movie #cineText { font-size:26px; }
+
+  /* TELEFON */
+  #phone { position:fixed; inset:0; background:rgba(5,7,16,.6); backdrop-filter:blur(4px);
+           display:none; align-items:center; justify-content:center; z-index:55; }
+  .phoneFrame { width:380px; max-width:92vw; height:600px; max-height:88vh; background:#0c0f1e;
+                border:3px solid #2a3050; border-radius:28px; padding:14px; display:flex; flex-direction:column; box-shadow:0 20px 60px rgba(0,0,0,.6); }
+  .phoneHead { display:flex; align-items:center; justify-content:space-between; font-weight:800; font-size:16px; padding:6px 8px 12px; }
+  .picon { background:#1a2038; border:none; color:#fff; width:30px; height:30px; border-radius:50%; cursor:pointer; font-size:14px; }
+  #phoneTabs { display:flex; gap:4px; background:#11142a; border-radius:12px; padding:4px; }
+  .ptab { flex:1; text-align:center; padding:8px 4px; border-radius:9px; font-size:13px; font-weight:700; color:#8b90a8; cursor:pointer; }
+  .ptab.on { background:linear-gradient(135deg,#6c5ce7,#00d2ff); color:#fff; }
+  #phoneBody { flex:1; overflow-y:auto; margin-top:12px; padding:4px; }
+  #phoneBody h4 { color:#ffd24a; font-size:13px; text-transform:uppercase; letter-spacing:1px; margin:14px 0 8px; }
+  #phoneBody h4:first-child { margin-top:0; }
+  .prow { font-size:14px; margin-bottom:10px; }
+  .prow b { color:#fff; }
+  .pbar { height:9px; background:#1a1f38; border-radius:6px; overflow:hidden; margin-top:5px; }
+  .pbar div { height:100%; border-radius:6px; transition:width .3s; }
+  .phint { color:#8b90a8; font-size:12px; line-height:1.5; margin-top:10px; }
+  .pobj { background:rgba(0,210,255,.1); border:1px solid #00d2ff; border-radius:10px; padding:11px 13px; font-size:14px; line-height:1.4; color:#fff; }
+  .pdist { display:flex; align-items:center; justify-content:space-between; background:#11142a; border-radius:10px; padding:10px 12px; margin-bottom:7px; font-size:13px; border:2px solid transparent; cursor:pointer; }
+  .pdist.sel { border-color:#00d2ff; background:#16203a; }
+  .pbtn { background:linear-gradient(135deg,#2ecc71,#16a34a); border:none; color:#fff; padding:7px 12px; border-radius:8px; cursor:pointer; font-weight:700; font-size:12px; }
+  .pcost { color:#ffd24a; font-size:12px; }
+  .pnews { background:#11142a; border-left:3px solid #ffd24a; border-radius:8px; padding:9px 12px; margin-bottom:7px; font-size:13px; line-height:1.4; }
+  .pday { color:#00d2ff; font-weight:700; font-size:11px; margin-right:6px; }
+  .phoneFoot { text-align:center; color:#666e8a; font-size:12px; padding-top:10px; }
+
+  /* GTA tarzı dairesel silah çarkı */
+  #wheel { position:fixed; inset:0; background:rgba(5,7,16,.5); backdrop-filter:blur(3px);
+           display:none; align-items:center; justify-content:center; flex-direction:column; }
+  #wheel h3 { position:absolute; top:8%; font-size:20px; color:#ffd24a; letter-spacing:1px; }
+  #wheelItems { position:relative; width:480px; height:480px; }
+  .wseg { position:absolute; left:50%; top:50%; width:88px; height:88px; border-radius:50%;
+          background:rgba(15,18,34,.92); border:2px solid rgba(255,255,255,.14);
+          display:grid; place-items:center; cursor:pointer; transition:transform .1s, border-color .1s, box-shadow .1s; }
+  .wseg .wi { font-size:42px; }
+  .wseg.sel { border-color:#ffd24a; background:rgba(40,36,18,.95); box-shadow:0 0 28px rgba(255,210,74,.55); z-index:2; }
+  .wcenter { position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); width:160px; height:160px;
+             border-radius:50%; background:rgba(8,10,24,.9); border:2px solid rgba(255,255,255,.12);
+             display:grid; place-items:center; text-align:center; pointer-events:none; }
+  .wcenter .wcn { font-weight:800; font-size:18px; color:#fff; }
+  .wcenter .wca { color:#9aa; font-size:12px; margin-top:4px; }
+  #wheelHint { position:absolute; bottom:7%; color:#9aa; font-size:14px; }
+
+  /* AWP dürbünü */
+  #scope { position:fixed; inset:0; display:none; pointer-events:none; z-index:40; }
+  #scope .vig { position:absolute; inset:0;
+    background:radial-gradient(circle at 50% 50%, transparent 0, transparent 31%, rgba(0,0,0,.97) 33%); }
+  #scope .ringline { position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);
+    width:60vh; height:60vh; border:2px solid rgba(0,0,0,.9); border-radius:50%; }
+  #scope .vline { position:absolute; left:50%; top:0; width:1px; height:100%; background:rgba(0,0,0,.6); }
+  #scope .hline { position:absolute; top:50%; left:0; height:1px; width:100%; background:rgba(0,0,0,.6); }
+  #scope .dot   { position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); width:6px; height:6px; background:#ff3344; border-radius:50%; }
+  #scope .mil   { position:absolute; left:50%; top:50%; width:2px; height:8px; background:rgba(0,0,0,.7); }
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+
+<!-- HUD -->
+<div id="hp" class="hud"><div id="hpbar"><div id="hpfill"></div></div><div id="hptext">HP 100/100</div></div>
+<div id="stam" class="hud"><div id="stambar"><div id="stamfill"></div></div></div>
+<div id="money" class="hud">$500</div>
+<div id="score" class="hud">Score: 0</div>
+<div id="level" class="hud">Lv 1</div>
+<div id="weapon" class="hud">Weapon: Pistol x60</div>
+<div id="wanted" class="hud">·····</div>
+<div id="mission" class="hud"></div>
+<div id="prompt" class="hud"></div>
+<div id="msg" class="hud"></div>
+<div id="speedo" class="hud" style="display:none"></div>
+<canvas id="mini" width="170" height="170"></canvas>
+<div id="crosshair">
+  <div class="ch-dot"></div>
+  <div class="ch ch-t"></div><div class="ch ch-b"></div>
+  <div class="ch ch-l"></div><div class="ch ch-r"></div>
+</div>
+
+<!-- AWP dürbünü -->
+<div id="scope">
+  <div class="vig"></div><div class="ringline"></div>
+  <div class="vline"></div><div class="hline"></div><div class="dot"></div>
+</div>
+
+<!-- Sinematik / Ara sahne -->
+<div id="cine">
+  <div class="cineBar top"></div>
+  <div class="cineMid">
+    <div id="cineSpeaker"></div>
+    <div id="cineText"></div>
+    <div id="cineSub"></div>
+    <div id="cineChoice"></div>
+  </div>
+  <div class="cineBar bottom"></div>
+  <div id="cineHint">[Enter / Click] continue · [Esc] skip</div>
+</div>
+
+<!-- Telefon -->
+<div id="phone">
+  <div class="phoneFrame">
+    <div class="phoneHead"><span>📱 PHONE</span><button id="phoneClose" class="picon">✕</button></div>
+    <div id="phoneTabs">
+      <div class="ptab on" data-tab="durum">Status</div>
+      <div class="ptab" data-tab="mesaj">Messages</div>
+      <div class="ptab" data-tab="guven">Trust</div>
+      <div class="ptab" data-tab="bolge">Territory</div>
+      <div class="ptab" data-tab="haber">News</div>
+    </div>
+    <div id="phoneBody"></div>
+    <div class="phoneFoot">← → tab · ↑ ↓ select · Enter confirm · [M]/[Esc] close</div>
+  </div>
+</div>
+
+<!-- Silah çarkı -->
+<div id="wheel">
+  <h3>🔫 SELECT WEAPON</h3>
+  <div id="wheelItems"></div>
+  <div id="wheelHint">Scroll to browse · Left click / 1-7 to select · [Q] close</div>
+</div>
+
+<!-- Dialog -->
+<div id="dialog"><div id="dlgName"></div><div id="dlgText"></div><div id="dlgHint">[E] continue</div></div>
+
+<!-- Shop -->
+<div id="shop"><h2>🛒 SHOP</h2><div id="shopMoney"></div><div id="shopList"></div><div id="shopHint">Scroll / ↑↓ to browse · Left click / Enter to buy · [Esc] close</div></div>
+
+<!-- Menu -->
+<div id="menu">
+  <h1>DOUBLE<br>CROSS</h1>
+  <div class="sub">Trust no one. · 3D Open World Story Game</div>
+  <button class="mbtn" id="btnStart">NEW GAME</button>
+  <button class="mbtn alt" id="btnContinue" style="display:none">▶ CONTINUE</button>
+  <button class="mbtn alt" id="btnSettings">SETTINGS</button>
+  <button class="mbtn alt" id="btnHelp">HOW TO PLAY</button>
+  <div class="help">WASD: Move/Drive · Shift: Sprint · Space: Jump · Left Click: Fire · Right Click: Aim · V: Fire Mode · Q: Weapon Wheel · 1-7: Weapon · F: Vehicle · E: Talk · B: Shop · G: Capture Territory · M: Phone · R: Rain · N: Sound · ESC: Pause</div>
+</div>
+
+<div id="pause"><h2>PAUSED</h2><button class="mbtn" id="btnResume">RESUME</button><button class="mbtn alt" id="btnSettings2">SETTINGS</button><button class="mbtn alt" id="btnQuit">MAIN MENU</button></div>
+
+<!-- Settings -->
+<div id="settings">
+  <div class="setBox">
+    <h2>⚙️ SETTINGS</h2>
+    <label class="setRow"><span>Master Volume</span><input id="setVol" type="range" min="0" max="100" value="90"><b id="setVolV">90%</b></label>
+    <label class="setRow"><span>Mute (N)</span><input id="setMute" type="checkbox"></label>
+    <label class="setRow"><span>Mouse Sensitivity</span><input id="setSens" type="range" min="30" max="250" value="100"><b id="setSensV">1.00x</b></label>
+    <label class="setRow"><span>Music</span><input id="setMusic" type="checkbox" checked></label>
+    <button class="mbtn" id="btnSetClose">CLOSE</button>
+  </div>
+</div>
+
+<script type="importmap">
+{ "imports": { "three": "./lib/three.module.js" } }
+</script>
+<!-- her açılışta game.js'i taze yükle (önbellek sorununu engeller) -->
+<script type="module">import(`./game.js?t=${Date.now()}`);</script>
+</body>
+</html>
