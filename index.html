@@ -178,7 +178,7 @@ nav{
   position:fixed;top:0;left:0;right:0;z-index:90;
   display:flex;justify-content:space-between;align-items:center;
   padding:13px clamp(18px,4vw,44px);
-  background:rgba(8,10,11,.78);-webkit-
+  background:rgba(8,10,11,.78);
   border-bottom:1px solid var(--line);
   visibility:hidden;opacity:0;
 }
@@ -416,7 +416,7 @@ footer{position:relative;z-index:5;border-top:1px solid var(--line);background:v
   background:rgba(5,10,8,.94);border:1px solid rgba(0,255,156,.35);
   padding:16px 20px;display:flex;align-items:center;gap:16px;flex-wrap:wrap;
   font-family:var(--mono);font-size:.74rem;color:var(--mut);line-height:1.6;
-  box-shadow:0 0 40px rgba(0,255,156,.12);
+  box-shadow:0 0 40px rgba(0,255,156,.12);backdrop-filter:blur(8px);
   transition:transform .6s cubic-bezier(.22,1,.36,1);
 }
 #cookieBar.show{transform:translateX(-50%) translateY(0)}
@@ -1444,7 +1444,7 @@ footer{position:relative;z-index:5;border-top:1px solid var(--line);background:v
           'background:rgba(5,10,8,.92);border:1px solid rgba(0,255,156,.5);color:#e6edf3;' +
           'padding:12px 24px;font-family:JetBrains Mono,monospace;font-size:13px;z-index:9999;' +
           'box-shadow:0 0 30px rgba(0,255,156,.25);opacity:0;transition:opacity .3s;' +
-          'pointer-events:none;text-align:center;
+          'pointer-events:none;text-align:center;';
         document.body.appendChild(toast);
       }
       toast.innerHTML = '📧 E-posta kopyalandı:<br><span style="color:#00ff9c">' + email + '</span>';
