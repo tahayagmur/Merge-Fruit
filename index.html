@@ -178,7 +178,7 @@ nav{
   position:fixed;top:0;left:0;right:0;z-index:90;
   display:flex;justify-content:space-between;align-items:center;
   padding:13px clamp(18px,4vw,44px);
-  background:rgba(8,10,11,.78);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+  background:rgba(8,10,11,.78);-webkit-
   border-bottom:1px solid var(--line);
   visibility:hidden;opacity:0;
 }
@@ -416,7 +416,7 @@ footer{position:relative;z-index:5;border-top:1px solid var(--line);background:v
   background:rgba(5,10,8,.94);border:1px solid rgba(0,255,156,.35);
   padding:16px 20px;display:flex;align-items:center;gap:16px;flex-wrap:wrap;
   font-family:var(--mono);font-size:.74rem;color:var(--mut);line-height:1.6;
-  box-shadow:0 0 40px rgba(0,255,156,.12);backdrop-filter:blur(8px);
+  box-shadow:0 0 40px rgba(0,255,156,.12);
   transition:transform .6s cubic-bezier(.22,1,.36,1);
 }
 #cookieBar.show{transform:translateX(-50%) translateY(0)}
@@ -1235,20 +1235,8 @@ footer{position:relative;z-index:5;border-top:1px solid var(--line);background:v
   }
 
   function renderBG(now) {
-    /* performans: intro tuneli ekrani kaplarken arka plan matrix'ini cizme */
-    if (state.stageAlpha > 0.05) return;
-    if (now - bTimer < 66) return;
-    bTimer = now;
-    bctx.fillStyle = 'rgba(0,0,0,0.08)';
-    bctx.fillRect(0, 0, bW, bH);
-    bctx.font = bFS + 'px "JetBrains Mono", monospace';
-    for (var i = 0; i < bCols.length; i++) {
-      var ch = GLYPHS[(Math.random() * GLYPHS.length) | 0];
-      bctx.fillStyle = Math.random() < 0.08 ? '#aaffdd' : '#00ff9c';
-      bctx.fillText(ch, i * bFS, bCols[i] * bFS);
-      if (bCols[i] * bFS > bH && Math.random() > 0.975) bCols[i] = 0;
-      bCols[i]++;
-    }
+    // Performans için devre dışı bırakıldı
+    return;
   }
 
   /* ----------------------------------------------------------------
@@ -1456,7 +1444,7 @@ footer{position:relative;z-index:5;border-top:1px solid var(--line);background:v
           'background:rgba(5,10,8,.92);border:1px solid rgba(0,255,156,.5);color:#e6edf3;' +
           'padding:12px 24px;font-family:JetBrains Mono,monospace;font-size:13px;z-index:9999;' +
           'box-shadow:0 0 30px rgba(0,255,156,.25);opacity:0;transition:opacity .3s;' +
-          'pointer-events:none;text-align:center;backdrop-filter:blur(6px)';
+          'pointer-events:none;text-align:center;
         document.body.appendChild(toast);
       }
       toast.innerHTML = '📧 E-posta kopyalandı:<br><span style="color:#00ff9c">' + email + '</span>';
