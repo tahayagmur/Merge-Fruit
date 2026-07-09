@@ -46,19 +46,19 @@ DEEPSEA.forEach(function(s) {
 });
 
 // ── SQUISHY (Skuşi) TANIMLARI ───────────────────────────────
-// radius ~%20 kucultuldu — gorsel boyutuna gore hitbox ayarlandi
+// radius kucultuldu — gorsel boyutuna gore hitbox ayarlandi
 const SQUISHY = [
-    { level:0,  label:'Mini Skuşi',     emoji:'🥟', color:'#ffb3c6', radius:18,  score:2,    imgScale:1.1,  imgSource:'assets/images/squishy/ChatGPT Image 9 Tem 2026 16_17_25.png' },
-    { level:1,  label:'Pembe Skuşi',    emoji:'🥟', color:'#ff85a1', radius:24,  score:4,    imgScale:1.1,  imgSource:'assets/images/squishy/ChatGPT Image 9 Tem 2026 16_17_33.png' },
-    { level:2,  label:'Mavi Skuşi',     emoji:'🥟', color:'#85c1e9', radius:32,  score:8,    imgScale:1.1,  imgSource:'assets/images/squishy/ChatGPT Image 9 Tem 2026 16_17_49.png' },
-    { level:3,  label:'Sari Skuşi',     emoji:'🥟', color:'#ffd966', radius:42,  score:16,   imgScale:1.1,  imgSource:'assets/images/squishy/ChatGPT Image 9 Tem 2026 16_18_04.png' },
-    { level:4,  label:'Yesil Skuşi',    emoji:'🥟', color:'#82e0aa', radius:52,  score:32,   imgScale:1.1,  imgSource:'assets/images/squishy/ChatGPT Image 9 Tem 2026 16_18_16.png' },
-    { level:5,  label:'Mor Skuşi',      emoji:'🥟', color:'#c39bd3', radius:62,  score:64,   imgScale:1.1,  imgSource:'assets/images/squishy/ChatGPT Image 9 Tem 2026 16_18_25.png' },
-    { level:6,  label:'Turuncu Skuşi',  emoji:'🥟', color:'#f0a500', radius:72,  score:128,  imgScale:1.1,  imgSource:'assets/images/squishy/ChatGPT Image 9 Tem 2026 16_18_35.png' },
-    { level:7,  label:'Buyuk Skuşi',    emoji:'🥟', color:'#ff6b81', radius:82,  score:256,  imgScale:1.1,  imgSource:'assets/images/squishy/ChatGPT Image 9 Tem 2026 16_21_39.png' },
-    { level:8,  label:'Dev Skuşi',      emoji:'🥟', color:'#ffb3c6', radius:96,  score:512,  imgScale:1.15, imgSource:'assets/images/squishy/ChatGPT Image 9 Tem 2026 16_17_25.png' },
-    { level:9,  label:'Kral Skuşi',     emoji:'🥟', color:'#ffd966', radius:110, score:1024, imgScale:1.15, imgSource:'assets/images/squishy/ChatGPT Image 9 Tem 2026 16_18_04.png' },
-    { level:10, label:'Efsane Skuşi',   emoji:'🥟', color:'#82e0aa', radius:128, score:2048, imgScale:1.15, imgSource:'assets/images/squishy/ChatGPT Image 9 Tem 2026 16_21_39.png' }
+    { level:0,  label:'Mini Skuşi',     emoji:'🥟', color:'#ffb3c6', radius:14,  score:2,    imgScale:1.15, imgSource:'assets/images/squishy/ChatGPT Image 9 Tem 2026 16_17_25.png' },
+    { level:1,  label:'Pembe Skuşi',    emoji:'🥟', color:'#ff85a1', radius:19,  score:4,    imgScale:1.15, imgSource:'assets/images/squishy/ChatGPT Image 9 Tem 2026 16_17_33.png' },
+    { level:2,  label:'Mavi Skuşi',     emoji:'🥟', color:'#85c1e9', radius:26,  score:8,    imgScale:1.15, imgSource:'assets/images/squishy/ChatGPT Image 9 Tem 2026 16_17_49.png' },
+    { level:3,  label:'Sari Skuşi',     emoji:'🥟', color:'#ffd966', radius:34,  score:16,   imgScale:1.15, imgSource:'assets/images/squishy/ChatGPT Image 9 Tem 2026 16_18_04.png' },
+    { level:4,  label:'Yesil Skuşi',    emoji:'🥟', color:'#82e0aa', radius:42,  score:32,   imgScale:1.15, imgSource:'assets/images/squishy/ChatGPT Image 9 Tem 2026 16_18_16.png' },
+    { level:5,  label:'Mor Skuşi',      emoji:'🥟', color:'#c39bd3', radius:50,  score:64,   imgScale:1.15, imgSource:'assets/images/squishy/ChatGPT Image 9 Tem 2026 16_18_25.png' },
+    { level:6,  label:'Turuncu Skuşi',  emoji:'🥟', color:'#f0a500', radius:58,  score:128,  imgScale:1.15, imgSource:'assets/images/squishy/ChatGPT Image 9 Tem 2026 16_18_35.png' },
+    { level:7,  label:'Buyuk Skuşi',    emoji:'🥟', color:'#ff6b81', radius:66,  score:256,  imgScale:1.15, imgSource:'assets/images/squishy/ChatGPT Image 9 Tem 2026 16_21_39.png' },
+    { level:8,  label:'Dev Skuşi',      emoji:'🥟', color:'#ffb3c6', radius:78,  score:512,  imgScale:1.18, imgSource:'assets/images/squishy/ChatGPT Image 9 Tem 2026 16_17_25.png' },
+    { level:9,  label:'Kral Skuşi',     emoji:'🥟', color:'#ffd966', radius:90,  score:1024, imgScale:1.18, imgSource:'assets/images/squishy/ChatGPT Image 9 Tem 2026 16_18_04.png' },
+    { level:10, label:'Efsane Skuşi',   emoji:'🥟', color:'#82e0aa', radius:105, score:2048, imgScale:1.18, imgSource:'assets/images/squishy/ChatGPT Image 9 Tem 2026 16_21_39.png' }
 ];
 SQUISHY.forEach(function(s) {
     if (s.imgSource) { s.img = new Image(); s.img.src = s.imgSource; }
