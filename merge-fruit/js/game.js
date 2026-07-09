@@ -46,18 +46,19 @@ DEEPSEA.forEach(function(s) {
 });
 
 // ── SQUISHY (Skuşi) TANIMLARI ───────────────────────────────
+// radius ~%20 kucultuldu — gorsel boyutuna gore hitbox ayarlandi
 const SQUISHY = [
-    { level:0,  label:'Mini Skuşi',     emoji:'🥟', color:'#ffb3c6', radius:22,  score:2,    imgSource:'assets/images/squishy/ChatGPT Image 9 Tem 2026 16_17_25.png' },
-    { level:1,  label:'Pembe Skuşi',    emoji:'🥟', color:'#ff85a1', radius:30,  score:4,    imgSource:'assets/images/squishy/ChatGPT Image 9 Tem 2026 16_17_33.png' },
-    { level:2,  label:'Mavi Skuşi',     emoji:'🥟', color:'#85c1e9', radius:40,  score:8,    imgSource:'assets/images/squishy/ChatGPT Image 9 Tem 2026 16_17_49.png' },
-    { level:3,  label:'Sari Skuşi',     emoji:'🥟', color:'#ffd966', radius:52,  score:16,   imgSource:'assets/images/squishy/ChatGPT Image 9 Tem 2026 16_18_04.png' },
-    { level:4,  label:'Yesil Skuşi',    emoji:'🥟', color:'#82e0aa', radius:64,  score:32,   imgSource:'assets/images/squishy/ChatGPT Image 9 Tem 2026 16_18_16.png' },
-    { level:5,  label:'Mor Skuşi',      emoji:'🥟', color:'#c39bd3', radius:76,  score:64,   imgSource:'assets/images/squishy/ChatGPT Image 9 Tem 2026 16_18_25.png' },
-    { level:6,  label:'Turuncu Skuşi',  emoji:'🥟', color:'#f0a500', radius:88,  score:128,  imgSource:'assets/images/squishy/ChatGPT Image 9 Tem 2026 16_18_35.png' },
-    { level:7,  label:'Buyuk Skuşi',    emoji:'🥟', color:'#ff6b81', radius:100, score:256,  imgSource:'assets/images/squishy/ChatGPT Image 9 Tem 2026 16_21_39.png' },
-    { level:8,  label:'Dev Skuşi',      emoji:'🥟', color:'#ffb3c6', radius:118, score:512,  imgSource:'assets/images/squishy/ChatGPT Image 9 Tem 2026 16_17_25.png', imgScale:1.2 },
-    { level:9,  label:'Kral Skuşi',     emoji:'🥟', color:'#ffd966', radius:135, score:1024, imgSource:'assets/images/squishy/ChatGPT Image 9 Tem 2026 16_18_04.png', imgScale:1.2 },
-    { level:10, label:'Efsane Skuşi',   emoji:'🥟', color:'#82e0aa', radius:158, score:2048, imgSource:'assets/images/squishy/ChatGPT Image 9 Tem 2026 16_21_39.png', imgScale:1.2 }
+    { level:0,  label:'Mini Skuşi',     emoji:'🥟', color:'#ffb3c6', radius:18,  score:2,    imgScale:1.1,  imgSource:'assets/images/squishy/ChatGPT Image 9 Tem 2026 16_17_25.png' },
+    { level:1,  label:'Pembe Skuşi',    emoji:'🥟', color:'#ff85a1', radius:24,  score:4,    imgScale:1.1,  imgSource:'assets/images/squishy/ChatGPT Image 9 Tem 2026 16_17_33.png' },
+    { level:2,  label:'Mavi Skuşi',     emoji:'🥟', color:'#85c1e9', radius:32,  score:8,    imgScale:1.1,  imgSource:'assets/images/squishy/ChatGPT Image 9 Tem 2026 16_17_49.png' },
+    { level:3,  label:'Sari Skuşi',     emoji:'🥟', color:'#ffd966', radius:42,  score:16,   imgScale:1.1,  imgSource:'assets/images/squishy/ChatGPT Image 9 Tem 2026 16_18_04.png' },
+    { level:4,  label:'Yesil Skuşi',    emoji:'🥟', color:'#82e0aa', radius:52,  score:32,   imgScale:1.1,  imgSource:'assets/images/squishy/ChatGPT Image 9 Tem 2026 16_18_16.png' },
+    { level:5,  label:'Mor Skuşi',      emoji:'🥟', color:'#c39bd3', radius:62,  score:64,   imgScale:1.1,  imgSource:'assets/images/squishy/ChatGPT Image 9 Tem 2026 16_18_25.png' },
+    { level:6,  label:'Turuncu Skuşi',  emoji:'🥟', color:'#f0a500', radius:72,  score:128,  imgScale:1.1,  imgSource:'assets/images/squishy/ChatGPT Image 9 Tem 2026 16_18_35.png' },
+    { level:7,  label:'Buyuk Skuşi',    emoji:'🥟', color:'#ff6b81', radius:82,  score:256,  imgScale:1.1,  imgSource:'assets/images/squishy/ChatGPT Image 9 Tem 2026 16_21_39.png' },
+    { level:8,  label:'Dev Skuşi',      emoji:'🥟', color:'#ffb3c6', radius:96,  score:512,  imgScale:1.15, imgSource:'assets/images/squishy/ChatGPT Image 9 Tem 2026 16_17_25.png' },
+    { level:9,  label:'Kral Skuşi',     emoji:'🥟', color:'#ffd966', radius:110, score:1024, imgScale:1.15, imgSource:'assets/images/squishy/ChatGPT Image 9 Tem 2026 16_18_04.png' },
+    { level:10, label:'Efsane Skuşi',   emoji:'🥟', color:'#82e0aa', radius:128, score:2048, imgScale:1.15, imgSource:'assets/images/squishy/ChatGPT Image 9 Tem 2026 16_21_39.png' }
 ];
 SQUISHY.forEach(function(s) {
     if (s.imgSource) { s.img = new Image(); s.img.src = s.imgSource; }
