@@ -45,6 +45,24 @@ DEEPSEA.forEach(function(s) {
     if (s.imgSource) { s.img = new Image(); s.img.src = s.imgSource; }
 });
 
+// ── SQUISHY (Skuşi) TANIMLARI ───────────────────────────────
+const SQUISHY = [
+    { level:0,  label:'Mini Skuşi',     emoji:'🥟', color:'#ffb3c6', radius:22,  score:2,    imgSource:'assets/images/squishy/ChatGPT Image 9 Tem 2026 16_17_25.png' },
+    { level:1,  label:'Pembe Skuşi',    emoji:'🥟', color:'#ff85a1', radius:30,  score:4,    imgSource:'assets/images/squishy/ChatGPT Image 9 Tem 2026 16_17_33.png' },
+    { level:2,  label:'Mavi Skuşi',     emoji:'🥟', color:'#85c1e9', radius:40,  score:8,    imgSource:'assets/images/squishy/ChatGPT Image 9 Tem 2026 16_17_49.png' },
+    { level:3,  label:'Sari Skuşi',     emoji:'🥟', color:'#ffd966', radius:52,  score:16,   imgSource:'assets/images/squishy/ChatGPT Image 9 Tem 2026 16_18_04.png' },
+    { level:4,  label:'Yesil Skuşi',    emoji:'🥟', color:'#82e0aa', radius:64,  score:32,   imgSource:'assets/images/squishy/ChatGPT Image 9 Tem 2026 16_18_16.png' },
+    { level:5,  label:'Mor Skuşi',      emoji:'🥟', color:'#c39bd3', radius:76,  score:64,   imgSource:'assets/images/squishy/ChatGPT Image 9 Tem 2026 16_18_25.png' },
+    { level:6,  label:'Turuncu Skuşi',  emoji:'🥟', color:'#f0a500', radius:88,  score:128,  imgSource:'assets/images/squishy/ChatGPT Image 9 Tem 2026 16_18_35.png' },
+    { level:7,  label:'Buyuk Skuşi',    emoji:'🥟', color:'#ff6b81', radius:100, score:256,  imgSource:'assets/images/squishy/ChatGPT Image 9 Tem 2026 16_21_39.png' },
+    { level:8,  label:'Dev Skuşi',      emoji:'🥟', color:'#ffb3c6', radius:118, score:512,  imgSource:'assets/images/squishy/ChatGPT Image 9 Tem 2026 16_17_25.png', imgScale:1.2 },
+    { level:9,  label:'Kral Skuşi',     emoji:'🥟', color:'#ffd966', radius:135, score:1024, imgSource:'assets/images/squishy/ChatGPT Image 9 Tem 2026 16_18_04.png', imgScale:1.2 },
+    { level:10, label:'Efsane Skuşi',   emoji:'🥟', color:'#82e0aa', radius:158, score:2048, imgSource:'assets/images/squishy/ChatGPT Image 9 Tem 2026 16_21_39.png', imgScale:1.2 }
+];
+SQUISHY.forEach(function(s) {
+    if (s.imgSource) { s.img = new Image(); s.img.src = s.imgSource; }
+});
+
 // ── TAŞ GÖRSELİ ÜRETİMİ ─────────────────────────────────────────
 function drawStonePattern(oc, stone, cx, cy, r) {
     oc.save();
@@ -231,6 +249,7 @@ STONES.forEach(function(s) {
 // ── AKTİF TEMA ──────────────────────────────────────────────────
 var currentTheme = 'fruits';
 var ITEMS = FRUITS;
+var THEMES = ['fruits', 'stones', 'deepsea', 'squishy'];
 
 // ── DURUM DEGİSKENLERİ ──────────────────────────────────────────
 var engine, world, canvas, ctx;
@@ -328,7 +347,7 @@ var LANG = localStorage.getItem('mf_lang') || ((navigator.language||'').startsWi
 var STRINGS = {
     tr: {
         play:'▶ OYNA', storeBtn:'🛒 MAĞAZA', settingsBtn:'⚙️ AYARLAR',
-        themeLabel:['🍎 Meyve Teması','🪨 Taş Teması', '🌊 Derin Deniz Teması'],
+        themeLabel:['🍎 Meyve Teması','🪨 Taş Teması', '🌊 Derin Deniz Teması', '🥟 Skuşi Teması'],
         modeTitle:'MOD SEÇ',
         modeNormal:'Normal',      modeNormalDesc:'Klasik sonsuz oyun',
         modeSpeed:'Hız Modu',     modeSpeedDesc:'Otomatik düşüyor, hızlanıyor!',
@@ -351,7 +370,7 @@ var STRINGS = {
     },
     en: {
         play:'▶ PLAY', storeBtn:'🛒 STORE', settingsBtn:'⚙️ SETTINGS',
-        themeLabel:['🍎 Fruit Theme','🪨 Stone Theme', '🌊 Deep Sea Theme'],
+        themeLabel:['🍎 Fruit Theme','🪨 Stone Theme', '🌊 Deep Sea Theme', '🥟 Squishy Theme'],
         modeTitle:'SELECT MODE',
         modeNormal:'Normal',    modeNormalDesc:'Classic endless game',
         modeSpeed:'Speed Mode', modeSpeedDesc:'Auto-drops and speeds up!',
@@ -413,7 +432,7 @@ function applyLanguage(lang) {
     if (muteEl) muteEl.innerText = isMuted ? s.soundOff : s.soundOn;
     var themeEl = $('theme-btn');
     if (themeEl) {
-        var tIdx = currentTheme === 'fruits' ? 0 : (currentTheme === 'stones' ? 1 : 2);
+        var tIdx = THEMES.indexOf(currentTheme); if(tIdx<0) tIdx=0;
         themeEl.innerText = s.themeLabel[tIdx];
     }
     var np = $('player-name'); if(np) np.placeholder = s.namePlaceholder;
@@ -864,23 +883,17 @@ if(modeBackBtn) modeBackBtn.addEventListener('click', function(){ if(modeSelectE
 var themeBtn=$('theme-btn');
 if(themeBtn){
     themeBtn.addEventListener('click', function(){
-        if (currentTheme === 'fruits') {
-            currentTheme = 'stones';
-            ITEMS = STONES;
-        } else if (currentTheme === 'stones') {
-            currentTheme = 'deepsea';
-            ITEMS = DEEPSEA;
-        } else {
-            currentTheme = 'fruits';
-            ITEMS = FRUITS;
-        }
+        var tIdx = THEMES.indexOf(currentTheme);
+        tIdx = (tIdx + 1) % THEMES.length;
+        currentTheme = THEMES[tIdx];
+        if (currentTheme === 'fruits')  ITEMS = FRUITS;
+        else if (currentTheme === 'stones') ITEMS = STONES;
+        else if (currentTheme === 'deepsea') ITEMS = DEEPSEA;
+        else ITEMS = SQUISHY;
         var s = STRINGS[LANG] || STRINGS.en;
-        var tIdx = currentTheme === 'fruits' ? 0 : (currentTheme === 'stones' ? 1 : 2);
         themeBtn.innerText = s.themeLabel[tIdx];
-        
         // Tema değişiminde arkaplanı ayarla
         document.body.className = currentTheme + '-theme';
-        
         if(isGameStarted){ setNextFruit(); createPreviewFruit(); }
     });
 }

@@ -100,6 +100,45 @@ body.deepsea-theme .bg-shape {
     display: none !important;
 }
 
+/* ── SQUISHY TEMA ────────────────────────────────────────────────── */
+body.squishy-theme {
+    background: linear-gradient(135deg, #ffe0f0 0%, #ffd6e8 100%);
+}
+body.squishy-theme #game-container {
+    background: url('assets/images/squishy/ARKAPLAN.png') no-repeat center center;
+    background-size: cover;
+    box-shadow: 0 0 40px rgba(255, 100, 180, 0.35);
+}
+body.squishy-theme .glass-panel {
+    background: rgba(255, 220, 240, 0.45);
+    border-color: rgba(255, 120, 180, 0.4);
+}
+body.squishy-theme .primary-btn {
+    background: linear-gradient(45deg, #ff6eb4, #ff9de2);
+    box-shadow: 0 4px 15px rgba(255, 100, 180, 0.4);
+}
+body.squishy-theme .modal h2,
+body.squishy-theme .store-title-text,
+body.squishy-theme #mode-select-h,
+body.squishy-theme #settings-title {
+    background: linear-gradient(90deg, #ff6eb4, #ff9de2);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: #ff6eb4;
+}
+body.squishy-theme #score-display {
+    background: linear-gradient(to right, #ff6eb4, #ffb3d9);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+body.squishy-theme #final-score, body.squishy-theme .boost-count {
+    color: #ff6eb4;
+    text-shadow: 0 1px 4px rgba(0,0,0,0.15);
+}
+body.squishy-theme .bg-shape {
+    display: none !important;
+}
+
 @media (min-width: 500px) {
     #game-container {
         height: 95vh;
