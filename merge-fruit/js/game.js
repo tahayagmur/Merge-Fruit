@@ -845,6 +845,8 @@ function startGameWithMode(mode){
     currentMode=mode;
     if(modeSelectEl) modeSelectEl.classList.add('hidden');
     canvasContainer.classList.remove('hidden'); inGameHeader.classList.remove('hidden');
+    var bL=$('boost-hud-left'), bR=$('boost-hud-right');
+    if(bL) bL.classList.remove('hidden'); if(bR) bR.classList.remove('hidden');
     try{
         var cw=gameContainer.offsetWidth||400, hh=inGameHeader.offsetHeight||80, ch=gameContainer.offsetHeight||700;
         width=cw; height=Math.max(ch-hh,300);
@@ -862,6 +864,8 @@ playBtn.addEventListener('click', function(){
 restartBtn.addEventListener('click', function(){
     stopModeLogic(); modal.classList.add('hidden');
     canvasContainer.classList.add('hidden'); inGameHeader.classList.add('hidden');
+    var bL=$('boost-hud-left'), bR=$('boost-hud-right');
+    if(bL) bL.classList.add('hidden'); if(bR) bR.classList.add('hidden');
     var lb=$('lives-board'),tb=$('timer-board');
     if(lb) lb.classList.add('hidden'); if(tb) tb.classList.add('hidden');
     mainMenu.classList.remove('hidden'); isGameStarted=false;

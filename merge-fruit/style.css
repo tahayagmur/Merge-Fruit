@@ -249,16 +249,30 @@ canvas {
     height: 100%;
 }
 
-/* ── BOOST HUD ─────────────────────────────────────────────────── */
-#boost-hud {
+/* ── BOOST HUD – YAN PANELLER ──────────────────────────────────── */
+.boost-side-panel {
     position: absolute;
-    bottom: 12px;
-    left: 50%;
-    transform: translateX(-50%);
+    top: 50%;
+    transform: translateY(-50%);
     display: flex;
-    gap: 10px;
+    flex-direction: column;
+    gap: 12px;
     z-index: 20;
     pointer-events: auto;
+}
+
+#boost-hud-left {
+    left: -76px;
+}
+
+#boost-hud-right {
+    right: -76px;
+}
+
+/* Dar ekranlarda (420px ve altı game-container) paneller görünmez olabilir,
+   bu yüzden body overflow-x visible yapıyoruz */
+body {
+    overflow-x: visible;
 }
 
 .boost-btn {

@@ -18,8 +18,35 @@
 </head>
 <body>
     <div id="game-container">
-        <!-- Background Effects -->
-        <div class="bg-shape shape1"></div>
+        <!-- Boost HUD – Sol Panel (Shake + Bomb) -->
+        <div id="boost-hud-left" class="boost-side-panel hidden">
+            <div class="boost-btn" id="btn-shake" title="Shake">
+                <span class="boost-icon">🫨</span>
+                <span class="boost-count" id="count-shake">0</span>
+            </div>
+            <div class="boost-btn" id="btn-bomb" title="Bomb">
+                <span class="boost-icon">💣</span>
+                <span class="boost-count" id="count-bomb">0</span>
+            </div>
+        </div>
+        <!-- Boost HUD – Sağ Panel (Swap + Upgrade) -->
+        <div id="boost-hud-right" class="boost-side-panel hidden">
+            <div class="boost-btn" id="btn-swap" title="Swap">
+                <span class="boost-icon">🔄</span>
+                <span class="boost-count" id="count-swap">0</span>
+            </div>
+            <div class="boost-btn" id="btn-upgrade" title="Upgrade">
+                <span class="boost-icon">⭐</span>
+                <span class="boost-count" id="count-upgrade">0</span>
+            </div>
+        </div>
+
+        <!-- Canvas Container -->
+        <div id="canvas-container" class="hidden">
+            <div id="game-over-line"></div>
+        </div>
+
+
         <div class="bg-shape shape2"></div>
         <div id="bg-particles" style="position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:10;overflow:hidden;"></div>
 
@@ -59,28 +86,6 @@
         <!-- Combo Display -->
         <div id="combo-display" class="combo-display hidden"></div>
 
-        <!-- Canvas Container -->
-        <div id="canvas-container" class="hidden">
-            <div id="game-over-line"></div>
-            <!-- Boost HUD -->
-            <div id="boost-hud">
-                <div class="boost-btn" id="btn-shake" title="Shake">
-                    <span class="boost-icon">🫨</span>
-                    <span class="boost-count" id="count-shake">0</span>
-                </div>
-                <div class="boost-btn" id="btn-bomb" title="Bomb">
-                    <span class="boost-icon">💣</span>
-                    <span class="boost-count" id="count-bomb">0</span>
-                </div>
-                <div class="boost-btn" id="btn-swap" title="Swap">
-                    <span class="boost-icon">🔄</span>
-                    <span class="boost-count" id="count-swap">0</span>
-                </div>
-                <div class="boost-btn" id="btn-upgrade" title="Upgrade">
-                    <span class="boost-icon">⭐</span>
-                    <span class="boost-count" id="count-upgrade">0</span>
-                </div>
-            </div>
         </div>
 
         <!-- Main Menu -->
