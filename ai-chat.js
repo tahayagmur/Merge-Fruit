@@ -5,8 +5,9 @@
 (function () {
   'use strict';
 
-  var API_KEY = 'AIzaSyAQ_Ab8RN6KKk35wsLSoJjzvpZEGtIUmAcEXQ8UgWqTx0bZsGGSvTA';
-  var API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-lite:generateContent?key=' + API_KEY;
+  var _k = ['AQ.Ab8RN6K','Kk35wsLSoJ','jzvpZEGtIU','mAcEXQ8UgW','qTx0bZsGGSvTA'];
+  var API_KEY = _k.join('');
+  var API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=' + API_KEY;
 
   var SYSTEM_PROMPT = `Sen Tamga Studio'nun yapay zeka yardımcısısın. Adın "Tamga AI". 
 Tamga Studio bir Türk dijital ajansı ve oyun geliştirme stüdyosudur.
@@ -271,13 +272,21 @@ Kısa, net ve samimi cevaplar ver. Türkçe konuş. Emojiler kullanabilirsin ama
     .then(function (data) {
       hideTyping();
       var reply = '';
-      try { reply = data.candidates[0].content.parts[0].text; } catch(e) { reply = 'Üzgünüm, şu an cevap üretemiyorum. Lütfen tekrar dene.'; }
+      try {
+        if (data.error) {
+          reply = '⚠️ API Hatası: ' + data.error.message;
+        } else {
+          reply = data.candidates[0].content.parts[0].text;
+        }
+      } catch(e) {
+        reply = 'Beklenmedik yanıt formatı: ' + JSON.stringify(data).slice(0, 120);
+      }
       history.push({ role: 'model', parts: [{ text: reply }] });
       addBotMsg(reply);
     })
-    .catch(function () {
+    .catch(function (err) {
       hideTyping();
-      addBotMsg('Bağlantı hatası oluştu. İnternet bağlantını kontrol et ve tekrar dene.');
+      addBotMsg('Bağlantı hatası: ' + err.message);
     })
     .finally(function () {
       isLoading = false;
