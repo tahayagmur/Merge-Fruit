@@ -8,8 +8,9 @@
   var _k = ['AIzaSyArV','Snj0RRRhY','J9FacKEyt','v_JD0dV2t8P4'];
   var API_KEY = _k.join('');
   var MODELS = [
-    'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=',
-    'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key='
+    'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=',
+    'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-8b:generateContent?key=',
+    'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.0-pro:generateContent?key='
   ];
   var _modelIdx = 0;
   function getApiUrl() { return MODELS[_modelIdx] + API_KEY; }
@@ -281,8 +282,12 @@ Kısa, net ve samimi cevaplar ver. Türkçe konuş. Emojiler kullanabilirsin ama
         var reply = '';
         try {
           if (data.error) {
-            // Model bulunamazsa bir sonraki modeli dene
-            if ((data.error.code === 404 || data.error.status === 'NOT_FOUND') && _modelIdx < MODELS.length - 1) {
+            // Model bulunamazsa veya kota bittiyse bir sonraki modeli dene
+            var shouldRetry = (
+              data.error.code === 404 || data.error.status === 'NOT_FOUND' ||
+              data.error.code === 429 || data.error.status === 'RESOURCE_EXHAUSTED'
+            );
+            if (shouldRetry && _modelIdx < MODELS.length - 1) {
               _modelIdx++;
               showTyping();
               tryFetch();
