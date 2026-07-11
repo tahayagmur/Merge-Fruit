@@ -270,36 +270,43 @@ Kısa, net ve samimi cevaplar ver. Türkçe konuş. Emojiler kullanabilirsin ama
       contents: history.slice(-10)
     };
 
-    fetch(API_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(body)
-    })
-    .then(function (r) { return r.json(); })
-    .then(function (data) {
-      hideTyping();
-      var reply = '';
-      try {
-        if (data.error) {
-          reply = '⚠️ API Hatası: ' + data.error.message;
-        } else {
-          reply = data.candidates[0].content.parts[0].text;
+    function tryFetch() {
+      fetch(getApiUrl(), {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+      })
+      .then(function (r) { return r.json(); })
+      .then(function (data) {
+        hideTyping();
+        var reply = '';
+        try {
+          if (data.error) {
+            // Model bulunamazsa bir sonraki modeli dene
+            if ((data.error.code === 404 || data.error.status === 'NOT_FOUND') && _modelIdx < MODELS.length - 1) {
+              _modelIdx++;
+              showTyping();
+              tryFetch();
+              return;
+            }
+            reply = '⚠️ API Hatası: ' + data.error.message;
+          } else {
+            reply = data.candidates[0].content.parts[0].text;
+          }
+        } catch(e) {
+          reply = 'Beklenmedik yanıt: ' + JSON.stringify(data).slice(0, 150);
         }
-      } catch(e) {
-        reply = 'Beklenmedik yanıt formatı: ' + JSON.stringify(data).slice(0, 120);
-      }
-      history.push({ role: 'model', parts: [{ text: reply }] });
-      addBotMsg(reply);
-    })
-    .catch(function (err) {
-      hideTyping();
-      addBotMsg('Bağlantı hatası: ' + err.message);
-    })
-    .finally(function () {
-      isLoading = false;
-      sendBtn.disabled = false;
-      input.focus();
-    });
+        history.push({ role: 'model', parts: [{ text: reply }] });
+        addBotMsg(reply);
+        isLoading = false; sendBtn.disabled = false; input.focus();
+      })
+      .catch(function (err) {
+        hideTyping();
+        addBotMsg('Bağlantı hatası: ' + err.message);
+        isLoading = false; sendBtn.disabled = false; input.focus();
+      });
+    }
+    tryFetch();
   }
 
   /* ── INPUT OLAYLARı ────────────────────────────────────────── */
