@@ -5,9 +5,16 @@
 (function () {
   'use strict';
 
-  var _k = ['AQ.Ab8RN6K','Kk35wsLSoJ','jzvpZEGtIU','mAcEXQ8UgW','qTx0bZsGGSvTA'];
+  var _k = ['AQ.Ab8RN6LT','g-MY73g32e','MBrP2mKMS2','tIx_LZuQQ6','WWu4aNPK0NYg'];
   var API_KEY = _k.join('');
-  var API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=' + API_KEY;
+  // Birden fazla model dene — hangisi bu key ile çalışıyorsa o kullanılır
+  var MODELS = [
+    'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=',
+    'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=',
+    'https://generativelanguage.googleapis.com/v1/models/gemini-pro:generateContent?key='
+  ];
+  var _modelIdx = 0;
+  function getApiUrl() { return MODELS[_modelIdx] + API_KEY; }
 
   var SYSTEM_PROMPT = `Sen Tamga Studio'nun yapay zeka yardımcısısın. Adın "Tamga AI". 
 Tamga Studio bir Türk dijital ajansı ve oyun geliştirme stüdyosudur.
