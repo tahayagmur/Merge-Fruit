@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <meta name="theme-color" content="#1a1440" />
+  <title>Color Flow Puzzle — Liquid Sort Game</title>
+  <!-- Elle çizilmiş SVG ikon (her zaman var). AI png üretilirse ek seçenek olur. -->
+  <link rel="icon" type="image/svg+xml" href="assets/icon.svg" />
+  <link rel="icon" type="image/png" href="assets/generated/icon.png" />
+  <link rel="apple-touch-icon" href="assets/generated/icon.png" />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <!-- Prosedürel arka plan efekti (aurora blob'ları + yükselen kabarcıklar) -->
+  <div id="bgfx" aria-hidden="true">
+    <span class="blob b1"></span>
+    <span class="blob b2"></span>
+    <span class="blob b3"></span>
+    <div class="bubbles">
+      <span></span><span></span><span></span><span></span>
+      <span></span><span></span><span></span><span></span><span></span>
+    </div>
+  </div>
+
+  <div id="app">
+    <!-- Üst bar -->
+    <header id="topbar">
+      <button class="topbtn" id="btn-daily">
+        🎁 <span id="daily-badge" class="badge-dot"></span>
+      </button>
+      <div class="coin-pill">🪙 <span id="coin-label">0</span></div>
+      <div class="top-right">
+        <button class="topbtn" id="btn-shop">🛒</button>
+        <button class="topbtn" id="btn-settings">⚙️</button>
+      </div>
+    </header>
+
+    <!-- Aktif ekran (harita / oyun) buraya çizilir -->
+    <main id="screen" class="screen"></main>
+  </div>
+
+  <!-- Modal katmanı -->
+  <div id="modal-root"></div>
+
+  <!-- Modüller: sıra önemli (bağımlılıklar) -->
+  <script src="js/util.js"></script>
+  <script src="js/config.js"></script>
+  <script src="js/logic.js"></script>
+  <script src="js/generator.js"></script>
+  <script src="js/audio.js"></script>
+  <script src="js/save.js"></script>
+  <script src="js/economy.js"></script>
+  <script src="js/game.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/native.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>

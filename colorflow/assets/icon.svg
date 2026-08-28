@@ -1,0 +1,56 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#7c4dff"/>
+      <stop offset="1" stop-color="#4a1e9e"/>
+    </linearGradient>
+    <linearGradient id="lc" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ff8a80"/><stop offset="1" stop-color="#ff5252"/></linearGradient>
+    <linearGradient id="lt" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#64ffda"/><stop offset="1" stop-color="#1de9b6"/></linearGradient>
+    <linearGradient id="la" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffd740"/><stop offset="1" stop-color="#ffab00"/></linearGradient>
+    <linearGradient id="lb" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#40c4ff"/><stop offset="1" stop-color="#0091ea"/></linearGradient>
+    <linearGradient id="lv" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#b388ff"/><stop offset="1" stop-color="#7c4dff"/></linearGradient>
+  </defs>
+
+  <!-- arka plan -->
+  <rect width="512" height="512" rx="112" fill="url(#bg)"/>
+  <circle cx="150" cy="120" r="220" fill="#ffffff" opacity="0.06"/>
+
+  <!-- 3 tüp: her biri kırpma ile yuvarlak dipli -->
+  <g>
+    <!-- sol tüp -->
+    <clipPath id="t1"><rect x="118" y="130" width="70" height="252" rx="35"/></clipPath>
+    <g clip-path="url(#t1)">
+      <rect x="118" y="130" width="70" height="252" fill="#ffffff" opacity="0.08"/>
+      <rect x="118" y="292" width="70" height="90" fill="url(#lb)"/>
+      <rect x="118" y="222" width="70" height="70" fill="url(#lc)"/>
+      <rect x="118" y="152" width="70" height="70" fill="url(#la)"/>
+    </g>
+    <rect x="118" y="130" width="70" height="252" rx="35" fill="none" stroke="#ffffff" stroke-opacity="0.6" stroke-width="6"/>
+
+    <!-- orta tüp -->
+    <clipPath id="t2"><rect x="221" y="110" width="70" height="272" rx="35"/></clipPath>
+    <g clip-path="url(#t2)">
+      <rect x="221" y="110" width="70" height="272" fill="#ffffff" opacity="0.08"/>
+      <rect x="221" y="292" width="70" height="90" fill="url(#lt)"/>
+      <rect x="221" y="222" width="70" height="70" fill="url(#lv)"/>
+      <rect x="221" y="152" width="70" height="70" fill="url(#lc)"/>
+      <rect x="221" y="110" width="70" height="42" fill="url(#la)"/>
+    </g>
+    <rect x="221" y="110" width="70" height="272" rx="35" fill="none" stroke="#ffffff" stroke-opacity="0.6" stroke-width="6"/>
+
+    <!-- sağ tüp -->
+    <clipPath id="t3"><rect x="324" y="130" width="70" height="252" rx="35"/></clipPath>
+    <g clip-path="url(#t3)">
+      <rect x="324" y="130" width="70" height="252" fill="#ffffff" opacity="0.08"/>
+      <rect x="324" y="292" width="70" height="90" fill="url(#la)"/>
+      <rect x="324" y="222" width="70" height="70" fill="url(#lt)"/>
+      <rect x="324" y="152" width="70" height="70" fill="url(#lb)"/>
+    </g>
+    <rect x="324" y="130" width="70" height="252" rx="35" fill="none" stroke="#ffffff" stroke-opacity="0.6" stroke-width="6"/>
+
+    <!-- cam parlamaları -->
+    <rect x="130" y="150" width="10" height="210" rx="5" fill="#ffffff" opacity="0.35"/>
+    <rect x="233" y="132" width="10" height="228" rx="5" fill="#ffffff" opacity="0.35"/>
+    <rect x="336" y="150" width="10" height="210" rx="5" fill="#ffffff" opacity="0.35"/>
+  </g>
+</svg>
