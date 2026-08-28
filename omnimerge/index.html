@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8" />
+  <title>OmniMerge: Infinite AI Craft</title>
+
+  <!--
+    ============================================================================
+    !!! KRİTİK YÜKLEME SIRASI !!!
+    ============================================================================
+    YouTube Playables SDK'sı, oyunun KENDİ kodlarından ÖNCE yüklenmek ZORUNDADIR.
+    Bunun sebebi: SDK, sayfa yüklenirken üst frame (YouTube) ile bir postMessage
+    "handshake" kurar ve sandbox'lı iframe içindeki izinleri (ses, veri, reklam)
+    aktive eder. Oyun kodu `ytgame` global objesine dokunmadan önce bu köprünün
+    kurulmuş olması gerekir; aksi halde `ytgame` undefined olur ve sertifikasyon
+    testleri (audio/pause uyumu) başarısız olur.
+
+    Bu yüzden SDK <head> içinde, senkron (async/defer YOK) ve İLK script'tir.
+    ============================================================================
+  -->
+  <script src="https://www.youtube.com/game_api/v1"></script>
+
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="theme-color" content="#2b2a8f" />
+  <meta name="description" content="Yapay zeka destekli sonsuz birleştirme oyunu." />
+
+  <!--
+    Playables gönderiminde CSP çok katıdır. Aşağıdaki CSP'yi kendi ortamınızda
+    test için tutabilirsiniz; YouTube kendi CSP'sini zaten enjekte eder.
+    NOT: connect-src'e TamgaStudio uç noktasını eklemeyi unutmayın (bkz. main.js
+    içindeki "AĞ ERİŞİMİ" notu).
+  -->
+
+  <style>
+    /* ---------------------------------------------------------------------
+       Sıfırlama + tam ekran tuval. Playables her zaman iframe içinde çalışır,
+       bu yüzden body scroll'u ve overscroll (pull-to-refresh) kapatılmalıdır.
+       --------------------------------------------------------------------- */
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+
+      /* YATAY EKRAN / TV
+         Oyun 720x1280 dikey tasarlanmıştır ve Phaser.Scale.FIT ile ölçeklenir.
+         16:9 bir TV'de bu, yanlarda geniş boşluk bırakır. Düz siyah bir bant
+         ucuz görünür; bu yüzden sayfa arka planını oyunun kendi paletiyle
+         boyuyoruz — oyun alanı ortada durur, kenarlar oyunun devamı gibi
+         okunur. (Tam yatay düzen ayrı bir tasarım işi; bu, ucuz ve dürüst
+         olan ara çözüm.) */
+      background:
+        radial-gradient(90% 55% at 88% 26%, rgba(255,79,216,0.10) 0%, rgba(255,79,216,0) 70%),
+        radial-gradient(95% 60% at 10% 72%, rgba(155,92,255,0.12) 0%, rgba(155,92,255,0) 70%),
+        radial-gradient(120% 70% at 50% 0%, #3a1f7a 0%, #2b2a8f 30%, #14205e 68%, #0b1038 100%);
+      color: #e8ecff;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+                   "Helvetica Neue", Arial, sans-serif;
+
+      /* Mobilde istenmeyen tarayıcı jestlerini kapat */
+      overscroll-behavior: none;
+      touch-action: none;
+      -webkit-user-select: none;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+      -webkit-touch-callout: none;
+    }
+
+    #game-root {
+      position: fixed;
+      inset: 0;
+      display: block;
+    }
+
+    #game-root canvas {
+      display: block;
+      image-rendering: auto;
+
+      /* KRİTİK (dokunmatik):
+         touch-action html/body'de kapatılsa bile CANVAS kendi varsayılanını
+         (auto) kullanır. Bu durumda tarayıcı parmak hareketini kaydırma /
+         çift-dokunup-yakınlaştırma olarak yorumlayıp olayı Phaser'dan ÇALAR;
+         oyuncu "kartı sürüklüyorum ama tepki vermiyor" der. Ayrıca 300 ms'lik
+         çift-dokunma gecikmesi butonları geç tepki veriyor gibi gösterir. */
+      touch-action: none;
+      -ms-touch-action: none;
+      pointer-events: auto;
+      -webkit-user-select: none;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    /* ---------------------------------------------------------------------
+       Açılış ekranı (splash). Phaser hazır olduğunda main.js bunu kaldırır.
+       Playables sertifikasyonu "ilk kare hızlı gelsin" ister; bu yüzden
+       splash saf HTML/CSS'tir, hiçbir asset beklemez.
+       --------------------------------------------------------------------- */
+    #boot-splash {
+      position: fixed;
+      inset: 0;
+      z-index: 50;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 18px;
+      background:
+        radial-gradient(100% 60% at 50% 10%, rgba(63,233,255,0.16) 0%, rgba(63,233,255,0) 70%),
+        radial-gradient(120% 90% at 50% 0%, #3a1f7a 0%, #2b2a8f 32%, #0b1038 100%);
+      transition: opacity 320ms ease;
+    }
+    #boot-splash.hidden { opacity: 0; pointer-events: none; }
+
+    #boot-splash .logo {
+      font-size: 40px;
+      letter-spacing: 0.5px;
+      font-weight: 800;
+      background: linear-gradient(92deg, #2ee0ff 0%, #b866ff 45%, #ffc43a 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+    #boot-splash .sub {
+      font-size: 13px;
+      opacity: 0.62;
+      letter-spacing: 2.4px;
+      text-transform: uppercase;
+    }
+    #boot-splash .orbs { display: flex; gap: 12px; margin-top: 8px; }
+    #boot-splash .orb {
+      width: 12px; height: 12px; border-radius: 50%;
+      background: #2ee0ff;
+      animation: bounce 1.05s infinite ease-in-out;
+    }
+    #boot-splash .orb:nth-child(2) { background: #b866ff; animation-delay: 0.14s; }
+    #boot-splash .orb:nth-child(3) { background: #ff4fd8; animation-delay: 0.28s; }
+    @keyframes bounce {
+      0%, 80%, 100% { transform: translateY(0) scale(0.85); opacity: 0.45; }
+      40%           { transform: translateY(-11px) scale(1);  opacity: 1;    }
+    }
+
+    /* Kritik hata ekranı (SDK / Phaser yüklenemezse) */
+    #fatal {
+      position: fixed; inset: 0; z-index: 90; display: none;
+      align-items: center; justify-content: center; padding: 28px;
+      background: #0b1038; text-align: center; font-size: 14px; line-height: 1.6;
+    }
+    #fatal.show { display: flex; }
+  </style>
+</head>
+
+<body>
+  <!-- Phaser tuvalinin monte edileceği kök element -->
+  <div id="game-root"></div>
+
+  <!-- Açılış ekranı -->
+  <div id="boot-splash">
+    <div class="logo">OmniMerge</div>
+    <div class="sub">Infinite AI Craft</div>
+    <div class="orbs"><i class="orb"></i><i class="orb"></i><i class="orb"></i></div>
+  </div>
+
+  <div id="fatal"><div id="fatal-msg"></div></div>
+
+  <!--
+    ============================================================================
+    SIRA 2: Oyun motoru (Phaser 3).
+    ============================================================================
+    YEREL olarak paketlenmiştir (src/vendor/phaser.min.js).
+    Playables kuralı: gönderilen .zip içinde HER ŞEY yerel olmalıdır; çalışma
+    anında CDN'den script/asset çekmek REDDEDİLME sebebidir. Bu yüzden Phaser'ı
+    CDN'den değil, repo içinden yüklüyoruz.
+    ============================================================================
+  -->
+  <script src="src/vendor/phaser.min.js"></script>
+
+  <!--
+    SIRA 3: Oyun mantığı. `ytgame` ve `Phaser` globalleri bu noktada hazırdır.
+  -->
+  <script src="src/main.js"></script>
+</body>
+</html>
