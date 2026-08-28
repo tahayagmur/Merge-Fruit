@@ -1,0 +1,3762 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="theme-color" content="#07090d">
+<title>Camouflage 3D — Kamuflaj 3D</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap">
+<style>
+/* ============================================================
+   CAMOUFLAGE 3D  —  a reverse hidden-object puzzle
+   Single file. No external assets. Three.js from CDN only.
+   ============================================================ */
+
+/* ---- Quiet Instrument -------------------------------------------------
+   Frosted paper panels over the pattern, deep slate ink, one calm accent
+   and one warm attention colour. No glow, no bevel, no neon: the backdrops
+   are already loud, so the interface stays quiet and lets them be seen.  */
+:root{
+  --ink:#1D3244;                       /* text on panels */
+  --dim:#5A7285;                       /* secondary text */
+  --accent:#2FA890;                    /* calm teal - progress, success */
+  --danger:#C75B4A;                    /* terracotta - detection, loss */
+  --warn:#D9924A;                      /* warm sand - attention */
+  --panel:rgba(247,250,252,.90);       /* frosted paper */
+  --panel-solid:#F7FAFC;
+  --edge:rgba(29,50,68,.12);
+  --wash:rgba(29,50,68,.06);           /* inset rows inside a card */
+  --scrim:rgba(214,226,234,.88);       /* overlay backdrop */
+
+  /* The ring carries its own contrast: it has to read on black stripes and
+     on white op-art alike, so it is white plus a shadow, never a hue. */
+  --gz:rgba(255,255,255,.94);
+  --gz-dim:rgba(255,255,255,.50);
+  --gz-lit:#F0A44E;
+
+  --sans:"Outfit",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,system-ui,sans-serif;
+  --mono:var(--sans);                  /* one family, tabular figures */
+  --r:16px;                            /* the shape language, in one place */
+  --r-sm:11px;
+  --shadow:0 1px 2px rgba(20,40,56,.10), 0 8px 24px rgba(20,40,56,.14);
+  --ease:cubic-bezier(.33,0,.2,1);
+}
+
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;overflow:hidden;background:#07090d}
+body{
+  font-family:var(--sans);color:var(--ink);
+  overscroll-behavior:none;touch-action:none;
+  user-select:none;-webkit-user-select:none;
+}
+
+/* ---------- stage ---------- */
+#stage{position:fixed;inset:0}
+#gl{position:absolute;inset:0;display:block;width:100%;height:100%}
+
+/* Uniform post overlays. These tint the WHOLE screen equally, so the
+   camouflage illusion is never broken by them. */
+#vignette{
+  position:absolute;inset:0;pointer-events:none;z-index:2;
+  background:radial-gradient(ellipse 78% 72% at 50% 46%,transparent 40%,rgba(0,0,0,.30) 78%,rgba(0,0,0,.62) 100%);
+}
+#grain{
+  position:absolute;inset:-50%;pointer-events:none;z-index:3;opacity:.055;
+  background-image:repeating-linear-gradient(0deg,rgba(255,255,255,.9) 0 1px,transparent 1px 3px);
+  animation:grainDrift 5.5s steps(9) infinite;
+}
+@keyframes grainDrift{
+  0%{transform:translate(0,0)}   20%{transform:translate(-2px,1px)}
+  40%{transform:translate(1px,-2px)} 60%{transform:translate(-1px,2px)}
+  80%{transform:translate(2px,1px)} 100%{transform:translate(0,0)}
+}
+
+/* ---------- guidance ring ----------
+   Screen-space SVG rather than scene geometry: the object is always centred
+   under a fixed orthographic camera, so plain pixels are simpler and stay
+   crisp at any DPR. It also keeps the WebGL buffer untouched, which is what
+   the camouflage depends on. */
+#gizmo{
+  position:absolute;inset:0;width:100%;height:100%;z-index:4;
+  pointer-events:none;overflow:visible;
+  transition:opacity .45s cubic-bezier(.4,0,.2,1);
+  filter:drop-shadow(0 1px 2px rgba(10,22,32,.55));
+}
+#gizmo .gz-back{fill:none;stroke:rgba(14,28,40,.55)}
+#gzTargetBack{stroke-width:4.5;stroke-dasharray:5 7}
+#gzRingBack{stroke-width:6}
+#gzTarget{fill:none;stroke:var(--gz-dim);stroke-width:2;stroke-dasharray:5 7}
+#gzRing{fill:none;stroke:var(--gz);stroke-width:3.5}
+#gizmo .chev{
+  fill:var(--gz-lit);stroke:rgba(14,28,40,.7);stroke-width:2.5;
+  paint-order:stroke fill;transition:opacity .18s ease;
+}
+#gizmo .dot{fill:var(--gz);stroke:rgba(14,28,40,.7);stroke-width:2;
+            paint-order:stroke fill;opacity:0}
+#gizmo.noguides .chev,#gizmo.noguides .dot{display:none}
+
+/* ---------- scanner laser ---------- */
+#scanner{
+  position:absolute;top:0;bottom:0;left:0;width:230px;z-index:4;
+  pointer-events:none;opacity:0;transform:translateX(-260px);
+  will-change:transform,opacity;
+}
+#scanner .glow{
+  position:absolute;inset:0;
+  background:linear-gradient(90deg,
+    rgba(255,42,80,0) 0%,
+    rgba(255,42,80,.035) 55%,
+    rgba(255,60,95,.16) 88%,
+    rgba(255,140,170,.42) 99%,
+    rgba(255,255,255,0) 100%);
+}
+#scanner .line{
+  position:absolute;top:0;bottom:0;right:0;width:2px;
+  background:linear-gradient(180deg,rgba(255,70,105,0),#ff5c7e 12%,#fff2f5 50%,#ff5c7e 88%,rgba(255,70,105,0));
+  box-shadow:0 0 14px 3px rgba(255,50,90,.85),0 0 42px 10px rgba(255,40,80,.38);
+}
+#scanner .fringe{
+  position:absolute;top:0;bottom:0;right:0;width:1px;
+  background:repeating-linear-gradient(180deg,rgba(255,255,255,.85) 0 2px,transparent 2px 7px);
+  opacity:.5;
+}
+#scanner.safe .line{
+  background:linear-gradient(180deg,rgba(56,232,200,0),#38e8c8 12%,#eafffb 50%,#38e8c8 88%,rgba(56,232,200,0));
+  box-shadow:0 0 14px 3px rgba(56,232,200,.85),0 0 46px 12px rgba(56,232,200,.4);
+}
+#scanner.safe .glow{
+  background:linear-gradient(90deg,rgba(56,232,200,0) 0%,rgba(56,232,200,.05) 55%,
+    rgba(56,232,200,.18) 88%,rgba(180,255,244,.4) 99%,rgba(255,255,255,0) 100%);
+}
+
+/* ---------- HUD ---------- */
+#hud{position:absolute;inset:0;z-index:6;pointer-events:none;
+     display:flex;flex-direction:column;justify-content:space-between;
+     padding:calc(env(safe-area-inset-top,0px) + 14px) 16px calc(env(safe-area-inset-bottom,0px) + 14px)}
+
+.topbar{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+
+.chip{
+  background:var(--panel);border:1px solid var(--edge);border-radius:12px;
+  padding:9px 13px;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+}
+.label{font:600 9px/1 var(--mono);letter-spacing:.22em;color:var(--dim);text-transform:uppercase}
+.value{font:700 20px/1.1 var(--mono);letter-spacing:.02em;margin-top:5px;font-variant-numeric:tabular-nums}
+
+#levelChip .value{font-size:13px;letter-spacing:.13em}
+#levelChip .sub{font:500 9px/1 var(--mono);letter-spacing:.16em;color:var(--dim);margin-top:5px}
+#diffTag{margin-left:7px;font-weight:700}
+#diffTag.relaxed{color:var(--accent)}
+#diffTag.normal{color:var(--dim)}
+#diffTag.hard{color:var(--warn)}
+
+#timeChip{text-align:right;min-width:104px}
+#timeChip .value{font-size:28px;color:var(--ink);transition:color .2s}
+#timeChip.low .value{color:var(--warn)}
+#timeChip.crit .value{color:var(--danger);animation:pulseNum .5s ease-in-out infinite}
+@keyframes pulseNum{50%{opacity:.42}}
+
+/* meters */
+.hudBottom{display:flex;flex-direction:column;gap:11px}
+.fill{height:100%;width:0%;border-radius:3px;transition:width .09s linear}
+#alignFill{background:linear-gradient(90deg,#2f7bff,#38e8c8);box-shadow:0 0 12px rgba(56,232,200,.55)}
+#alignFill.hot{background:linear-gradient(90deg,#38e8c8,#b6ffef);box-shadow:0 0 20px rgba(56,232,200,.95)}
+#detectFill{background:linear-gradient(90deg,#ff9a3b,#ff3b5c);box-shadow:0 0 12px rgba(255,59,92,.55);
+            transition:width .5s cubic-bezier(.2,.85,.3,1)}
+/* the 95% threshold notch on the alignment track */
+#alignVal.hot{color:var(--accent);text-shadow:0 0 12px rgba(56,232,200,.8)}
+
+#detectMeter.off{display:none}
+
+/* ---- difficulty segmented control ---- */
+.diffs{display:flex;gap:7px;margin-bottom:18px}
+.diff{flex:1;cursor:pointer;border-radius:11px;padding:11px 6px;
+      background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);color:var(--dim);
+      font:700 9px/1 var(--mono);letter-spacing:.14em;text-transform:uppercase;
+      transition:all .16s}
+.diff .d{display:block;font:500 8px/1.3 var(--mono);letter-spacing:.04em;
+         margin-top:5px;opacity:.75;text-transform:none}
+.diff.on{background:rgba(56,232,200,.15);border-color:rgba(56,232,200,.55);color:var(--accent)}
+.diff:active{transform:scale(.97)}
+
+.bottombar{display:flex;align-items:flex-end;justify-content:space-between;gap:12px}
+/* ---- in-game boost dock ---- */
+.dock{display:flex;gap:6px;flex-wrap:wrap;align-items:flex-end;pointer-events:auto}
+.dockbtn{
+  position:relative;pointer-events:auto;cursor:pointer;
+  background:var(--panel);border:1px solid var(--edge);border-radius:12px;
+  padding:10px 12px;color:var(--ink);font:600 10px/1 var(--mono);
+  letter-spacing:.15em;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+  transition:transform .12s,border-color .18s,opacity .18s;
+}
+.dockbtn:active{transform:scale(.93)}
+.dockbtn:disabled{opacity:.28;cursor:default}
+.dockbtn b{color:var(--warn);font-weight:700}
+.dockbtn.boost{border-color:rgba(56,232,200,.45);color:var(--accent)}
+.dockbtn.boost.spent{border-color:var(--edge);color:var(--dim)}
+.dockbtn .cnt{
+  position:absolute;top:-6px;right:-6px;min-width:17px;height:17px;padding:0 4px;
+  border-radius:9px;background:var(--accent);color:#04140f;
+  font:800 9px/17px var(--mono);text-align:center;
+}
+
+/* ---- currency ---- */
+.coin{
+  display:inline-block;width:11px;height:11px;border-radius:50%;vertical-align:-1px;
+  background:linear-gradient(145deg,#ffe89a,#dfa022);
+  box-shadow:inset 0 -1px 2px rgba(120,70,0,.55),0 0 8px rgba(255,190,60,.45);
+}
+.coinchip{
+  display:inline-flex;align-items:center;gap:7px;
+  background:rgba(255,255,255,.05);border:1px solid rgba(255,200,90,.3);
+  border-radius:11px;padding:8px 12px;
+  font:700 14px/1 var(--mono);color:#ffd98a;font-variant-numeric:tabular-nums;
+}
+
+/* ---- shop ---- */
+#shopOv{z-index:11}
+.shopcard{max-height:90vh;overflow-y:auto;-webkit-overflow-scrolling:touch}
+.shophead{display:flex;align-items:center;justify-content:space-between;gap:12px;
+          text-align:left;margin-bottom:17px}
+.shophead .title{font-size:clamp(23px,6vw,30px);margin:5px 0 0}
+.shoplist{display:flex;flex-direction:column;gap:8px;margin:15px 0 16px;text-align:left}
+.shopitem{
+  display:flex;align-items:center;gap:11px;
+  background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.07);
+  border-radius:13px;padding:11px 12px;
+}
+.shopitem.owned{border-color:rgba(56,232,200,.28)}
+.shopitem .tagbox{
+  flex:0 0 auto;width:52px;text-align:center;padding:9px 4px;border-radius:7px;
+  font:700 10px/1 var(--mono);letter-spacing:.04em;color:#0a0d13;background:var(--accent);
+}
+.shopitem .meta{flex:1;min-width:0}
+.shopitem .nm{font:700 12px/1.25 var(--sans);color:var(--ink)}
+.shopitem .ds{font:400 10.5px/1.45 var(--sans);color:var(--dim);margin-top:3px}
+.shopitem .own{font:700 9px/1 var(--mono);letter-spacing:.11em;color:var(--accent);margin-top:6px}
+.buybtn{
+  flex:0 0 auto;cursor:pointer;border-radius:10px;padding:10px 11px;
+  background:rgba(255,200,90,.14);border:1px solid rgba(255,200,90,.42);color:#ffd98a;
+  font:700 11px/1 var(--mono);display:flex;align-items:center;gap:5px;
+  transition:transform .12s,opacity .15s;
+}
+.buybtn:active{transform:scale(.94)}
+.buybtn.cant{opacity:.45;border-color:rgba(255,255,255,.14);color:var(--dim);
+             background:rgba(255,255,255,.04)}
+@keyframes nope{0%,100%{transform:translateX(0)}25%{transform:translateX(-5px)}
+                50%{transform:translateX(5px)}75%{transform:translateX(-3px)}}
+.buybtn.nope{animation:nope .3s ease}
+.buycol{display:flex;flex-direction:column;gap:6px;align-items:stretch;flex:0 0 auto}
+.adget{
+  cursor:pointer;border-radius:9px;padding:7px 9px;white-space:nowrap;
+  background:rgba(120,180,255,.13);border:1px solid rgba(120,180,255,.42);color:#9ecbff;
+  font:700 9px/1 var(--mono);letter-spacing:.08em;text-align:center;
+  transition:transform .12s,opacity .15s;
+}
+.adget:active{transform:scale(.94)}
+.adget.cool{opacity:.42;border-color:rgba(255,255,255,.13);color:var(--dim);
+            background:rgba(255,255,255,.04)}
+
+/* toast inside the shop, so a refused action always explains itself */
+#shopToast{
+  min-height:15px;margin:-6px 0 10px;text-align:center;
+  font:700 10px/15px var(--mono);letter-spacing:.12em;color:var(--warn);
+  opacity:0;transition:opacity .2s;
+}
+#shopToast.on{opacity:1}
+
+/* ---- daily reward ---- */
+#dailyOv{z-index:11}
+.daystrip{display:flex;gap:5px;margin:16px 0 6px}
+.day{
+  flex:1;border-radius:9px;padding:9px 2px;text-align:center;
+  background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);
+}
+.day .dn{font:700 8px/1 var(--mono);letter-spacing:.06em;color:var(--dim)}
+.day .dv{font:800 11px/1 var(--mono);color:var(--ink);margin-top:5px}
+.day.done{background:rgba(56,232,200,.12);border-color:rgba(56,232,200,.35)}
+.day.done .dv,.day.done .dn{color:var(--accent)}
+.day.today{background:rgba(255,200,90,.16);border-color:rgba(255,200,90,.6);
+           box-shadow:0 0 18px rgba(255,190,60,.25)}
+.day.today .dv{color:#ffd98a;font-size:13px}
+.day.today .dn{color:#ffd98a}
+.btn.daily{background:linear-gradient(180deg,#ffd77a,#e6a92c);color:#2a1a00;
+           box-shadow:0 10px 30px rgba(230,170,50,.28),inset 0 1px 0 rgba(255,255,255,.5)}
+.btn.locked{background:transparent;color:var(--dim);border:1px solid var(--edge);box-shadow:none}
+.btn.adbtn{
+  background:linear-gradient(180deg,#ffd77a,#e6a92c);color:#2a1a00;
+  box-shadow:0 10px 30px rgba(230,170,50,.28),inset 0 1px 0 rgba(255,255,255,.5);
+}
+
+#tip{
+  font:500 10px/1.55 var(--mono);letter-spacing:.09em;color:var(--dim);
+  text-align:right;max-width:62vw;text-shadow:0 1px 8px rgba(0,0,0,.9)
+}
+@media (max-width:420px){
+  #tip{font-size:9px;letter-spacing:.05em;max-width:40vw}
+  .tipx{display:none}          /* the dock needs the room more */
+}
+#tip b{color:var(--ink);font-weight:700}
+
+/* status word that flies over the middle */
+#status{
+  position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+  z-index:7;pointer-events:none;text-align:center;opacity:0;
+  font:800 clamp(20px,6.2vw,38px)/1 var(--mono);letter-spacing:.3em;
+  text-transform:uppercase;text-shadow:0 2px 30px rgba(0,0,0,.85)
+}
+#status.show{animation:statusPop 1.15s cubic-bezier(.2,.9,.25,1) forwards}
+@keyframes statusPop{
+  0%{opacity:0;transform:translate(-50%,-50%) scale(.75)}
+  16%{opacity:1;transform:translate(-50%,-50%) scale(1.04)}
+  70%{opacity:1;transform:translate(-50%,-50%) scale(1)}
+  100%{opacity:0;transform:translate(-50%,-50%) scale(1.1)}
+}
+
+/* full-screen colour flashes */
+#flash{position:absolute;inset:0;z-index:5;pointer-events:none;opacity:0;mix-blend-mode:screen}
+#alarmTint{position:absolute;inset:0;z-index:5;pointer-events:none;opacity:0;
+  background:radial-gradient(ellipse at 50% 50%,transparent 30%,rgba(255,20,55,.55) 100%)}
+
+/* ---------- overlays ---------- */
+.overlay{
+  position:absolute;inset:0;z-index:10;display:none;
+  align-items:flex-start;justify-content:center;padding:24px;
+  overflow-y:auto;-webkit-overflow-scrolling:touch;
+  touch-action:pan-y;          /* body sets touch-action:none for the game */
+  background:rgba(4,6,10,.82);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+}
+.overlay.on{display:flex;animation:fadeIn .3s ease both}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+
+.card{
+  width:min(430px,100%);text-align:center;
+  margin:auto;                 /* centres while it fits, scrolls when it does not */
+  border:1px solid var(--edge);border-radius:22px;padding:30px 26px 26px;
+  background:linear-gradient(180deg,rgba(20,26,38,.92),rgba(8,11,17,.94));
+  box-shadow:0 30px 90px rgba(0,0,0,.7),inset 0 1px 0 rgba(255,255,255,.07);
+  animation:cardIn .42s cubic-bezier(.2,.9,.25,1) both;
+}
+@keyframes cardIn{from{opacity:0;transform:translateY(22px) scale(.96)}to{opacity:1;transform:none}}
+
+.eyebrow{font:700 9px/1 var(--mono);letter-spacing:.34em;color:var(--accent);text-transform:uppercase}
+.title{font:800 clamp(27px,7.4vw,40px)/1.02 var(--sans);letter-spacing:-.02em;margin:11px 0 4px}
+.title .thin{font-weight:300;opacity:.55}
+.tr{font:600 11px/1 var(--mono);letter-spacing:.2em;color:var(--dim);margin-bottom:17px}
+.body{font:400 13.5px/1.68 var(--sans);color:#c2cee3;margin-bottom:20px}
+.body em{color:var(--accent);font-style:normal;font-weight:600}
+
+.rules{display:flex;flex-direction:column;gap:9px;margin-bottom:22px;text-align:left}
+.rule{display:flex;gap:11px;align-items:flex-start;
+      background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.06);
+      border-radius:12px;padding:10px 12px}
+.rule .k{flex:0 0 auto;font:700 9px/1.35 var(--mono);letter-spacing:.1em;color:#0a0d13;
+         background:var(--accent);border-radius:5px;padding:5px 7px;min-width:60px;text-align:center}
+.rule .t{font:400 11.5px/1.5 var(--sans);color:#bcc8dd}
+.rule .t b{color:var(--ink);font-weight:600}
+
+.stats{display:flex;gap:9px;margin-bottom:20px}
+.stat{flex:1;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);
+      border-radius:13px;padding:12px 8px}
+.stat .n{font:800 22px/1 var(--mono);font-variant-numeric:tabular-nums}
+.stat .l{font:600 8px/1 var(--mono);letter-spacing:.17em;color:var(--dim);margin-top:6px}
+
+.btn{
+  width:100%;cursor:pointer;border:0;border-radius:14px;padding:16px 20px;
+  font:800 12px/1 var(--mono);letter-spacing:.24em;text-transform:uppercase;
+  background:linear-gradient(180deg,#4bf3d4,#22c9ac);color:#04140f;
+  box-shadow:0 10px 34px rgba(56,232,200,.34),inset 0 1px 0 rgba(255,255,255,.5);
+  transition:transform .12s,box-shadow .18s;
+}
+.btn:active{transform:translateY(2px) scale(.985);box-shadow:0 5px 18px rgba(56,232,200,.3)}
+.btn.danger{background:linear-gradient(180deg,#ff6a86,#e8203f);color:#fff;
+            box-shadow:0 10px 34px rgba(255,59,92,.34),inset 0 1px 0 rgba(255,255,255,.34)}
+.btn.ghost{background:transparent;color:var(--dim);border:1px solid var(--edge);
+           box-shadow:none;margin-top:9px;font-size:10px}
+.btn.ghost:active{transform:scale(.985)}
+.btnrow{display:flex;gap:9px}
+.btnrow .btn{margin-top:9px;letter-spacing:.12em;padding-left:10px;padding-right:10px}
+
+#winCard .title{color:var(--accent)}
+#loseCard .title{color:var(--danger)}
+#loseCard .eyebrow{color:var(--danger)}
+
+#err{position:fixed;inset:0;z-index:99;display:none;align-items:center;justify-content:center;
+     padding:30px;background:#07090d;text-align:center;font:500 13px/1.7 var(--mono);color:var(--danger)}
+
+@media (max-height:620px){
+  .card{padding:20px 20px 18px}
+  .title{margin:7px 0 2px}
+  .body{margin-bottom:14px;font-size:12.5px}
+  .rules{gap:6px;margin-bottom:15px}
+  .rule{padding:8px 10px}
+  .tr{margin-bottom:12px}
+}
+/* Detection rides with the clock; the play area keeps nothing but the ring. */
+.dblock{margin-top:9px;padding-top:8px;border-top:1px solid var(--edge)}
+.dblock.off{display:none}
+.dtrack{height:4px;border-radius:2px;background:rgba(29,50,68,.13);overflow:hidden}
+.dtrack .fill{height:100%;width:0%;border-radius:2px;background:var(--danger);
+              transition:width .5s var(--ease)}
+.dlabel{font:500 8px/1 var(--sans);letter-spacing:.11em;color:var(--dim);
+        margin-top:6px;text-align:right;text-transform:uppercase}
+.dlabel span{color:var(--ink);font-weight:600;font-variant-numeric:tabular-nums}
+
+#rail{display:flex;align-items:center;gap:9px;padding:0 2px}
+/* The rail sits directly on the pattern, so it carries its own ground
+   rather than letting twenty different backdrops show through it. */
+.railtrack{position:relative;flex:1;height:6px;border-radius:4px;
+           background:var(--panel);border:1px solid var(--edge);
+           box-shadow:var(--shadow);
+           backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
+.railtrack .fill{height:100%;width:0%;border-radius:4px;background:var(--accent);
+                 transition:width .12s linear}
+.railnotch{position:absolute;top:-3px;bottom:-3px;left:95%;width:1.5px;
+           background:rgba(29,50,68,.42);border-radius:1px}
+.railval{font:600 11px/1 var(--sans);color:var(--ink);text-align:right;
+         font-variant-numeric:tabular-nums;
+         background:var(--panel);border:1px solid var(--edge);border-radius:8px;
+         padding:6px 8px;box-shadow:var(--shadow);
+         backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
+.railval.hot{color:var(--accent)}
+
+/* ======================================================================
+   QUIET INSTRUMENT — component skin
+   The token swap above carries most of it; these are the rules that had
+   dark values baked in and could not follow a token.
+   ====================================================================== */
+
+html,body{background:#DCE6EC}
+body{font-family:var(--sans);font-weight:400}
+
+/* Atmosphere: a whisper, not a filter. The grain and the heavy vignette
+   belonged to the old look and fought the pastel backdrops. */
+#grain{display:none}
+#vignette{background:radial-gradient(ellipse 86% 80% at 50% 46%,
+          transparent 55%,rgba(24,44,62,.13) 100%)}
+
+/* Scanner: a soft terracotta sweep instead of a neon laser. */
+#scanner .glow{background:linear-gradient(90deg,
+  rgba(199,91,74,0) 0%,rgba(199,91,74,.05) 60%,
+  rgba(199,91,74,.16) 90%,rgba(232,168,152,.34) 99%,rgba(255,255,255,0) 100%)}
+#scanner .line{width:3px;
+  background:linear-gradient(180deg,rgba(199,91,74,0),#C75B4A 14%,#F3D9D2 50%,#C75B4A 86%,rgba(199,91,74,0));
+  box-shadow:0 0 10px 2px rgba(199,91,74,.45)}
+#scanner .fringe{display:none}
+#scanner.safe .line{
+  background:linear-gradient(180deg,rgba(47,168,144,0),#2FA890 14%,#DFF3EE 50%,#2FA890 86%,rgba(47,168,144,0));
+  box-shadow:0 0 10px 2px rgba(47,168,144,.45)}
+#scanner.safe .glow{background:linear-gradient(90deg,rgba(47,168,144,0) 0%,
+  rgba(47,168,144,.05) 60%,rgba(47,168,144,.16) 90%,rgba(190,230,222,.34) 99%,rgba(255,255,255,0) 100%)}
+#alarmTint{background:radial-gradient(ellipse at 50% 50%,transparent 34%,rgba(199,91,74,.42) 100%)}
+
+/* Panels: paper plates. One hairline, one soft shadow, nothing else. */
+.chip,.dockbtn{
+  background:var(--panel);border:1px solid var(--edge);border-radius:var(--r);
+  box-shadow:var(--shadow);backdrop-filter:blur(16px) saturate(1.1);
+  -webkit-backdrop-filter:blur(16px) saturate(1.1);
+}
+.label{font:500 9px/1 var(--sans);letter-spacing:.16em;color:var(--dim)}
+.value{font:600 20px/1.1 var(--sans);letter-spacing:0;color:var(--ink);
+       font-variant-numeric:tabular-nums}
+#levelChip .value{font-size:14px;letter-spacing:.01em;font-weight:600}
+#levelChip .sub{font:500 9px/1 var(--sans);letter-spacing:.11em;color:var(--dim)}
+#diffTag.normal{color:var(--dim)}
+#diffTag.relaxed{color:var(--accent)}
+#diffTag.hard{color:var(--warn)}
+#timeChip .value{font-size:27px;font-weight:600}
+#timeChip.low .value{color:var(--warn)}
+#timeChip.crit .value{color:var(--danger)}
+.fill{transition:width .12s linear}
+#alignFill{background:var(--accent);box-shadow:none}
+#alignFill.hot{background:var(--accent);box-shadow:none}
+#alignVal.hot{color:var(--accent);text-shadow:none}
+#detectFill{background:var(--danger);box-shadow:none;
+            transition:width .5s var(--ease)}
+
+/* Dock */
+.dockbtn{padding:11px 14px;font:600 10px/1 var(--sans);letter-spacing:.11em;color:var(--ink)}
+.dockbtn b{color:var(--warn);font-weight:600}
+.dockbtn.boost{border-color:rgba(47,168,144,.42);color:var(--accent)}
+.dockbtn .cnt{background:var(--accent);color:#F7FAFC;font:600 9px/17px var(--sans)}
+
+/* The tip floats over the pattern, so it gets its own plate rather than a
+   text-shadow that only works on dark backdrops. */
+#tip{
+  font:500 10px/1.5 var(--sans);letter-spacing:.02em;color:var(--dim);text-shadow:none;
+  background:var(--panel);border:1px solid var(--edge);border-radius:var(--r-sm);
+  padding:8px 11px;box-shadow:var(--shadow);
+  backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+}
+#tip b{color:var(--ink);font-weight:600}
+
+#status{font:600 clamp(19px,5.6vw,34px)/1 var(--sans);letter-spacing:.16em;
+        text-shadow:0 2px 18px rgba(255,255,255,.75)}
+
+/* Overlays: light card on a pale scrim. */
+.overlay{background:var(--scrim);backdrop-filter:blur(22px);-webkit-backdrop-filter:blur(22px)}
+.card{
+  background:var(--panel-solid);border:1px solid var(--edge);border-radius:22px;
+  box-shadow:0 2px 4px rgba(20,40,56,.08),0 24px 60px rgba(20,40,56,.20);
+  animation-timing-function:var(--ease);
+}
+.eyebrow{font:600 9px/1 var(--sans);letter-spacing:.24em;color:var(--accent)}
+.title{font:700 clamp(27px,7.4vw,40px)/1.04 var(--sans);letter-spacing:-.015em;color:var(--ink)}
+.title .thin{font-weight:300;opacity:.45}
+.tr{font:500 11px/1 var(--sans);letter-spacing:.16em;color:var(--dim)}
+.body{font:400 13.5px/1.7 var(--sans);color:var(--dim)}
+.body em{color:var(--accent);font-weight:600}
+.rule{background:var(--wash);border:1px solid var(--edge);border-radius:14px}
+.rule .k{font:600 9px/1.35 var(--sans);letter-spacing:.06em;color:#F7FAFC;background:var(--ink);border-radius:7px}
+.rule .t{font:400 11.5px/1.55 var(--sans);color:var(--dim)}
+.rule .t b{color:var(--ink);font-weight:600}
+.stat{background:var(--wash);border:1px solid var(--edge);border-radius:14px}
+.stat .n{font:700 22px/1 var(--sans);color:var(--ink);font-variant-numeric:tabular-nums}
+.stat .l{font:500 8px/1 var(--sans);letter-spacing:.13em;color:var(--dim)}
+
+.btn{
+  border-radius:var(--r);padding:16px 20px;
+  font:600 12px/1 var(--sans);letter-spacing:.13em;
+  background:var(--ink);color:#F7FAFC;box-shadow:0 6px 18px rgba(29,50,68,.24);
+  transition:transform .18s var(--ease),box-shadow .22s var(--ease);
+}
+.btn:active{transform:translateY(1px) scale(.99);box-shadow:0 3px 10px rgba(29,50,68,.2)}
+.btn.danger{background:var(--danger);color:#FFF6F3;box-shadow:0 6px 18px rgba(199,91,74,.28)}
+.btn.ghost{background:transparent;color:var(--dim);border:1px solid var(--edge);box-shadow:none}
+.btn.daily,.btn.adbtn{background:var(--warn);color:#2A1A08;box-shadow:0 6px 18px rgba(217,146,74,.28)}
+.btn.locked{background:transparent;color:var(--dim);border:1px solid var(--edge);box-shadow:none}
+
+.diff{background:var(--wash);border:1px solid var(--edge);border-radius:13px;
+      color:var(--dim);font:600 9px/1 var(--sans);letter-spacing:.11em}
+.diff .d{font:400 8px/1.3 var(--sans);letter-spacing:.01em}
+.diff.on{background:rgba(47,168,144,.14);border-color:rgba(47,168,144,.5);color:var(--accent)}
+
+#winCard .title{color:var(--accent)}
+#loseCard .title,#loseCard .eyebrow{color:var(--danger)}
+
+/* Shop */
+.coin{background:linear-gradient(145deg,#F5D08A,#D9924A);box-shadow:inset 0 -1px 2px rgba(120,70,0,.3)}
+.coinchip{background:var(--wash);border:1px solid rgba(217,146,74,.4);border-radius:13px;
+          font:600 14px/1 var(--sans);color:#9A6224}
+.shopitem{background:var(--wash);border:1px solid var(--edge);border-radius:15px}
+.shopitem.owned{border-color:rgba(47,168,144,.4)}
+.shopitem .tagbox{font:600 10px/1 var(--sans);letter-spacing:.03em;color:#F7FAFC;background:var(--accent);border-radius:8px}
+.shopitem .nm{font:600 12.5px/1.3 var(--sans);color:var(--ink)}
+.shopitem .ds{font:400 10.5px/1.5 var(--sans);color:var(--dim)}
+.shopitem .own{font:600 9px/1 var(--sans);letter-spacing:.09em;color:var(--accent)}
+.buybtn{background:rgba(217,146,74,.16);border:1px solid rgba(217,146,74,.45);color:#9A6224;
+        border-radius:11px;font:600 11px/1 var(--sans)}
+.buybtn.cant{background:var(--wash);border-color:var(--edge);color:var(--dim);opacity:.7}
+.adget{background:rgba(47,120,168,.14);border:1px solid rgba(47,120,168,.4);color:#2C6E96;
+       border-radius:10px;font:600 9px/1 var(--sans);letter-spacing:.05em}
+.adget.cool{background:var(--wash);border-color:var(--edge);color:var(--dim);opacity:.7}
+#shopToast{font:600 10px/15px var(--sans);letter-spacing:.08em;color:var(--warn)}
+
+.day{background:var(--wash);border:1px solid var(--edge);border-radius:11px}
+.day .dn{font:600 8px/1 var(--sans);letter-spacing:.04em;color:var(--dim)}
+.day .dv{font:700 11px/1 var(--sans);color:var(--ink)}
+.day.done{background:rgba(47,168,144,.14);border-color:rgba(47,168,144,.4)}
+.day.done .dv,.day.done .dn{color:var(--accent)}
+.day.today{background:rgba(217,146,74,.18);border-color:rgba(217,146,74,.6);box-shadow:none}
+.day.today .dv,.day.today .dn{color:#9A6224}
+
+#err{background:#DCE6EC;color:var(--danger);font-family:var(--sans)}
+
+/* Motion: slow eases, no overshoot. The snap is the only fast thing. */
+@keyframes cardIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+@keyframes statusPop{
+  0%{opacity:0;transform:translate(-50%,-50%) scale(.92)}
+  18%{opacity:1;transform:translate(-50%,-50%) scale(1)}
+  74%{opacity:1}
+  100%{opacity:0;transform:translate(-50%,-50%) scale(1.03)}
+}
+@media (prefers-reduced-motion:reduce){
+  *{animation-duration:.01ms !important;transition-duration:.01ms !important}
+}
+
+</style>
+</head>
+<body>
+
+<div id="stage">
+  <canvas id="gl"></canvas>
+  <div id="vignette"></div>
+  <div id="grain"></div>
+
+  <!-- Guidance ring. Lives on the object so the eye never has to leave it. -->
+  <svg id="gizmo" aria-hidden="true">
+    <circle id="gzTargetBack" class="gz-back"/>
+    <circle id="gzTarget"/>
+    <circle id="gzRingBack" class="gz-back"/>
+    <circle id="gzRing"/>
+    <g id="gzTilt">
+      <path class="chev" id="gzUp"   d="M0,-13 L10,6 L-10,6 Z"/>
+      <path class="chev" id="gzDown" d="M0,13 L10,-6 L-10,-6 Z"/>
+      <circle class="dot" id="gzTiltDot" r="6"/>
+    </g>
+    <g id="gzTurn">
+      <path class="chev" id="gzLeft"  d="M-13,0 L6,10 L6,-10 Z"/>
+      <path class="chev" id="gzRight" d="M13,0 L-6,10 L-6,-10 Z"/>
+      <circle class="dot" id="gzTurnDot" r="6"/>
+    </g>
+  </svg>
+
+  <div id="scanner"><div class="glow"></div><div class="fringe"></div><div class="line"></div></div>
+
+  <div id="flash"></div>
+  <div id="alarmTint"></div>
+  <div id="status"></div>
+
+  <!-- ===================== HUD ===================== -->
+  <div id="hud">
+    <div class="topbar">
+      <div class="chip" id="levelChip">
+        <div class="label">Level</div>
+        <div class="value" id="levelName">HAZARD BAY</div>
+        <div class="sub"><span id="levelNo">001 / 100</span><span id="diffTag"></span></div>
+      </div>
+      <div class="chip" id="timeChip">
+        <div class="label">Time</div>
+        <div class="value" id="timeVal">40.0</div>
+        <div class="dblock" id="detectMeter">
+          <div class="dtrack"><div class="fill" id="detectFill"></div></div>
+          <div class="dlabel">Detected <span id="detectVal">0%</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="hudBottom">
+      <!-- Passive progress: glanceable in peripheral vision, never read. -->
+      <div id="rail">
+        <div class="railtrack"><div class="fill" id="alignFill"></div><span class="railnotch"></span></div>
+        <span class="railval" id="alignVal">0%</span>
+      </div>
+
+      <div class="bottombar">
+        <!-- Free hint plus any owned boosts, injected by renderDock(). -->
+        <div class="dock" id="dock">
+          <button class="dockbtn" id="hintBtn">GHOST &nbsp;<b>−5s</b></button>
+        </div>
+        <div id="tip"><b>DRAG</b> rotate &nbsp;·&nbsp; <b>SCROLL / PINCH</b> scale</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== OVERLAYS ===================== -->
+<div class="overlay on" id="introOv">
+  <div class="card">
+    <div class="eyebrow">Reverse hidden-object</div>
+    <h1 class="title">Camouflage <span class="thin">3D</span></h1>
+    <div class="tr">KAMUFLAJ 3D</div>
+    <p class="body">
+      An object stands in front of a pattern, and its surface is a
+      <em>live projection</em> of that pattern. Find the one pose where the
+      projection lines up and the object <em>ceases to exist</em>.
+    </p>
+    <div class="rules">
+      <div class="rule"><div class="k">DRAG</div><div class="t">Rotate on <b>X / Y</b>. The pattern slides across the surface.</div></div>
+      <div class="rule"><div class="k">SCROLL</div><div class="t">Scale up / down. Pinch on touch. <b>Size must match too.</b></div></div>
+      <div class="rule"><div class="k">RING</div><div class="t">The ring around the object is the instrument. Follow the lit arrow to turn it; grow or shrink until the ring meets the dashed circle.</div></div>
+      <div class="rule"><div class="k">95%</div><div class="t">Arrows become dots, the two circles become one, and at <b>95%</b> it snaps and vanishes.</div></div>
+    </div>
+    <div class="diffs">
+      <button class="diff" data-d="0">Relaxed<span class="d">no scanner</span></button>
+      <button class="diff on" data-d="1">Normal<span class="d">recommended</span></button>
+      <button class="diff" data-d="2">Hard<span class="d">no arrows</span></button>
+    </div>
+    <button class="btn" id="startBtn">Begin Infiltration</button>
+    <button class="btn daily" id="introDailyBtn">Daily Reward</button>
+    <div class="btnrow">
+      <button class="btn ghost" id="introShopBtn">Shop &nbsp;<span class="coin"></span>&nbsp;<span class="goldval">0</span></button>
+      <button class="btn ghost" id="resetBtn">Reset progress</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="winOv">
+  <div class="card" id="winCard">
+    <div class="eyebrow">Scan complete — no contact</div>
+    <h1 class="title">Invisible</h1>
+    <div class="tr">GÖRÜNMEZ</div>
+    <div class="stats">
+      <div class="stat"><div class="n" id="wTime">12.4</div><div class="l">Sec left</div></div>
+      <div class="stat"><div class="n" id="wScore">1240</div><div class="l">Score</div></div>
+      <div class="stat"><div class="n" id="wGold">+70</div><div class="l">Earned</div></div>
+    </div>
+    <button class="btn" id="nextBtn">Next Level</button>
+    <div class="btnrow">
+      <button class="btn ghost" id="replayBtn">Replay</button>
+      <button class="btn ghost" id="winMenuBtn">Main Menu</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="loseOv">
+  <div class="card" id="loseCard">
+    <div class="eyebrow" id="loseWhy">Detected by sweep 3</div>
+    <h1 class="title">Spotted</h1>
+    <div class="tr">YAKALANDIN</div>
+    <div class="stats">
+      <div class="stat"><div class="n" id="lAlign">61%</div><div class="l">Best blend</div></div>
+      <div class="stat"><div class="n" id="lNeed">95%</div><div class="l">Needed</div></div>
+    </div>
+    <button class="btn danger" id="retryBtn">Try Again</button>
+    <div class="btnrow">
+      <button class="btn ghost" id="loseShopBtn">Shop &nbsp;<span class="coin"></span>&nbsp;<span class="goldval">0</span></button>
+      <button class="btn ghost" id="loseMenuBtn">Main Menu</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="shopOv">
+  <div class="card shopcard">
+    <div class="shophead">
+      <div>
+        <div class="eyebrow">Requisition</div>
+        <h1 class="title">Shop</h1>
+      </div>
+      <div class="coinchip"><span class="coin"></span><span class="goldval">0</span></div>
+    </div>
+
+    <div id="shopToast"></div>
+    <button class="btn daily" id="shopDailyBtn">Daily Reward</button>
+    <button class="btn adbtn" id="adBtn" data-cd="gold">Watch Ad &nbsp;&middot;&nbsp; +75</button>
+    <div class="shoplist" id="shopList"></div>
+    <button class="btn ghost" id="shopCloseBtn">Back</button>
+  </div>
+</div>
+
+<div class="overlay" id="dailyOv">
+  <div class="card">
+    <div class="eyebrow">Supply drop</div>
+    <h1 class="title">Daily Reward</h1>
+    <div class="tr" id="dailyStreak">DAY 1 STREAK</div>
+    <div class="daystrip" id="dayStrip"></div>
+    <p class="body" id="dailyNote">Come back tomorrow to keep the run going.</p>
+    <button class="btn daily" id="dailyClaimBtn">Claim</button>
+    <button class="btn ghost" id="dailyCloseBtn">Back</button>
+  </div>
+</div>
+
+<div id="err"></div>
+
+<!-- Three.js (UMD build so the file also works straight off the filesystem) -->
+<script src="https://unpkg.com/three@0.155.0/build/three.min.js"></script>
+<script>if(!window.THREE){document.write('<script src="https://cdn.jsdelivr.net/npm/three@0.155.0/build/three.min.js"><\/script>');}</script>
+
+<script>
+"use strict";
+/* ==================================================================
+   CAMOUFLAGE 3D
+   ------------------------------------------------------------------
+   The trick, in one paragraph:
+
+   The background is a tiling pattern drawn in SCREEN SPACE
+   (uv = gl_FragCoord.xy / patternScale).
+
+   The 3D object samples that exact same pattern, but it does not use
+   its own screen position. It projects every vertex through a
+   *reference* matrix -- projection * view * TARGET_model_matrix --
+   i.e. "where this surface point would land if the object were
+   already correctly camouflaged". So the texture is painted onto the
+   mesh as seen from the solution.
+
+   Consequence: when the live transform equals the target transform,
+   refUV == the fragment's own screen uv for EVERY pixel, so the
+   object reproduces the background exactly, pixel for pixel. It is
+   mathematically invisible -- not faked with alpha.
+
+   Rotate away from the solution and the painted pattern slides and
+   shears against the real background. That mismatch is the puzzle.
+   ================================================================== */
+
+if (!window.THREE) {
+  var e = document.getElementById('err');
+  e.style.display = 'flex';
+  e.textContent = 'Three.js could not be loaded. Connect to the internet once, or drop three.min.js next to this file.';
+  throw new Error('three missing');
+}
+
+/* ==================================================================
+   0. YOUTUBE PLAYABLES SDK  (mock shim + safe wrappers)
+   ------------------------------------------------------------------
+   On youtube.com the real `ytgame` object is injected before our
+   script runs. Off-platform we install a mock that logs and persists
+   to localStorage so progression still works while developing.
+   ================================================================== */
+const SDK = (() => {
+  const REAL = !!window.ytgame;
+
+  if (!REAL) {
+    // ---- Mock stand-in for the real Playables SDK -----------------
+    const KEY = 'camo3d.save';
+    window.ytgame = {
+      IN_PLAYABLES_ENV: false,
+      SDK_VERSION: 'mock-1.0',
+      game: {
+        gameReady()      { console.log('[ytgame mock] game.gameReady()'); },
+        firstFrameReady(){ console.log('[ytgame mock] game.firstFrameReady()'); },
+        loadData()       { return Promise.resolve(localStorage.getItem(KEY) || ''); },
+        saveData(s)      { localStorage.setItem(KEY, s); console.log('[ytgame mock] saveData', s); return Promise.resolve(); }
+      },
+      engagement: {
+        sendScore(o)     { console.log('[ytgame mock] engagement.sendScore', o); return Promise.resolve(); }
+      },
+      system: {
+        onPause(cb) { window.addEventListener('blur', cb); },
+        onResume(cb){ window.addEventListener('focus', cb); },
+        onAudioEnabledChange(cb) { return function () {}; }
+      }
+      // NOTE: no `ads` namespace on the mock. Off-platform the game must take
+      // its no-ads path rather than pretend to show one.
+    };
+  }
+
+  const yt = window.ytgame;
+  const has = p => { try { return !!p; } catch (_) { return false; } };
+
+  return {
+    real: REAL,
+    /** Tell the host the playable is booted and interactive. */
+    ready() {
+      try {
+        yt.game.gameReady();
+        if (has(yt.game.firstFrameReady)) yt.game.firstFrameReady();
+      } catch (err) { console.warn('gameReady failed', err); }
+    },
+    /** Post the player's progress to the YouTube engagement surface. */
+    score(value) {
+      try { yt.engagement.sendScore({ value: value }); }
+      catch (err) { console.warn('sendScore failed', err); }
+    },
+    /** Persist a JSON-serialisable state object (max 5 KB on YT). */
+    save(state) {
+      try {
+        const s = JSON.stringify(state);
+        if (s.length > 5000) return;                 // YT hard limit
+        const p = yt.game.saveData(s);
+        if (p && p.catch) p.catch(e => console.warn('saveData rejected', e));
+      } catch (err) { console.warn('saveData failed', err); }
+    },
+    /** Returns a promise for the persisted state, or null. */
+    load() {
+      try {
+        return Promise.resolve(yt.game.loadData()).then(raw => {
+          if (!raw) return null;
+          try { return JSON.parse(raw); } catch (_) { return null; }
+        }).catch(() => null);
+      } catch (err) { return Promise.resolve(null); }
+    },
+    onPause(cb)  { try { yt.system && yt.system.onPause  && yt.system.onPause(cb);  } catch (_) {} },
+    onResume(cb) { try { yt.system && yt.system.onResume && yt.system.onResume(cb); } catch (_) {} },
+    /** YouTube can mute the playable; mirror that rather than fighting it. */
+    onAudioChange(cb) {
+      try { yt.system && yt.system.onAudioEnabledChange && yt.system.onAudioEnabledChange(cb); }
+      catch (_) {}
+    },
+
+    /* ---- monetisation -------------------------------------------------
+       ytgame.ads.requestRewardedAd(rewardId) -> Promise<boolean>
+         true  : the player watched it through and earned the reward
+         false : the player closed it early, no reward
+         reject: ytgame.SdkError, e.g. API_UNAVAILABLE in a region or on a
+                 platform where ads do not run
+       Deliberately NO requestInterstitialAd: interstitials fire without the
+       player asking, which is exactly the "drowning in ads" experience.
+       Every ad here is opened by the player pressing a button.            */
+    adsAvailable() {
+      try { return !!(yt.ads && typeof yt.ads.requestRewardedAd === 'function'); }
+      catch (_) { return false; }
+    },
+    rewardedAd(rewardId) {
+      try {
+        return Promise.resolve(yt.ads.requestRewardedAd(rewardId));
+      } catch (err) {
+        return Promise.reject(err);
+      }
+    },
+    errorType(err) {
+      try { return (err && err.errorType) || 'UNKNOWN'; } catch (_) { return 'UNKNOWN'; }
+    }
+  };
+})();
+
+/* ==================================================================
+   1. PROCEDURAL AUDIO  (Web Audio, zero assets)
+   ------------------------------------------------------------------
+   Soft ASMR-leaning palette: filtered noise clicks, a proximity hum
+   whose pitch tracks how close you are, laser whooshes, alarms.
+   ================================================================== */
+const Audio2 = (() => {
+  let ac = null, master = null, hum = null, humGain = null, humFilter = null;
+  let enabled = true, noiseBuf = null;
+
+  function boot() {
+    if (ac) return ac;
+    const AC = window.AudioContext || window.webkitAudioContext;
+    if (!AC) { enabled = false; return null; }
+    ac = new AC();
+
+    master = ac.createGain();
+    master.gain.value = 0.55;
+    master.connect(ac.destination);
+
+    // 2 s of white noise, reused by every noise-based voice.
+    noiseBuf = ac.createBuffer(1, ac.sampleRate * 2, ac.sampleRate);
+    const d = noiseBuf.getChannelData(0);
+    for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
+
+    // ---- proximity hum: a continuous, breathy tone -----------------
+    hum = ac.createOscillator();
+    hum.type = 'sine';
+    hum.frequency.value = 160;
+    humFilter = ac.createBiquadFilter();
+    humFilter.type = 'lowpass';
+    humFilter.frequency.value = 1400;
+    humGain = ac.createGain();
+    humGain.gain.value = 0;
+    hum.connect(humFilter).connect(humGain).connect(master);
+    hum.start();
+
+    return ac;
+  }
+
+  function resume() { if (ac && ac.state === 'suspended') ac.resume(); }
+
+  function noise(dur, f0, f1, q, vol, type) {
+    if (!enabled || !ac) return;
+    const s = ac.createBufferSource(); s.buffer = noiseBuf;
+    s.loop = true;
+    const bp = ac.createBiquadFilter();
+    bp.type = type || 'bandpass'; bp.Q.value = q;
+    const t = ac.currentTime;
+    bp.frequency.setValueAtTime(f0, t);
+    bp.frequency.exponentialRampToValueAtTime(Math.max(40, f1), t + dur);
+    const g = ac.createGain();
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(vol, t + dur * 0.12);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    s.connect(bp).connect(g).connect(master);
+    s.start(t); s.stop(t + dur + 0.05);
+  }
+
+  function tone(freq, dur, vol, type, delay, glide) {
+    if (!enabled || !ac) return;
+    const t = ac.currentTime + (delay || 0);
+    const o = ac.createOscillator(); o.type = type || 'sine';
+    o.frequency.setValueAtTime(freq, t);
+    if (glide) o.frequency.exponentialRampToValueAtTime(Math.max(30, glide), t + dur);
+    const g = ac.createGain();
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(vol, t + 0.012);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    o.connect(g).connect(master);
+    o.start(t); o.stop(t + dur + 0.05);
+  }
+
+  return {
+    boot, resume,
+    get on() { return enabled; },
+    set on(v) { enabled = v; if (!v && humGain) humGain.gain.value = 0; },
+
+    /** Dry, woody click for the snap-lock. */
+    click() { noise(0.09, 2600, 380, 1.2, 0.30); tone(1180, 0.10, 0.16, 'sine', 0, 720); },
+    /** Tiny tick while the player is scrubbing near the solution. */
+    tick(p)  { tone(560 + p * 900, 0.045, 0.045, 'triangle'); },
+    /** Laser passing overhead. */
+    sweep()  { noise(0.85, 240, 3400, 0.7, 0.13, 'bandpass'); tone(70, 0.7, 0.05, 'sine', 0, 130); },
+    /** Beam found nothing. */
+    clear()  { tone(1320, 0.17, 0.10, 'sine'); tone(1980, 0.22, 0.06, 'sine', 0.07); },
+    /** Beam grazed an exposed object. */
+    ping()   { tone(300, 0.16, 0.13, 'square', 0, 190); noise(0.2, 900, 200, 3, 0.07); },
+    /** Full detection. */
+    alarm()  {
+      for (let i = 0; i < 4; i++) {
+        tone(420, 0.17, 0.16, 'square', i * 0.21);
+        tone(316, 0.17, 0.13, 'sawtooth', i * 0.21 + 0.015);
+      }
+      noise(1.1, 1800, 90, 1.0, 0.10);
+    },
+    /** Level cleared. */
+    win() {
+      [523.25, 659.25, 783.99, 1046.5, 1318.5].forEach((f, i) =>
+        tone(f, 0.62 - i * 0.05, 0.115, 'sine', i * 0.085));
+      noise(1.5, 5200, 900, 0.6, 0.05);
+    },
+    lose()   { tone(220, 0.9, 0.14, 'sawtooth', 0, 55); tone(164, 1.0, 0.10, 'sine', 0.05, 42); },
+    /** Ghost-hint whoosh. */
+    ghost()  { noise(0.55, 320, 2600, 0.8, 0.09); tone(880, 0.4, 0.05, 'sine', 0, 440); },
+
+    /**
+     * Continuous feedback loop: pitch and loudness rise as `align`
+     * (0..1) approaches the solution. This is the real "hot / cold".
+     */
+    proximity(align, active) {
+      if (!enabled || !ac || !humGain) return;
+      const t = ac.currentTime;
+      const audible = active && align > 0.18;
+      const target  = audible ? 0.008 + Math.pow(align, 3.2) * 0.085 : 0;
+      humGain.gain.setTargetAtTime(target, t, 0.08);
+      hum.frequency.setTargetAtTime(150 + Math.pow(align, 2.1) * 780, t, 0.06);
+      humFilter.frequency.setTargetAtTime(700 + align * 3800, t, 0.1);
+    },
+    silenceHum() { if (humGain && ac) humGain.gain.setTargetAtTime(0, ac.currentTime, 0.05); }
+  };
+})();
+
+/* ==================================================================
+   2. PROCEDURAL PATTERNS
+   ------------------------------------------------------------------
+   Every level's backdrop is painted into a 512x512 canvas that tiles
+   seamlessly, then used as a REPEAT-wrapped texture. Nothing is
+   downloaded; total asset weight is zero bytes.
+   ================================================================== */
+const TILE = 512;
+
+/** Deterministic PRNG so a level looks identical on every device. */
+function mulberry32(a) {
+  return function () {
+    a |= 0; a = a + 0x6D2B79F5 | 0;
+    let t = Math.imul(a ^ a >>> 15, 1 | a);
+    t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+    return ((t ^ t >>> 14) >>> 0) / 4294967296;
+  };
+}
+
+/**
+ * Runs `fn` nine times on a 3x3 translated grid so free-hand strokes that
+ * cross the tile edge reappear on the opposite side.
+ *
+ * Each pass gets a FRESH generator seeded identically, so all nine copies
+ * draw exactly the same content. (Sharing one generator across the passes
+ * would draw nine *different* pictures and tear the seam wide open.)
+ */
+function wrapped(ctx, seed, fn) {
+  for (let ox = -1; ox <= 1; ox++)
+    for (let oy = -1; oy <= 1; oy++) {
+      ctx.save();
+      ctx.translate(ox * TILE, oy * TILE);
+      fn(mulberry32(seed));
+      ctx.restore();
+    }
+}
+
+const PATTERNS = {
+
+  /* ---- 1. Industrial hazard stripes ---------------------------- */
+  hazard(ctx, rng, seed) {
+    // Painted per pixel from (x + y) mod P. Because P divides TILE the
+    // result wraps perfectly on both axes -- rotating the canvas would
+    // have left a visible jog at every tile edge.
+    const P = 64, HALF = P / 2, AA = 1.7;
+    const A = [245, 197, 24], B = [20, 22, 28];
+    const img = ctx.createImageData(TILE, TILE);
+    const d = img.data;
+    for (let y = 0; y < TILE; y++) {
+      for (let x = 0; x < TILE; x++) {
+        const v = (x + y) % P;
+        // Analytic antialiasing: fade across AA px either side of a band edge.
+        const dist = Math.min(v, Math.abs(v - HALF), P - v);
+        const w = Math.min(1, dist / AA);
+        const f = v < HALF ? 0.5 + 0.5 * w : 0.5 - 0.5 * w;
+        const i = (y * TILE + x) * 4;
+        d[i]     = A[0] * f + B[0] * (1 - f);
+        d[i + 1] = A[1] * f + B[1] * (1 - f);
+        d[i + 2] = A[2] * f + B[2] * (1 - f);
+        d[i + 3] = 255;
+      }
+    }
+    ctx.putImageData(img, 0, 0);
+    // Worn edges + rivets: high-frequency detail the eye can lock onto.
+    ctx.globalAlpha = 0.14;
+    wrapped(ctx, seed ^ 0x51ed, r => {
+      for (let i = 0; i < 26; i++) {
+        const x = r() * TILE, y = r() * TILE, rad = 3 + r() * 9;
+        ctx.fillStyle = r() > .5 ? '#000' : '#fff';
+        ctx.beginPath(); ctx.arc(x, y, rad, 0, 7); ctx.fill();
+      }
+    });
+    ctx.globalAlpha = 1;
+  },
+
+  /* ---- 2. Retro sine waves ------------------------------------- */
+  retro(ctx, rng, seed) {
+    ctx.fillStyle = '#1d0d34'; ctx.fillRect(0, 0, TILE, TILE);
+
+    // 10 bands with a 5-colour cycle: both divide evenly into the tile,
+    // so the colour sequence lines up again at the wrap.
+    const cols = ['#ff2e88', '#ff8a3d', '#ffd23f', '#20e3b2', '#4d7cff'];
+    const BAND = TILE / 10;
+    for (let b = -1; b <= 10; b++) {
+      ctx.beginPath();
+      ctx.moveTo(0, b * BAND);
+      // 3 full cycles across the tile => wraps horizontally
+      for (let x = 0; x <= TILE; x += 4) {
+        ctx.lineTo(x, b * BAND + Math.sin(x / TILE * Math.PI * 6) * 26);
+      }
+      ctx.lineTo(TILE, b * BAND + BAND * 2);
+      ctx.lineTo(0, b * BAND + BAND * 2);
+      ctx.closePath();
+      ctx.fillStyle = cols[((b % cols.length) + cols.length) % cols.length];
+      ctx.fill();
+    }
+    // Fine scan-lines add high-frequency detail that punishes sloppy alignment.
+    ctx.globalAlpha = 0.13; ctx.fillStyle = '#000';
+    for (let y = 0; y < TILE; y += 6) ctx.fillRect(0, y, TILE, 2);
+    ctx.globalAlpha = 1;
+  },
+
+  /* ---- 3. Bauhaus geometric grid ------------------------------- */
+  bauhaus(ctx, rng, seed) {
+    ctx.fillStyle = '#f2ede3'; ctx.fillRect(0, 0, TILE, TILE);
+    const cols = ['#e03131', '#1971c2', '#f7b32b', '#141414', '#0ca678'];
+    const C = 4, S = TILE / C;               // 4x4 cells => seamless
+    for (let i = 0; i < C; i++) {
+      for (let j = 0; j < C; j++) {
+        const x = i * S, y = j * S;
+        ctx.fillStyle = cols[Math.floor(rng() * cols.length)];
+        const k = Math.floor(rng() * 4);
+        ctx.save();
+        ctx.beginPath(); ctx.rect(x, y, S, S); ctx.clip();
+        if (k === 0) { ctx.beginPath(); ctx.arc(x + S / 2, y + S / 2, S * 0.44, 0, 7); ctx.fill(); }
+        else if (k === 1) {
+          ctx.beginPath();
+          const q = Math.floor(rng() * 4);
+          ctx.arc(x + (q & 1 ? S : 0), y + (q & 2 ? S : 0), S, 0, 7); ctx.fill();
+        }
+        else if (k === 2) { ctx.fillRect(x, y, S, S * 0.5); }
+        else {
+          ctx.beginPath();
+          ctx.moveTo(x, y + S); ctx.lineTo(x + S, y + S); ctx.lineTo(x + S / 2, y); ctx.closePath(); ctx.fill();
+        }
+        ctx.restore();
+      }
+    }
+    // Thin black rule grid.
+    ctx.strokeStyle = 'rgba(0,0,0,.45)'; ctx.lineWidth = 2;
+    for (let i = 0; i <= C; i++) {
+      ctx.beginPath(); ctx.moveTo(i * S, 0); ctx.lineTo(i * S, TILE); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(0, i * S); ctx.lineTo(TILE, i * S); ctx.stroke();
+    }
+  },
+
+  /* ---- 4. Starry-Night style swirling impasto ------------------ */
+  starry(ctx, rng, seed) {
+    // Flat base plus wrapped radial washes: a linear gradient across the
+    // tile would tear at the seam.
+    ctx.fillStyle = '#0b1a3f'; ctx.fillRect(0, 0, TILE, TILE);
+    wrapped(ctx, seed ^ 0x0a11, r => {
+      for (let i = 0; i < 4; i++) {
+        const x = r() * TILE, y = r() * TILE, rad = 150 + r() * 130;
+        const rg = ctx.createRadialGradient(x, y, 0, x, y, rad);
+        rg.addColorStop(0, 'rgba(30,74,160,.75)');
+        rg.addColorStop(1, 'rgba(30,74,160,0)');
+        ctx.fillStyle = rg; ctx.beginPath(); ctx.arc(x, y, rad, 0, 7); ctx.fill();
+      }
+    });
+
+    const blues = ['#1e3f8f', '#2b5fbf', '#4b86d8', '#8fb9ee', '#0d2358'];
+    ctx.lineCap = 'round';
+
+    // Swirling brush vortices.
+    wrapped(ctx, seed ^ 0x77c3, r => {
+      for (let v = 0; v < 7; v++) {
+        const cx = r() * TILE, cy = r() * TILE;
+        const turns = 2.2 + r() * 1.6, maxR = 40 + r() * 78;
+        for (let arm = 0; arm < 5; arm++) {
+          ctx.beginPath();
+          ctx.strokeStyle = blues[Math.floor(r() * blues.length)];
+          ctx.lineWidth = 3 + r() * 5;
+          ctx.globalAlpha = 0.55 + r() * 0.4;
+          for (let t = 0; t <= 1; t += 0.03) {
+            const a = t * Math.PI * 2 * turns + arm * 1.257;
+            const rr = t * maxR;
+            const x = cx + Math.cos(a) * rr, y = cy + Math.sin(a) * rr * 0.78;
+            t === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+          }
+          ctx.stroke();
+        }
+      }
+      // Halo'd stars.
+      ctx.globalAlpha = 1;
+      for (let i = 0; i < 9; i++) {
+        const x = r() * TILE, y = r() * TILE, rad = 9 + r() * 15;
+        const rg = ctx.createRadialGradient(x, y, 0, x, y, rad * 2.6);
+        rg.addColorStop(0, 'rgba(255,241,166,.98)');
+        rg.addColorStop(.32, 'rgba(250,205,80,.62)');
+        rg.addColorStop(1, 'rgba(250,205,80,0)');
+        ctx.fillStyle = rg; ctx.beginPath(); ctx.arc(x, y, rad * 2.6, 0, 7); ctx.fill();
+      }
+    });
+    ctx.globalAlpha = 1;
+  },
+
+  /* ---- 5. Op-art moire checker (hardest) ----------------------- */
+  opart(ctx, rng, seed) {
+    ctx.fillStyle = '#0d0d0f'; ctx.fillRect(0, 0, TILE, TILE);
+    const S = TILE / 16;                      // 16x16 => seamless
+    for (let i = 0; i < 16; i++) {
+      for (let j = 0; j < 16; j++) {
+        if ((i + j) & 1) continue;
+        // Cells bulge toward the centre: classic bulging-checkerboard illusion.
+        const dx = (i - 7.5) / 7.5, dy = (j - 7.5) / 7.5;
+        const d = Math.min(1, Math.hypot(dx, dy));
+        const inset = (1 - d) * S * 0.22;
+        ctx.fillStyle = '#f4f6fb';
+        ctx.beginPath();
+        ctx.moveTo(i * S + inset, j * S + inset);
+        ctx.lineTo((i + 1) * S - inset, j * S + inset * 0.35);
+        ctx.lineTo((i + 1) * S - inset * 0.35, (j + 1) * S - inset);
+        ctx.lineTo(i * S + inset * 0.35, (j + 1) * S - inset * 0.35);
+        ctx.closePath(); ctx.fill();
+      }
+    }
+    // Cyan/magenta drift lines to make mis-scaling scream.
+    ctx.globalAlpha = 0.3; ctx.lineWidth = 2;
+    for (let i = 0; i < 16; i += 2) {
+      ctx.strokeStyle = (i % 4) ? '#22d3ee' : '#f0f';
+      const x = i * S + S / 2;          // off the tile edge, so never half-clipped
+      ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, TILE); ctx.stroke();
+    }
+    ctx.globalAlpha = 1;
+  }
+};
+
+/* ---- 6. Seigaiha: Japanese overlapping wave scales ------------- */
+PATTERNS.seigaiha = function (ctx, rng, seed) {
+  ctx.fillStyle = '#0a2138'; ctx.fillRect(0, 0, TILE, TILE);
+  const W = TILE / 8;          // 64 px horizontal spacing (8 per tile)
+  const R = W;                 // radius EQUALS spacing, so scales overlap
+  const H = W / 2;             // rows step half a spacing, offset alternating
+  const bands = ['#0d3050', '#2f7fb5', '#8fd0ec', '#f0fbff'];
+  // Radius must exceed the row step or each band's top is left bare and the
+  // vertical seam tears. Rows draw top-down so lower scales overlap upper.
+  for (let j = -4; j <= TILE / H + 3; j++) {
+    const off = (j & 1) ? W / 2 : 0;
+    for (let i = -3; i <= TILE / W + 3; i++) {
+      const cx = i * W + off, cy = j * H;
+      for (let k = 0; k < 4; k++) {
+        ctx.beginPath();
+        ctx.arc(cx, cy, R * (4 - k) / 4, Math.PI, Math.PI * 2);
+        ctx.fillStyle = bands[k];
+        ctx.fill();
+      }
+    }
+  }
+};
+
+/* ---- 7. Argyle: diamond plaid with cross-hatch ------------------ */
+PATTERNS.argyle = function (ctx, rng, seed) {
+  ctx.fillStyle = '#16232f'; ctx.fillRect(0, 0, TILE, TILE);
+  const S = TILE / 4;                              // 128 px diamond pitch
+  // Colour keyed off parity only, so it stays periodic across the tile.
+  const cols = ['#b8433c', '#25496b', '#d9cdac', '#3f7a63'];
+  for (let j = -1; j <= 9; j++) {
+    for (let i = -1; i <= 5; i++) {
+      const cx = i * S + ((j & 1) ? S / 2 : 0), cy = j * S / 2;
+      ctx.fillStyle = cols[(i & 1) + (j & 1) * 2];
+      ctx.beginPath();
+      ctx.moveTo(cx, cy - S / 2); ctx.lineTo(cx + S / 2, cy);
+      ctx.lineTo(cx, cy + S / 2); ctx.lineTo(cx - S / 2, cy);
+      ctx.closePath(); ctx.fill();
+    }
+  }
+  ctx.strokeStyle = 'rgba(240,235,215,.55)'; ctx.lineWidth = 2;
+  ctx.setLineDash([9, 7]);
+  for (let k = -8; k <= 16; k++) {
+    ctx.beginPath(); ctx.moveTo(k * S / 2, 0);        ctx.lineTo(k * S / 2 + TILE, TILE); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(k * S / 2, TILE);     ctx.lineTo(k * S / 2 + TILE, 0);    ctx.stroke();
+  }
+  ctx.setLineDash([]);
+};
+
+/* ---- 8. Circuit board: grid-snapped traces and pads ------------- */
+PATTERNS.circuit = function (ctx, rng, seed) {
+  ctx.fillStyle = '#06140d'; ctx.fillRect(0, 0, TILE, TILE);
+  const G = TILE / 16;
+  ctx.globalAlpha = 0.5; ctx.fillStyle = '#0f3a24';
+  for (let i = 0; i < 16; i++) for (let j = 0; j < 16; j++) ctx.fillRect(i * G + G / 2 - 1, j * G + G / 2 - 1, 2, 2);
+  ctx.globalAlpha = 1;
+  ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+  wrapped(ctx, seed ^ 0x0c17, r => {
+    for (let t = 0; t < 24; t++) {
+      let x = Math.floor(r() * 16) * G, y = Math.floor(r() * 16) * G;
+      ctx.strokeStyle = r() > .78 ? '#ffd75e' : '#22c46f';
+      ctx.lineWidth = 3;
+      ctx.beginPath(); ctx.moveTo(x, y);
+      const legs = 2 + Math.floor(r() * 3);
+      for (let k = 0; k < legs; k++) {
+        const d = G * (1 + Math.floor(r() * 3)) * (r() < .5 ? -1 : 1);
+        if (r() < .5) x += d; else y += d;
+        ctx.lineTo(x, y);
+      }
+      ctx.stroke();
+      ctx.fillStyle = '#ffd75e';
+      ctx.beginPath(); ctx.arc(x, y, 5, 0, 7); ctx.fill();
+      ctx.fillStyle = '#06140d';
+      ctx.beginPath(); ctx.arc(x, y, 2, 0, 7); ctx.fill();
+    }
+  });
+};
+
+/* ---- 9. Terrazzo: speckled stone chips -------------------------- */
+PATTERNS.terrazzo = function (ctx, rng, seed) {
+  ctx.fillStyle = '#efe9df'; ctx.fillRect(0, 0, TILE, TILE);
+  const cols = ['#d94f4f', '#2f7fbf', '#f0b23d', '#38a173', '#2a2a2a', '#c46fae'];
+  wrapped(ctx, seed ^ 0x7e77, r => {
+    for (let i = 0; i < 74; i++) {
+      const x = r() * TILE, y = r() * TILE;
+      const n = 4 + Math.floor(r() * 3), rad = 5 + r() * 13, rot = r() * 7;
+      ctx.fillStyle = cols[Math.floor(r() * cols.length)];
+      ctx.beginPath();
+      for (let k = 0; k < n; k++) {
+        const a = rot + k / n * Math.PI * 2, rr = rad * (0.6 + r() * 0.65);
+        const px = x + Math.cos(a) * rr, py = y + Math.sin(a) * rr;
+        k ? ctx.lineTo(px, py) : ctx.moveTo(px, py);
+      }
+      ctx.closePath(); ctx.fill();
+    }
+  });
+};
+
+/* ---- 10. Chevron: bold zigzag bands ---------------------------- */
+PATTERNS.chevron = function (ctx, rng, seed) {
+  const cols = ['#16283f', '#3aa6c8', '#f2f6fa', '#e8904a'];
+  const BAND = TILE / 8, P = TILE / 4, AMP = BAND * 0.9;
+  // Triangle wave: period divides the tile, so the zigzag meets itself.
+  const tri = x => { const t = (((x % P) + P) % P) / P; return (t < .5 ? t * 2 : 2 - t * 2) * AMP - AMP / 2; };
+  ctx.fillStyle = cols[0]; ctx.fillRect(0, 0, TILE, TILE);
+  for (let b = -2; b <= 9; b++) {
+    ctx.beginPath();
+    ctx.moveTo(0, b * BAND + tri(0));
+    for (let x = 0; x <= TILE; x += 8) ctx.lineTo(x, b * BAND + tri(x));
+    ctx.lineTo(TILE, b * BAND + BAND * 2 + AMP);
+    ctx.lineTo(0, b * BAND + BAND * 2 + AMP);
+    ctx.closePath();
+    ctx.fillStyle = cols[((b % 4) + 4) % 4];
+    ctx.fill();
+  }
+};
+
+/* ---- 11. Gingham: translucent picnic check --------------------- */
+PATTERNS.gingham = function (ctx, rng, seed) {
+  ctx.fillStyle = '#fdfaf3'; ctx.fillRect(0, 0, TILE, TILE);
+  const B = TILE / 8;                       // 8 bands per axis -> seamless
+  ctx.globalAlpha = 0.55;
+  ctx.fillStyle = '#c2453e';
+  for (let i = 0; i < 8; i += 2) { ctx.fillRect(i * B, 0, B, TILE); ctx.fillRect(0, i * B, TILE, B); }
+  ctx.globalAlpha = 0.28;
+  ctx.fillStyle = '#1d3f6b';
+  for (let i = 1; i < 8; i += 2) { ctx.fillRect(i * B, 0, B, TILE); ctx.fillRect(0, i * B, TILE, B); }
+  ctx.globalAlpha = 1;
+};
+
+/* ---- 12. Isometric triangle grid ------------------------------- */
+PATTERNS.triangles = function (ctx, rng, seed) {
+  const cols = ['#f25f5c', '#ffe066', '#247ba0', '#70c1b3', '#2b2d42'];
+  const W = TILE / 8, H = TILE / 8;         // 8 x 8 cells, both divide the tile
+  const r = mulberry32(seed ^ 0x7a1);
+  ctx.fillStyle = cols[4]; ctx.fillRect(0, 0, TILE, TILE);
+  for (let j = 0; j < 8; j++) {
+    for (let i = 0; i < 8; i++) {
+      for (let half = 0; half < 2; half++) {
+        ctx.fillStyle = cols[Math.floor(r() * 4)];
+        ctx.beginPath();
+        const x = i * W, y = j * H;
+        if (half === 0) { ctx.moveTo(x, y + H); ctx.lineTo(x + W, y + H); ctx.lineTo(x, y); }
+        else            { ctx.moveTo(x + W, y + H); ctx.lineTo(x + W, y); ctx.lineTo(x, y); }
+        ctx.closePath();
+        ctx.fill();
+        // Close the antialiasing gap between neighbouring faces.
+        ctx.strokeStyle = ctx.fillStyle; ctx.lineWidth = 1; ctx.stroke();
+      }
+    }
+  }
+};
+
+/* ---- 13. Halftone polka dots ----------------------------------- */
+PATTERNS.polka = function (ctx, rng, seed) {
+  ctx.fillStyle = '#101418'; ctx.fillRect(0, 0, TILE, TILE);
+  const G = 8, S = TILE / G;
+  for (let j = 0; j < G; j++) {
+    for (let i = 0; i < G; i++) {
+      // Radius keyed to integer indices only, so it repeats with the tile.
+      const k = (Math.sin(i * 1.1) + Math.cos(j * 0.9)) * 0.5;
+      const rad = S * (0.16 + 0.24 * (k + 1) / 2);
+      ctx.fillStyle = (i + j) & 1 ? '#f5f0e6' : '#ff5d5d';
+      ctx.beginPath(); ctx.arc(i * S + S / 2, j * S + S / 2, rad, 0, 7); ctx.fill();
+    }
+  }
+};
+
+/* ---- 14. Truchet labyrinth ------------------------------------- */
+PATTERNS.truchet = function (ctx, rng, seed) {
+  ctx.fillStyle = '#12222b'; ctx.fillRect(0, 0, TILE, TILE);
+  const G = 8, S = TILE / G;
+  const r = mulberry32(seed ^ 0x7ac1);
+  ctx.strokeStyle = '#5fe0c0'; ctx.lineCap = 'butt';
+  // Quarter arcs joining edge midpoints: neighbouring cells always connect,
+  // and nothing crosses a cell border, so the tile wraps on both axes.
+  for (let j = 0; j < G; j++) {
+    for (let i = 0; i < G; i++) {
+      const x = i * S, y = j * S, flip = r() < 0.5;
+      ctx.lineWidth = S * 0.20;
+      ctx.beginPath();
+      if (flip) {
+        ctx.arc(x,     y,     S / 2, 0, Math.PI / 2);
+        ctx.arc(x + S, y + S, S / 2, Math.PI, Math.PI * 1.5);
+      } else {
+        ctx.arc(x + S, y,     S / 2, Math.PI / 2, Math.PI);
+        ctx.arc(x,     y + S, S / 2, Math.PI * 1.5, Math.PI * 2);
+      }
+      ctx.stroke();
+      ctx.lineWidth = S * 0.06; ctx.strokeStyle = '#0c1a22';
+      ctx.stroke();
+      ctx.strokeStyle = '#5fe0c0';
+    }
+  }
+};
+
+/* ---- 15. Military camouflage ----------------------------------- */
+PATTERNS.camo = function (ctx, rng, seed) {
+  ctx.fillStyle = '#6b7a4f'; ctx.fillRect(0, 0, TILE, TILE);
+  const cols = ['#3d4a2c', '#8b9668', '#2a2f22', '#a8ac84'];
+  wrapped(ctx, seed ^ 0xca70, r => {
+    for (let i = 0; i < 26; i++) {
+      const cx = r() * TILE, cy = r() * TILE;
+      const n = 7 + Math.floor(r() * 5), rad = 26 + r() * 52;
+      ctx.fillStyle = cols[Math.floor(r() * cols.length)];
+      ctx.beginPath();
+      for (let k = 0; k <= n; k++) {
+        const a = k / n * Math.PI * 2, rr = rad * (0.55 + r() * 0.7);
+        const x = cx + Math.cos(a) * rr, y = cy + Math.sin(a) * rr * 0.72;
+        k ? ctx.lineTo(x, y) : ctx.moveTo(x, y);
+      }
+      ctx.closePath(); ctx.fill();
+    }
+  });
+};
+
+/* ---- 16. Kilim: woven tribal bands ----------------------------- */
+PATTERNS.kilim = function (ctx, rng, seed) {
+  const cols = ['#8c2f24', '#d9a441', '#1f4e5f', '#e8ddc4', '#3b2b26'];
+  const BAND = TILE / 8, U = TILE / 16;
+  for (let b = 0; b < 8; b++) {
+    ctx.fillStyle = cols[b % cols.length];
+    ctx.fillRect(0, b * BAND, TILE, BAND);
+    ctx.fillStyle = cols[(b + 3) % cols.length];
+    for (let i = 0; i < 16; i++) {
+      const cx = i * U + U / 2, cy = b * BAND + BAND / 2, h = BAND * 0.34;
+      ctx.beginPath();
+      ctx.moveTo(cx, cy - h); ctx.lineTo(cx + h, cy);
+      ctx.lineTo(cx, cy + h); ctx.lineTo(cx - h, cy);
+      ctx.closePath(); ctx.fill();
+    }
+    ctx.fillStyle = 'rgba(0,0,0,.28)';
+    ctx.fillRect(0, b * BAND, TILE, 3);
+  }
+};
+
+/* ---- 17. Pixel blocks ------------------------------------------ */
+PATTERNS.pixel = function (ctx, rng, seed) {
+  const cols = ['#1a1c2c', '#5d275d', '#b13e53', '#ef7d57', '#ffcd75',
+                '#a7f070', '#38b764', '#257179', '#29366f', '#41a6f6'];
+  const G = 16, S = TILE / G;
+  const r = mulberry32(seed ^ 0x9137);
+  for (let j = 0; j < G; j++) for (let i = 0; i < G; i++) {
+    ctx.fillStyle = cols[Math.floor(r() * cols.length)];
+    ctx.fillRect(i * S, j * S, S, S);
+  }
+};
+
+/* ---- 18. Cabana stripes ---------------------------------------- */
+PATTERNS.stripes = function (ctx, rng, seed) {
+  const cols = ['#f4f1e8', '#e34a35', '#f4f1e8', '#1c4f7c'];
+  const B = TILE / 16;                      // 16 bands, palette of 4 -> wraps
+  for (let i = 0; i < 16; i++) {
+    ctx.fillStyle = cols[i % cols.length];
+    ctx.fillRect(i * B, 0, B, TILE);
+  }
+  ctx.globalAlpha = 0.10; ctx.fillStyle = '#000';
+  for (let y = 0; y < TILE; y += 8) ctx.fillRect(0, y, TILE, 3);
+  ctx.globalAlpha = 1;
+};
+
+/* ---- 19. Topographic contours ---------------------------------- */
+PATTERNS.topo = function (ctx, rng, seed) {
+  ctx.fillStyle = '#f3ead6'; ctx.fillRect(0, 0, TILE, TILE);
+  wrapped(ctx, seed ^ 0x709a, r => {
+    for (let m = 0; m < 5; m++) {
+      const cx = r() * TILE, cy = r() * TILE;
+      const wob = 0.16 + r() * 0.20, phase = r() * 7, lobes = 3 + Math.floor(r() * 3);
+      for (let ring = 1; ring <= 7; ring++) {
+        const base = ring * 15;
+        ctx.beginPath();
+        for (let a = 0; a <= Math.PI * 2 + 0.01; a += 0.16) {
+          const rr = base * (1 + Math.sin(a * lobes + phase) * wob);
+          const x = cx + Math.cos(a) * rr, y = cy + Math.sin(a) * rr;
+          a ? ctx.lineTo(x, y) : ctx.moveTo(x, y);
+        }
+        ctx.closePath();
+        ctx.strokeStyle = ring % 3 === 0 ? '#8a6f42' : '#b79a63';
+        ctx.lineWidth = ring % 3 === 0 ? 3 : 1.6;
+        ctx.stroke();
+      }
+    }
+  });
+};
+
+/* ---- 20. Stained glass ----------------------------------------- */
+PATTERNS.stained = function (ctx, rng, seed) {
+  const G = 6, S = TILE / G;
+  const cols = ['#c1272d', '#f4a300', '#1d6fa5', '#2e8b57', '#6a3d9a', '#e0d3b8'];
+  ctx.fillStyle = '#14100e'; ctx.fillRect(0, 0, TILE, TILE);
+  ctx.lineJoin = 'round';
+  // Corner offsets live on a G x G torus so neighbours agree, but a cell whose
+  // corner jitters past the tile edge still overhangs it -- drawing the whole
+  // grid through wrapped() brings that overhang back on the opposite side.
+  wrapped(ctx, seed ^ 0x5a11, r => {
+    const jit = [];
+    for (let j = 0; j < G; j++) { jit[j] = []; for (let i = 0; i < G; i++)
+      jit[j][i] = [(r() - 0.5) * S * 0.5, (r() - 0.5) * S * 0.5]; }
+    const at = (i, j) => {
+      const o = jit[((j % G) + G) % G][((i % G) + G) % G];
+      return [i * S + o[0], j * S + o[1]];
+    };
+    for (let j = 0; j < G; j++) for (let i = 0; i < G; i++) {
+      const a = at(i, j), b = at(i + 1, j), c = at(i + 1, j + 1), d = at(i, j + 1);
+      ctx.beginPath();
+      ctx.moveTo(a[0], a[1]); ctx.lineTo(b[0], b[1]);
+      ctx.lineTo(c[0], c[1]); ctx.lineTo(d[0], d[1]);
+      ctx.closePath();
+      ctx.fillStyle = cols[Math.floor(r() * cols.length)];
+      ctx.fill();
+      ctx.strokeStyle = '#14100e'; ctx.lineWidth = 6; ctx.stroke();
+    }
+  });
+};
+
+/* ---- 21. Tartan: woven plaid with a twill overlay -------------- */
+PATTERNS.tartan = function (ctx, rng, seed) {
+  ctx.fillStyle = '#1b3a2e'; ctx.fillRect(0, 0, TILE, TILE);
+  // Stripe widths repeat every 128 px, so the sett lands four times a tile.
+  const sett = [[0, 26, '#0d2b22'], [30, 10, '#c9a227'], [46, 34, '#7a1f1f'],
+                [84, 8, '#e8e2d0'], [96, 32, '#25526b']];
+  const band = (x0, w, col, vertical) => {
+    ctx.fillStyle = col;
+    for (let r = 0; r < 4; r++) {
+      const o = r * 128 + x0;
+      if (vertical) ctx.fillRect(o, 0, w, TILE); else ctx.fillRect(0, o, TILE, w);
+    }
+  };
+  ctx.globalAlpha = 1;   for (const b of sett) band(b[0], b[1], b[2], true);
+  ctx.globalAlpha = .55; for (const b of sett) band(b[0], b[1], b[2], false);
+  ctx.globalAlpha = .10; ctx.fillStyle = '#000';
+  // Twill: a 45 degree hatch, period 8 divides the tile.
+  for (let k = -TILE; k < TILE * 2; k += 8) {
+    ctx.save(); ctx.translate(k, 0); ctx.rotate(-Math.PI / 4);
+    ctx.fillRect(0, -TILE, 3, TILE * 3); ctx.restore();
+  }
+  ctx.globalAlpha = 1;
+};
+
+/* ---- 22. Art Deco sunburst fans -------------------------------- */
+PATTERNS.deco = function (ctx, rng, seed) {
+  ctx.fillStyle = '#10222e'; ctx.fillRect(0, 0, TILE, TILE);
+  const C = 4, S = TILE / C;
+  const golds = ['#d4a24c', '#e8c887', '#8a6a2f', '#f2e2bd'];
+  for (let j = 0; j < C; j++) for (let i = 0; i < C; i++) {
+    const x = i * S, y = j * S;
+    ctx.save();
+    ctx.beginPath(); ctx.rect(x, y, S, S); ctx.clip();
+    // Fans alternate corner so the grid reads as a deco field, not a stamp.
+    const cx = x + ((i + j) & 1 ? S : 0), cy = y + ((i + j) & 1 ? S : 0);
+    for (let k = 6; k >= 1; k--) {
+      ctx.beginPath(); ctx.moveTo(cx, cy);
+      ctx.arc(cx, cy, S * k / 6, 0, Math.PI * 2);
+      ctx.fillStyle = golds[k % golds.length];
+      ctx.globalAlpha = k % 2 ? .95 : .55;
+      ctx.fill();
+    }
+    ctx.globalAlpha = 1;
+    ctx.strokeStyle = '#10222e'; ctx.lineWidth = 2.5;
+    for (let a = 0; a <= 8; a++) {
+      const t = a / 8 * Math.PI * 2;
+      ctx.beginPath(); ctx.moveTo(cx, cy);
+      ctx.lineTo(cx + Math.cos(t) * S * 1.5, cy + Math.sin(t) * S * 1.5); ctx.stroke();
+    }
+    ctx.restore();
+  }
+};
+
+/* ---- 23. Memphis: eighties confetti ---------------------------- */
+PATTERNS.memphis = function (ctx, rng, seed) {
+  ctx.fillStyle = '#f7f2e4'; ctx.fillRect(0, 0, TILE, TILE);
+  const cols = ['#ff5964', '#ffd23f', '#2ec4b6', '#3d5a80', '#1b1b1e', '#f0803c'];
+  // Sparse confetti disappears once the tile is scaled to world size, so this
+  // is packed tighter and larger than a print pattern would be.
+  wrapped(ctx, seed ^ 0x8033, r => {
+    ctx.lineCap = 'round';
+    for (let i = 0; i < 62; i++) {
+      const x = r() * TILE, y = r() * TILE, sz = 22 + r() * 34;
+      ctx.fillStyle = ctx.strokeStyle = cols[Math.floor(r() * cols.length)];
+      const kind = Math.floor(r() * 4);
+      if (kind === 0) { ctx.beginPath(); ctx.arc(x, y, sz * .45, 0, 7); ctx.fill(); }
+      else if (kind === 1) {
+        ctx.lineWidth = 7; ctx.beginPath();
+        for (let t = 0; t <= 1.01; t += .12)
+          ctx.lineTo(x + t * sz * 2 - sz, y + Math.sin(t * 9) * sz * .4);
+        ctx.stroke();
+      }
+      else if (kind === 2) {
+        ctx.save(); ctx.translate(x, y); ctx.rotate(r() * 7);
+        ctx.beginPath(); ctx.moveTo(0, -sz * .5); ctx.lineTo(sz * .5, sz * .4);
+        ctx.lineTo(-sz * .5, sz * .4); ctx.closePath(); ctx.fill(); ctx.restore();
+      }
+      else {
+        ctx.lineWidth = 6;
+        for (let k = 0; k < 3; k++) {
+          ctx.beginPath();
+          ctx.moveTo(x - sz * .5, y - sz * .3 + k * sz * .3);
+          ctx.lineTo(x + sz * .5, y - sz * .3 + k * sz * .3); ctx.stroke();
+        }
+      }
+    }
+  });
+};
+
+/* ---- 24. Mandala rosettes -------------------------------------- */
+PATTERNS.mandala = function (ctx, rng, seed) {
+  ctx.fillStyle = '#2a1b3d'; ctx.fillRect(0, 0, TILE, TILE);
+  const cols = ['#f6c667', '#e8734a', '#7ec4a7', '#f4efe6', '#b05574'];
+  const G = 2, S = TILE / G;
+  const rosette = (cx, cy, rad, petals, seed2) => {
+    for (let ring = 3; ring >= 1; ring--) {
+      const rr = rad * ring / 3;
+      ctx.fillStyle = cols[(ring + seed2) % cols.length];
+      ctx.beginPath();
+      for (let a = 0; a <= 360; a += 2) {
+        const t = a * Math.PI / 180;
+        const k = rr * (0.72 + 0.28 * Math.cos(t * petals));
+        const x = cx + Math.cos(t) * k, y = cy + Math.sin(t) * k;
+        a ? ctx.lineTo(x, y) : ctx.moveTo(x, y);
+      }
+      ctx.closePath(); ctx.fill();
+    }
+  };
+  // Two interleaved grids: full rosettes on the lattice, smaller ones between.
+  for (let j = -1; j <= G; j++) for (let i = -1; i <= G; i++) {
+    rosette(i * S, j * S, S * 0.46, 8, 0);
+    rosette(i * S + S / 2, j * S + S / 2, S * 0.26, 6, 2);
+  }
+};
+
+/* ---- 25. Celtic interlace -------------------------------------- */
+PATTERNS.celtic = function (ctx, rng, seed) {
+  ctx.fillStyle = '#0e4a44'; ctx.fillRect(0, 0, TILE, TILE);
+  const S = TILE / 8;
+  const bandW = S * 0.36;
+  const strand = (dir, col, w) => {
+    ctx.strokeStyle = col; ctx.lineWidth = w; ctx.lineCap = 'butt';
+    for (let k = -8; k <= 16; k++) {
+      ctx.beginPath();
+      ctx.moveTo(k * S, dir > 0 ? 0 : TILE);
+      ctx.lineTo(k * S + TILE, dir > 0 ? TILE : 0);
+      ctx.stroke();
+    }
+  };
+  // Over-under is faked by drawing each direction twice with the outline
+  // between: cheap, and at texture scale it reads exactly like knotwork.
+  strand(+1, '#05231f', bandW + 8); strand(+1, '#d9bf7f', bandW);
+  strand(-1, '#05231f', bandW + 8); strand(-1, '#f3e6bc', bandW);
+  strand(+1, '#05231f', bandW + 8); strand(+1, '#d9bf7f', bandW);
+};
+
+/* ---- 26. Blueprint ---------------------------------------------- */
+PATTERNS.blueprint = function (ctx, rng, seed) {
+  ctx.fillStyle = '#0d3b66'; ctx.fillRect(0, 0, TILE, TILE);
+  ctx.strokeStyle = 'rgba(220,240,255,.16)'; ctx.lineWidth = 1;
+  for (let i = 0; i <= 32; i++) {
+    ctx.beginPath(); ctx.moveTo(i * 16, 0); ctx.lineTo(i * 16, TILE); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(0, i * 16); ctx.lineTo(TILE, i * 16); ctx.stroke();
+  }
+  ctx.strokeStyle = 'rgba(220,240,255,.34)'; ctx.lineWidth = 1.6;
+  for (let i = 0; i <= 8; i++) {
+    ctx.beginPath(); ctx.moveTo(i * 64, 0); ctx.lineTo(i * 64, TILE); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(0, i * 64); ctx.lineTo(TILE, i * 64); ctx.stroke();
+  }
+  wrapped(ctx, seed ^ 0xb10e, r => {
+    ctx.strokeStyle = 'rgba(235,247,255,.8)'; ctx.lineWidth = 2;
+    for (let i = 0; i < 9; i++) {
+      const x = Math.round(r() * 8) * 64, y = Math.round(r() * 8) * 64;
+      const rad = 22 + Math.floor(r() * 3) * 16;
+      ctx.beginPath(); ctx.arc(x, y, rad, 0, 7); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(x - rad - 10, y); ctx.lineTo(x + rad + 10, y);
+      ctx.moveTo(x, y - rad - 10); ctx.lineTo(x, y + rad + 10);
+      ctx.setLineDash([6, 5]); ctx.stroke(); ctx.setLineDash([]);
+    }
+  });
+};
+
+/* ---- 27. Patchwork quilt ---------------------------------------- */
+PATTERNS.quilt = function (ctx, rng, seed) {
+  const cols = ['#c2453e', '#e6b325', '#2f6f9f', '#e8e2d0', '#3d7d5a', '#8a4f7d'];
+  const G = 8, S = TILE / G;
+  const r = mulberry32(seed ^ 0x9111);
+  for (let j = 0; j < G; j++) for (let i = 0; i < G; i++) {
+    const x = i * S, y = j * S;
+    const a = cols[Math.floor(r() * cols.length)], b = cols[Math.floor(r() * cols.length)];
+    ctx.fillStyle = a; ctx.fillRect(x, y, S, S);
+    ctx.fillStyle = b;
+    const block = Math.floor(r() * 4);
+    ctx.beginPath();
+    if (block === 0) { ctx.moveTo(x, y); ctx.lineTo(x + S, y); ctx.lineTo(x, y + S); }
+    else if (block === 1) { ctx.moveTo(x + S, y); ctx.lineTo(x + S, y + S); ctx.lineTo(x, y + S); }
+    else if (block === 2) {
+      ctx.moveTo(x + S / 2, y); ctx.lineTo(x + S, y + S / 2);
+      ctx.lineTo(x + S / 2, y + S); ctx.lineTo(x, y + S / 2);
+    } else { ctx.rect(x + S * .22, y + S * .22, S * .56, S * .56); }
+    ctx.closePath(); ctx.fill();
+    ctx.strokeStyle = 'rgba(20,16,14,.30)'; ctx.lineWidth = 1.5;
+    ctx.strokeRect(x, y, S, S);
+  }
+};
+
+/* ---- 28. Honeycomb ---------------------------------------------- */
+PATTERNS.honeycomb = function (ctx, rng, seed) {
+  ctx.fillStyle = '#241a08'; ctx.fillRect(0, 0, TILE, TILE);
+  const W = TILE / 8, H = TILE / 8;
+  const cell = (cx, cy, fill) => {
+    ctx.beginPath();
+    for (let k = 0; k < 6; k++) {
+      const a = k / 6 * Math.PI * 2 - Math.PI / 2;
+      const x = cx + Math.cos(a) * W * 0.58, y = cy + Math.sin(a) * H * 0.60;
+      k ? ctx.lineTo(x, y) : ctx.moveTo(x, y);
+    }
+    ctx.closePath(); ctx.fillStyle = fill; ctx.fill();
+    ctx.strokeStyle = '#241a08'; ctx.lineWidth = 3.5; ctx.stroke();
+  };
+  const golds = ['#f0b429', '#f7c948', '#de911d', '#faf089'];
+  // Offset rows on an exact 64 x 64 lattice: a touch stretched against a
+  // true hex, but it tiles perfectly, which matters more here.
+  for (let j = -1; j <= 9; j++) for (let i = -1; i <= 9; i++) {
+    const cx = i * W + ((j & 1) ? W / 2 : 0), cy = j * H;
+    cell(cx, cy, golds[Math.abs((i * 3 + j * 5)) % golds.length]);
+  }
+};
+
+/* ---- 29. Engraver's crosshatch ---------------------------------- */
+PATTERNS.crosshatch = function (ctx, rng, seed) {
+  ctx.fillStyle = '#efe7d6'; ctx.fillRect(0, 0, TILE, TILE);
+  // Only 0 and 90 degrees keep exact periodicity; the diagonal pass uses a
+  // period that divides the tile along both axes.
+  ctx.globalAlpha = .72; ctx.strokeStyle = '#191510'; ctx.lineWidth = 2.6;
+  for (let y = 0; y < TILE; y += 16) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(TILE, y); ctx.stroke(); }
+  for (let x = 0; x < TILE; x += 16) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, TILE); ctx.stroke(); }
+  ctx.globalAlpha = .48; ctx.lineWidth = 2.2;
+  for (let k = -TILE; k < TILE * 2; k += 32) {
+    ctx.beginPath(); ctx.moveTo(k, 0); ctx.lineTo(k + TILE, TILE); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(k, TILE); ctx.lineTo(k + TILE, 0); ctx.stroke();
+  }
+  ctx.globalAlpha = 1;
+};
+
+/* ---- 30. Veined marble ------------------------------------------ */
+PATTERNS.marble = function (ctx, rng, seed) {
+  ctx.fillStyle = '#eae6df'; ctx.fillRect(0, 0, TILE, TILE);
+  wrapped(ctx, seed ^ 0x3a2b, r => {
+    ctx.lineCap = 'round';
+    for (let v = 0; v < 16; v++) {
+      const dark = r() < .34;
+      ctx.strokeStyle = dark ? 'rgba(48,54,62,.55)' : 'rgba(150,140,125,.42)';
+      ctx.lineWidth = dark ? 2 + r() * 3 : 5 + r() * 12;
+      let x = r() * TILE, y = r() * TILE;
+      let a = r() * Math.PI * 2;
+      ctx.beginPath(); ctx.moveTo(x, y);
+      for (let k = 0; k < 26; k++) {
+        a += (r() - 0.5) * 0.9;
+        x += Math.cos(a) * 22; y += Math.sin(a) * 22;
+        ctx.lineTo(x, y);
+      }
+      ctx.stroke();
+    }
+  });
+};
+
+/**
+ * Per-pattern presentation: how large a tile reads in world units, the rim
+ * light that suits it, and the RNG seed. Shared by the authored levels and
+ * the endless generator so both look hand-tuned.
+ */
+const PATTERN_META = {
+  hazard:   { seed: 1337, patScale: 3.20, rim: [0.22, 0.91, 0.78] },
+  retro:    { seed: 8842, patScale: 2.85, rim: [1.00, 0.35, 0.62] },
+  seigaiha: { seed: 7731, patScale: 3.10, rim: [0.45, 0.85, 1.00] },
+  bauhaus:  { seed: 2024, patScale: 3.95, rim: [1.00, 0.78, 0.20] },
+  circuit:  { seed: 4042, patScale: 3.00, rim: [0.40, 1.00, 0.55] },
+  starry:   { seed: 1889, patScale: 3.40, rim: [1.00, 0.86, 0.42] },
+  argyle:   { seed: 5518, patScale: 3.60, rim: [1.00, 0.55, 0.75] },
+  terrazzo: { seed: 9063, patScale: 3.30, rim: [0.95, 0.60, 0.35] },
+  chevron:  { seed: 3374, patScale: 2.95, rim: [0.50, 0.75, 1.00] },
+  opart:    { seed: 6161, patScale: 2.65, rim: [0.35, 0.90, 1.00] },
+  gingham:  { seed: 4411, patScale: 3.30, rim: [1.00, 0.45, 0.42] },
+  triangles:{ seed: 8127, patScale: 3.05, rim: [1.00, 0.88, 0.40] },
+  polka:    { seed: 3390, patScale: 3.15, rim: [1.00, 0.42, 0.42] },
+  truchet:  { seed: 7245, patScale: 3.05, rim: [0.37, 0.88, 0.75] },
+  camo:     { seed: 6688, patScale: 3.55, rim: [0.70, 0.85, 0.45] },
+  kilim:    { seed: 2914, patScale: 3.45, rim: [0.85, 0.64, 0.25] },
+  pixel:    { seed: 1057, patScale: 2.90, rim: [0.45, 0.70, 1.00] },
+  stripes:  { seed: 5330, patScale: 3.20, rim: [0.90, 0.35, 0.30] },
+  topo:     { seed: 4762, patScale: 3.60, rim: [0.72, 0.60, 0.35] },
+  stained:  { seed: 9481, patScale: 3.70, rim: [0.85, 0.55, 0.95] },
+  tartan:   { seed: 6120, patScale: 3.35, rim: [0.90, 0.72, 0.30] },
+  deco:     { seed: 1928, patScale: 3.50, rim: [0.95, 0.78, 0.42] },
+  memphis:  { seed: 8541, patScale: 3.25, rim: [1.00, 0.42, 0.48] },
+  mandala:  { seed: 7007, patScale: 3.80, rim: [0.96, 0.72, 0.38] },
+  celtic:   { seed: 4433, patScale: 3.15, rim: [0.82, 0.72, 0.45] },
+  blueprint:{ seed: 2211, patScale: 3.40, rim: [0.60, 0.82, 1.00] },
+  quilt:    { seed: 9302, patScale: 3.55, rim: [0.88, 0.62, 0.35] },
+  honeycomb:{ seed: 5150, patScale: 3.30, rim: [1.00, 0.78, 0.22] },
+  crosshatch:{seed: 3641, patScale: 3.20, rim: [0.55, 0.52, 0.48] },
+  marble:   { seed: 7788, patScale: 3.90, rim: [0.72, 0.70, 0.68] }
+};
+const PATTERN_IDS = Object.keys(PATTERN_META);
+
+/** Build a seamless, REPEAT-wrapped THREE texture for a pattern id. */
+function makePatternTexture(id, seed) {
+  const cv = document.createElement('canvas');
+  cv.width = cv.height = TILE;
+  const ctx = cv.getContext('2d');
+  ctx.imageSmoothingEnabled = true;
+  (PATTERNS[id] || PATTERNS.hazard)(ctx, mulberry32(seed), seed);
+
+  const tex = new THREE.CanvasTexture(cv);
+  tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
+  tex.minFilter = THREE.LinearMipmapLinearFilter;
+  tex.magFilter = THREE.LinearFilter;
+  tex.generateMipmaps = true;
+  tex.anisotropy = 8;
+  // Pass the canvas bytes straight through: the object must be able to
+  // reproduce the backdrop byte-for-byte, so no colour conversion.
+  tex.colorSpace = THREE.LinearSRGBColorSpace;
+  return tex;
+}
+
+/* ==================================================================
+   3. LEVEL TABLE
+   ------------------------------------------------------------------
+   Each level = a pattern + a mesh + the one transform that makes it
+   vanish. `off` is how far from the solution the player starts.
+   `rotTol` / `scaleTol` set how forgiving the invisibility metric is.
+   ================================================================== */
+/**
+ * Names are composed rather than listed: one word per backdrop, one per
+ * shape. Twenty by fifteen gives 300 distinct, readable place names from
+ * thirty-five strings instead of three hundred.
+ */
+const PATTERN_WORD = {
+  hazard:'HAZARD', retro:'NEON', seigaiha:'GREAT WAVE', bauhaus:'BAUHAUS', circuit:'CIRCUIT',
+  starry:'STARRY', argyle:'ARGYLE', terrazzo:'TERRAZZO', chevron:'CHEVRON', opart:'MOIRE',
+  gingham:'GINGHAM', triangles:'PRISMA', polka:'HALFTONE', truchet:'LABYRINTH', camo:'THICKET',
+  kilim:'KILIM', pixel:'PIXEL', stripes:'CABANA', topo:'CONTOUR', stained:'CHAPEL',
+  tartan:'TARTAN', deco:'DECO', memphis:'MEMPHIS', mandala:'MANDALA', celtic:'CELTIC',
+  blueprint:'DRAFT', quilt:'QUILT', honeycomb:'HONEY', crosshatch:'ETCHING', marble:'MARBLE'
+};
+const GEO_WORD = {
+  knot:'BAY', knot35:'DOCK', ico:'YARD', dodec:'HALL', gem:'ROW',
+  torus:'GATE', octa:'PIT', prism:'DECK', helix:'WING', spike:'VAULT',
+  tetra:'LINE', capsule:'ROOM', knot43:'FIELD', cross:'WELL', star:'SPAN',
+  knot52:'REACH', cone:'SPIRE', gear:'WORKS', arch:'ARCH',
+  jack:'CROSS', spool:'MILL', burst:'CROWN'
+};
+
+/**
+ * Every backdrop x shape pairing gets exactly one level.
+ * Computed lazily: GEO_IDS is declared further down the file and `const`
+ * bindings sit in the temporal dead zone until then, so reading it at the
+ * top level here would throw and kill the whole script.
+ */
+let _authored = 0;
+function authoredCount() {
+  if (!_authored) _authored = PATTERN_IDS.length * GEO_IDS.length;
+  return _authored;
+}
+
+/**
+ * The level order: a deterministic shuffle of all pairings, then a repair
+ * pass so no two neighbouring levels share a backdrop OR a shape. The old
+ * Latin-square trick only works on a square grid; 20 x 15 is not one
+ * (gcd(20,15) = 5), so this replaces it and works for any grid size.
+ */
+/**
+ * Shuffle in place with a seeded generator, then sweep once so no entry
+ * shares a coordinate with the one before it. `prevPair` seeds that check
+ * with a virtual predecessor; pass null when there is none.
+ */
+function shuffleRepair(list, seed, prevPair) {
+  const r = mulberry32(seed);
+  for (let i = list.length - 1; i > 0; i--) {
+    const j = Math.floor(r() * (i + 1));
+    const t = list[i]; list[i] = list[j]; list[j] = t;
+  }
+  // `prevPair` is the last level of the previous lap, so the join between
+  // laps gets the same no-repeat guarantee as the inside of one.
+  for (let i = 0; i < list.length; i++) {
+    const before = i === 0 ? prevPair : list[i - 1];
+    if (!before) continue;
+    if (list[i][0] !== before[0] && list[i][1] !== before[1]) continue;
+    for (let k = i + 1; k < list.length; k++) {
+      if (list[k][0] === before[0] || list[k][1] === before[1]) continue;
+      const t = list[i]; list[i] = list[k]; list[k] = t;
+      break;
+    }
+  }
+  return list;
+}
+
+const allPairs = () => {
+  const list = [];
+  for (let p = 0; p < PATTERN_IDS.length; p++)
+    for (let g = 0; g < GEO_IDS.length; g++) list.push([p, g]);
+  return list;
+};
+
+let _order = null;
+function levelOrder() {
+  if (_order) return _order;
+  const list = shuffleRepair(allPairs(), 0xC0FFEE, null);
+  // Level 1 is the tutorial: keep it on the hazard stripes + torus knot.
+  const k0 = list.findIndex(c => c[0] === 0 && c[1] === 0);
+  if (k0 > 0) {
+    const t = list[0]; list[0] = list[k0]; list[k0] = t;
+    // The swap can break adjacency where the tutorial pair came from.
+    for (let i = 1; i < list.length; i++) {
+      if (list[i][0] !== list[i-1][0] && list[i][1] !== list[i-1][1]) continue;
+      for (let k = i + 1; k < list.length; k++) {
+        if (list[k][0] === list[i-1][0] || list[k][1] === list[i-1][1]) continue;
+        const t2 = list[i]; list[i] = list[k]; list[k] = t2;
+        break;
+      }
+    }
+  }
+  _order = list;
+  return _order;
+}
+
+/**
+ * Past the authored run the game keeps walking complete laps of the same
+ * grid, each lap reshuffled. Picking a backdrop and a shape independently
+ * at random -- which is what this used to do -- clumped badly: measured over
+ * 600 endless levels one pairing came up eleven times and could repeat
+ * back to back, while 38 pairings never appeared at all.
+ *
+ * Only the current lap is cached; levels are played in order, so a single
+ * entry is enough and nothing grows without bound.
+ */
+let _lapNo = -1, _lapList = null;
+function lapOrder(lap) {
+  if (lap === 0) return levelOrder();
+  if (_lapNo === lap) return _lapList;
+  // Each lap is a pure function of its number -- no chaining to the previous
+  // one. Threading the previous lap's tail in here would either need the whole
+  // chain recomputed on a jump, or a guess at that tail that the repair pass
+  // then invalidates. The only cost is that a lap boundary may repeat one
+  // backdrop or shape, roughly once every 300 levels.
+  _lapList = shuffleRepair(allPairs(), hashInt(0x1A9 + lap * 2654435761), null);
+  _lapNo = lap;
+  return _lapList;
+}
+
+/** Pairing for any level index, authored or endless. */
+function comboFor(i) {
+  const N = authoredCount();
+  const c = lapOrder(Math.floor(i / N))[i % N];
+  return { pattern: PATTERN_IDS[c[0]], geo: GEO_IDS[c[1]] };
+}
+
+/** Hand-tuned opener; everything else is derived. */
+const LEVEL_OVERRIDES = {
+  0: { target:{ rx: 0.42, ry:-0.75, s:1.45 }, off:{ rx:-0.64, ry: 0.88, s:0.78 } }
+};
+
+function authoredLevel(i) {
+  const c = comboFor(i);
+  const r = mulberry32(hashInt(i * 7919 + 0xA11CE));
+  const sgn = () => (r() < 0.5 ? -1 : 1);
+  const base = {
+    name: PATTERN_WORD[c.pattern] + ' ' + GEO_WORD[c.geo],
+    pattern: c.pattern, geo: c.geo,
+    target: { rx: (r() - 0.5) * 1.86, ry: (r() - 0.5) * 3.40, s: 1.36 + r() * 0.28 },
+    off:    { rx: sgn() * (0.58 + r() * 0.44),
+              ry: sgn() * (0.70 + r() * 0.58),
+              s:  r() < 0.5 ? 0.74 + r() * 0.12 : 1.26 + r() * 0.22 }
+  };
+  return LEVEL_OVERRIDES[i] ? Object.assign(base, LEVEL_OVERRIDES[i]) : base;
+}
+
+/** Words the endless generator draws sector names from. */
+const SECTOR_WORDS = ['DRIFT','ECHO','ONYX','VECTOR','CIPHER','HALO','RIFT','NOVA','EMBER','QUARTZ'];
+
+/**
+ * Difficulty ramp, computed rather than typed. Widens nothing by accident:
+ * tolerances only ever tighten with the level index, and past the authored
+ * run they keep creeping toward a floor rather than snapping to it.
+ */
+/**
+ * The ramp reaches full difficulty at RAMP_LEVELS and then creeps, rather
+ * than stretching across all 300 -- otherwise the curve would be so flat
+ * that level 150 still felt like a tutorial.
+ */
+const RAMP_LEVELS = 120;
+
+function tuning(i) {
+  const t     = Math.min(i, RAMP_LEVELS) / RAMP_LEVELS;   // 0..1
+  const extra = Math.max(0, i - RAMP_LEVELS);
+  return {
+    rotTol:   Math.max(0.95, 2.80 - t * 1.68 - extra * 0.002),
+    scaleTol: Math.max(0.60, 1.70 - t * 0.98 - extra * 0.0012),
+    time:     Math.max(35,   Math.round(55 - t * 17 - extra * 0.05))
+  };
+}
+
+/**
+ * Levels past the authored run are generated deterministically from their
+ * index, so the game never simply loops -- level 40 is the same for everyone
+ * but nobody has seen it before.
+ */
+/** Integer avalanche hash -- decorrelates adjacent level indices. */
+function hashInt(x) {
+  x |= 0;
+  x = Math.imul(x ^ (x >>> 16), 0x45d9f3b);
+  x = Math.imul(x ^ (x >>> 16), 0x45d9f3b);
+  return (x ^ (x >>> 16)) >>> 0;
+}
+
+function proceduralLevel(i) {
+  const r = mulberry32(hashInt(i + 0x5EED));
+  const c = comboFor(i);                 // keeps walking complete laps
+  const pattern = c.pattern, geo = c.geo;
+  const word    = SECTOR_WORDS[Math.floor(r() * SECTOR_WORDS.length)];
+  const sgn = () => (r() < 0.5 ? -1 : 1);
+  return {
+    name: word + ' ' + (i + 1),
+    pattern, geo,
+    target: { rx: (r() - 0.5) * 2.0, ry: (r() - 0.5) * 3.6, s: 1.36 + r() * 0.30 },
+    // Offsets stay in a band that is clearly wrong but always reachable.
+    off:    { rx: sgn() * (0.62 + r() * 0.42),
+              ry: sgn() * (0.74 + r() * 0.56),
+              s:  r() < 0.5 ? 0.74 + r() * 0.12 : 1.28 + r() * 0.20 }
+  };
+}
+
+/** Full level record for any index, authored or endless. */
+function getLevel(i) {
+  const base = i < authoredCount() ? authoredLevel(i) : proceduralLevel(i);
+  const meta = PATTERN_META[base.pattern];
+  const tun  = tuning(i);
+  return Object.assign({}, meta, tun, base);
+}
+
+/**
+ * Difficulty scales the tolerance windows, the clock and how far the magnet
+ * reaches. `assist` is the invisibility level at which magnetism starts, so a
+ * LOWER number means a WIDER, more forgiving sticky zone.
+ */
+const DIFFS = [
+  // Playtest: Relaxed solved itself. `tol` carries the 12% cut that was asked
+  // for, but measurement showed the cut alone changed nothing -- a player who
+  // just waved the object around still won 4 times in 20. The real culprit was
+  // `assist`: magnetism began at 0.66, a 48 degree sticky zone, so brushing
+  // past the answer snapped it home. Sweeping that threshold put the tipping
+  // point at 0.82 (waving wins 0/20, following the guides still wins 15/15).
+  // Relaxed stays the forgiving mode through its wider lock window, longer
+  // clock and absent scanner -- not through a magnet that plays for you.
+  { key:'relaxed', tol:1.36, time:1.40, assist:0.82, detect:false, compass:true,  arrows:true  },
+  { key:'normal',  tol:1.00, time:1.00, assist:0.78, detect:true,  compass:true,  arrows:true  },
+  // Hard still shows HOW FAR off each axis is, just not which way. A single
+  // probe drag resolves the sign -- hard, but never a blind search.
+  { key:'hard',    tol:0.58, time:0.85, assist:0.86, detect:true,  compass:true,  arrows:false }
+];
+
+/**
+ * Purchasable boosts. `use` runs the effect and returns false to refuse the
+ * spend (wrong moment, already active), so the inventory is never charged for
+ * a no-op.
+ */
+const BOOSTS = [
+  { id:'ghost',  tag:'GHOST', name:'Ghost Pass',      price: 40,
+    desc:'Flash the solution as a wireframe \u2014 without the 5 second penalty.' },
+  { id:'time',   tag:'+15s',  name:'Time Warp',       price: 60,
+    desc:'Add 15 seconds to the clock, right now.' },
+  { id:'magnet', tag:'MAG',   name:'Magnet Field',    price: 90,
+    desc:'Widens the snap window for the rest of the level. Far easier to land.' },
+  { id:'jam',    tag:'JAM',   name:'Scanner Jammer',  price: 90,
+    desc:'The sweep stops raising detection for the rest of the level.' },
+  { id:'skip',   tag:'SKIP',  name:'Skip Level',      price:150,
+    desc:'Camouflage instantly and clear the level. Reduced payout.' }
+];
+
+const START_GOLD   = 120;
+const AD_REWARD    = 75;
+const MAGNET_BOOST = 1.60;   // tolerance multiplier while a Magnet Field is up
+
+const HOUR = 3600e3;
+const AD_GOLD_COOLDOWN  = 2 * HOUR;   // the +75 gold ad
+const AD_BOOST_COOLDOWN = 3 * HOUR;   // one free premium boost
+/** Boosts a player can earn free by watching an ad. */
+const AD_BOOSTS = ['magnet', 'jam', 'skip'];
+/** Gold for streak day 1..7; day 7 also hands over a free Skip. */
+const DAILY_REWARDS = [50, 75, 100, 150, 200, 250, 350];
+
+const WIN_THRESHOLD  = 0.95;   // invisibility needed to lock
+const SCALE_MIN      = 0.35;
+const SCALE_MAX      = 3.00;
+const ROT_X_CLAMP    = 1.45;   // keep out of gimbal trouble (~83 deg)
+const SWEEP_PERIOD   = 6.4;    // seconds per scanner pass
+const VERIFY_PERIOD  = 1.9;    // faster confirmation sweep after a lock
+// Detection is charged once per sweep that crosses the object, NOT per
+// second of contact -- otherwise shrinking the object to a sliver would
+// starve the beam of contact time and trivialise the level.
+const DETECT_PER_SWEEP = 0.25;
+
+/* ==================================================================
+   4. GEOMETRY FACTORY
+   ------------------------------------------------------------------
+   All maths, no meshes on disk. Every shape is normalised to a unit
+   bounding sphere so "scale" means the same thing on every level.
+   ================================================================== */
+function normalise(geo, flat) {
+  if (flat && geo.index) geo = geo.toNonIndexed();
+  geo.center();
+  geo.computeBoundingSphere();
+  const r = geo.boundingSphere.radius || 1;
+  geo.scale(1 / r, 1 / r, 1 / r);
+  if (flat) geo.computeVertexNormals();          // hard facet normals
+  geo.computeBoundingSphere();
+  return geo;
+}
+
+/** A faceted crystal built by revolving a profile a few times. */
+function gemGeometry() {
+  const pts = [];
+  const prof = [[0,-1.15],[0.42,-0.72],[0.68,-0.18],[0.74,0.22],[0.50,0.70],[0.18,1.02],[0,1.12]];
+  for (const p of prof) pts.push(new THREE.Vector2(p[0], p[1]));
+  // 9 radial segments keeps the silhouette angular and readable.
+  return new THREE.LatheGeometry(pts, 9);
+}
+
+/** Raise a pyramid on every face -- turns a solid into a spiky star. */
+function stellate(geo, k) {
+  const src = geo.index ? geo.toNonIndexed() : geo;
+  const pos = src.attributes.position.array;
+  const out = [];
+  const a = new THREE.Vector3(), b = new THREE.Vector3(), c = new THREE.Vector3();
+  const apex = new THREE.Vector3();
+  for (let i = 0; i < pos.length; i += 9) {
+    a.set(pos[i],     pos[i + 1], pos[i + 2]);
+    b.set(pos[i + 3], pos[i + 4], pos[i + 5]);
+    c.set(pos[i + 6], pos[i + 7], pos[i + 8]);
+    apex.copy(a).add(b).add(c).multiplyScalar(1 / 3).normalize().multiplyScalar(k);
+    out.push(a.x,a.y,a.z, b.x,b.y,b.z, apex.x,apex.y,apex.z);
+    out.push(b.x,b.y,b.z, c.x,c.y,c.z, apex.x,apex.y,apex.z);
+    out.push(c.x,c.y,c.z, a.x,a.y,a.z, apex.x,apex.y,apex.z);
+  }
+  const g = new THREE.BufferGeometry();
+  g.setAttribute('position', new THREE.Float32BufferAttribute(out, 3));
+  g.computeVertexNormals();
+  return g;
+}
+
+/** Concatenate several geometries. Core three has no merge helper. */
+function mergeGeoms(list) {
+  let total = 0;
+  const parts = list.map(g => {
+    const ng = g.index ? g.toNonIndexed() : g;
+    const arr = ng.attributes.position.array;
+    total += arr.length;
+    return arr;
+  });
+  const out = new Float32Array(total);
+  let o = 0;
+  for (const a of parts) { out.set(a, o); o += a.length; }
+  const g = new THREE.BufferGeometry();
+  g.setAttribute('position', new THREE.Float32BufferAttribute(out, 3));
+  g.computeVertexNormals();
+  return g;
+}
+
+/** Three interlocking bars -- a very legible silhouette when it turns. */
+function crossGeometry() {
+  return mergeGeoms([
+    new THREE.BoxGeometry(2.05, 0.62, 0.62),
+    new THREE.BoxGeometry(0.62, 2.05, 0.62),
+    new THREE.BoxGeometry(0.62, 0.62, 2.05)
+  ]);
+}
+
+/** A bevelled five-point star, extruded to give it real thickness. */
+function starGeometry() {
+  const shape = new THREE.Shape();
+  const points = 5, R = 1, r = 0.44;
+  for (let i = 0; i < points * 2; i++) {
+    const rad = (i & 1) ? r : R;
+    const a = i / (points * 2) * Math.PI * 2 - Math.PI / 2;
+    const x = Math.cos(a) * rad, y = Math.sin(a) * rad;
+    i ? shape.lineTo(x, y) : shape.moveTo(x, y);
+  }
+  shape.closePath();
+  return new THREE.ExtrudeGeometry(shape, {
+    depth: 0.44, bevelEnabled: true, bevelSize: 0.07,
+    bevelThickness: 0.07, bevelSegments: 2, curveSegments: 1
+  });
+}
+
+/** A cog: the silhouette changes completely as it turns edge-on. */
+function gearGeometry() {
+  const shape = new THREE.Shape();
+  const teeth = 9, R = 1, r = 0.74;
+  const step = Math.PI * 2 / (teeth * 4);
+  for (let i = 0; i < teeth * 4; i++) {
+    const rad = (i % 4 === 1 || i % 4 === 2) ? R : r;
+    const a = i * step;
+    const x = Math.cos(a) * rad, y = Math.sin(a) * rad;
+    i ? shape.lineTo(x, y) : shape.moveTo(x, y);
+  }
+  shape.closePath();
+  const hole = new THREE.Path();
+  hole.absarc(0, 0, 0.30, 0, Math.PI * 2, true);
+  shape.holes.push(hole);
+  return new THREE.ExtrudeGeometry(shape, {
+    depth: 0.44, bevelEnabled: true, bevelSize: 0.05,
+    bevelThickness: 0.05, bevelSegments: 1, curveSegments: 6
+  });
+}
+
+/** A gateway arch -- strong vertical read, and a hole to see through. */
+function archGeometry() {
+  const w = 0.78, h = 0.42, iw = 0.44, ih = 0.20;
+  const shape = new THREE.Shape();
+  shape.moveTo(-w, -1);
+  shape.lineTo(w, -1);
+  shape.lineTo(w, h);
+  shape.absarc(0, h, w, 0, Math.PI, false);
+  shape.lineTo(-w, -1);
+  const hole = new THREE.Path();
+  hole.moveTo(iw, -1);
+  hole.lineTo(iw, ih);
+  hole.absarc(0, ih, iw, 0, Math.PI, false);
+  hole.lineTo(-iw, -1);
+  hole.lineTo(iw, -1);
+  shape.holes.push(hole);
+  return new THREE.ExtrudeGeometry(shape, {
+    depth: 0.46, bevelEnabled: true, bevelSize: 0.04,
+    bevelThickness: 0.04, bevelSegments: 1, curveSegments: 12
+  });
+}
+
+/** Three crossed bars -- a caltrop that reads from every angle. */
+function jackGeometry() {
+  const bar = () => new THREE.CylinderGeometry(0.28, 0.28, 2.0, 10);
+  const a = bar();
+  const b = bar(); b.rotateZ(Math.PI / 2);
+  const c = bar(); c.rotateX(Math.PI / 2);
+  return mergeGeoms([a, b, c]);
+}
+
+/** A turned spool: two flanges and a waisted middle. */
+function spoolGeometry() {
+  const prof = [[0,-1.0],[0.64,-1.0],[0.64,-0.82],[0.27,-0.52],
+                [0.21,0],[0.27,0.52],[0.64,0.82],[0.64,1.0],[0,1.0]];
+  return new THREE.LatheGeometry(prof.map(q => new THREE.Vector2(q[0], q[1])), 16);
+}
+
+/** A tube swept along a helix -- reads very differently as it turns. */
+function helixGeometry() {
+  const curve = new THREE.Curve();
+  curve.getPoint = function (t, target) {
+    target = target || new THREE.Vector3();
+    const a = t * Math.PI * 5.5;
+    return target.set(Math.cos(a) * 0.72, (t - 0.5) * 2.35, Math.sin(a) * 0.72);
+  };
+  return new THREE.TubeGeometry(curve, 170, 0.20, 14, false);
+}
+
+const GEOMETRIES = {
+  knot:   () => normalise(new THREE.TorusKnotGeometry(1, 0.36, 220, 30, 2, 3), false),
+  knot35: () => normalise(new THREE.TorusKnotGeometry(1, 0.30, 240, 26, 3, 5), false),
+  ico:    () => normalise(new THREE.IcosahedronGeometry(1, 1), true),
+  dodec:  () => normalise(new THREE.DodecahedronGeometry(1, 0), true),
+  gem:    () => normalise(gemGeometry(), true),
+  torus:  () => normalise(new THREE.TorusGeometry(1, 0.40, 22, 56), false),
+  octa:   () => normalise(new THREE.OctahedronGeometry(1, 0), true),
+  prism:  () => normalise(new THREE.CylinderGeometry(0.85, 0.85, 1.75, 6, 1), true),
+  helix:  () => normalise(helixGeometry(), false),
+  spike:  () => normalise(stellate(new THREE.IcosahedronGeometry(1, 0), 1.55), true),
+  tetra:  () => normalise(new THREE.TetrahedronGeometry(1, 0), true),
+  capsule:() => normalise(new THREE.CapsuleGeometry(0.58, 1.25, 6, 20), false),
+  knot43: () => normalise(new THREE.TorusKnotGeometry(1, 0.28, 240, 24, 4, 3), false),
+  cross:  () => normalise(crossGeometry(), true),
+  star:   () => normalise(starGeometry(), true),
+  knot52: () => normalise(new THREE.TorusKnotGeometry(1, 0.26, 240, 24, 5, 2), false),
+  cone:   () => normalise(new THREE.ConeGeometry(0.95, 1.9, 7), true),
+  gear:   () => normalise(gearGeometry(), true),
+  arch:   () => normalise(archGeometry(), true),
+  jack:   () => normalise(jackGeometry(), true),
+  spool:  () => normalise(spoolGeometry(), false),
+  burst:  () => normalise(stellate(new THREE.DodecahedronGeometry(1, 0), 1.48), true)
+};
+const GEO_IDS = Object.keys(GEOMETRIES);
+
+/* ==================================================================
+   5. SHADERS
+   ================================================================== */
+
+/* ---- backdrop: the pattern, straight in screen space ------------ */
+const BG_VERT = `
+void main(){ gl_Position = vec4(position.xy, 0.0, 1.0); }
+`;
+
+const BG_FRAG = `
+precision highp float;
+uniform sampler2D uPattern;
+uniform float uPatScale;      // device pixels per pattern tile
+uniform float uDim;           // global dip used for alarm / win flashes
+void main(){
+  vec2 uv = gl_FragCoord.xy / uPatScale;
+  gl_FragColor = vec4(texture2D(uPattern, uv).rgb * uDim, 1.0);
+}
+`;
+
+/* ---- the object: screen-space projection through the SOLUTION ---- */
+const OBJ_VERT = `
+precision highp float;
+
+// projection * view * TARGET model matrix.
+// Projects each vertex to where it WOULD be if already camouflaged.
+uniform mat4 uRefMatrix;
+
+varying vec4 vRef;      // clip-space position under the target transform
+varying vec3 vNrm;      // view-space normal
+varying vec3 vVpos;     // view-space position
+
+void main(){
+  vRef  = uRefMatrix * vec4(position, 1.0);
+  vec4 mv = modelViewMatrix * vec4(position, 1.0);
+  vVpos = mv.xyz;
+  vNrm  = normalMatrix * normal;
+  gl_Position = projectionMatrix * mv;
+}
+`;
+
+const OBJ_FRAG = `
+precision highp float;
+
+uniform sampler2D uPattern;
+uniform vec2  uRes;        // drawing-buffer size, matches gl_FragCoord
+uniform float uPatScale;
+uniform float uMismatch;   // 0 = perfectly camouflaged, 1 = fully exposed
+uniform float uFlash;      // snap-lock glow burst
+uniform vec3  uRim;
+uniform float uDim;
+
+varying vec4 vRef;
+varying vec3 vNrm;
+varying vec3 vVpos;
+
+void main(){
+  // ---- 1. Sample the backdrop through the SOLUTION projection ----
+  float w = max(abs(vRef.w), 1e-4);
+  vec2  ndc = vRef.xy / w;
+  vec2  pix = (ndc * 0.5 + 0.5) * uRes;
+
+  vec3 N = normalize(vNrm);
+
+  // A touch of normal-driven refraction so a wrong pose visibly
+  // "swims" like water over the pattern.
+  vec2 uv = pix / uPatScale + N.xy * (uMismatch * 30.0 / uPatScale);
+  vec3 base = texture2D(uPattern, uv).rgb;
+
+  // ---- 2. Solid-object shading, faded out by alignment ----------
+  vec3 V = normalize(-vVpos);
+  vec3 L1 = normalize(vec3(-0.42, 0.78, 0.62));
+  vec3 L2 = normalize(vec3( 0.72,-0.28, 0.48));
+  float d = max(dot(N, L1), 0.0) * 0.86 + max(dot(N, L2), 0.0) * 0.34;
+
+  vec3  H    = normalize(L1 + V);
+  float spec = pow(max(dot(N, H), 0.0), 46.0);
+  float fres = pow(1.0 - clamp(dot(N, V), 0.0, 1.0), 2.3);
+
+  vec3 lit = base * (0.42 + 0.86 * d) + uRim * fres * 0.85 + vec3(spec) * 0.55;
+
+  // uMismatch == 0  =>  col == base  =>  pixel-exact backdrop  =>  invisible.
+  vec3 col = mix(base, lit, clamp(uMismatch, 0.0, 1.0));
+
+  // ---- 3. Snap-lock glow ----------------------------------------
+  col += uRim * (fres * 2.4 + 0.35) * uFlash;
+
+  gl_FragColor = vec4(col * uDim, 1.0);
+}
+`;
+
+/* ---- glowing dust released on a successful snap ------------------ */
+const DUST_VERT = `
+precision highp float;
+attribute float aSize;
+attribute float aLife;
+varying float vLife;
+uniform float uPx;
+void main(){
+  vLife = aLife;
+  vec4 mv = modelViewMatrix * vec4(position, 1.0);
+  gl_Position = projectionMatrix * mv;
+  gl_PointSize = aSize * uPx * (0.35 + aLife);
+}
+`;
+
+const DUST_FRAG = `
+precision highp float;
+varying float vLife;
+uniform vec3 uColor;
+void main(){
+  vec2 d = gl_PointCoord - 0.5;
+  float r = length(d);
+  if (r > 0.5) discard;
+  float a = pow(1.0 - r * 2.0, 1.9) * vLife;
+  gl_FragColor = vec4(uColor * (1.0 + vLife * 1.4), a);
+}
+`;
+
+/* ==================================================================
+   6. ENGINE SET-UP
+   ================================================================== */
+// World units guaranteed visible on the SHORTER screen axis. A purely
+// height-based frustum would let a large object run off the sides of a
+// portrait phone, which is unplayable.
+const FRUSTUM_MIN = 6.8;
+const DUST_MAX    = 300;
+
+let frustumH = FRUSTUM_MIN;          // actual vertical extent after fitting
+
+const canvas = document.getElementById('gl');
+const renderer = new THREE.WebGLRenderer({
+  canvas, antialias: true, alpha: false, powerPreference: 'high-performance'
+});
+renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+// Pass-through colour so the object can match the backdrop byte-for-byte.
+renderer.outputColorSpace = THREE.LinearSRGBColorSpace;
+renderer.autoClear = false;
+
+/* ---- backdrop pass ---------------------------------------------- */
+const bgCam   = new THREE.Camera();
+const bgScene = new THREE.Scene();
+const bgUniforms = {
+  uPattern : { value: null },
+  uPatScale: { value: 340 },
+  uDim     : { value: 1 }
+};
+const bgMesh = new THREE.Mesh(
+  new THREE.PlaneGeometry(2, 2),
+  new THREE.ShaderMaterial({
+    uniforms: bgUniforms, vertexShader: BG_VERT, fragmentShader: BG_FRAG,
+    depthTest: false, depthWrite: false
+  })
+);
+bgMesh.frustumCulled = false;
+bgScene.add(bgMesh);
+
+/* ---- main pass --------------------------------------------------- */
+const scene  = new THREE.Scene();
+const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0.1, 100);
+camera.position.set(0, 0, 12);
+camera.lookAt(0, 0, 0);
+
+const objUniforms = {
+  uPattern : { value: null },
+  uRes     : { value: new THREE.Vector2(1, 1) },
+  uPatScale: { value: 340 },
+  uMismatch: { value: 1 },
+  uFlash   : { value: 0 },
+  uRim     : { value: new THREE.Color(0.22, 0.91, 0.78) },
+  uRefMatrix:{ value: new THREE.Matrix4() },
+  uDim     : { value: 1 }
+};
+const objMat = new THREE.ShaderMaterial({
+  uniforms: objUniforms, vertexShader: OBJ_VERT, fragmentShader: OBJ_FRAG
+});
+
+const obj = new THREE.Mesh(new THREE.BufferGeometry(), objMat);
+obj.rotation.order = 'YXZ';          // yaw then pitch: matches drag input
+obj.frustumCulled = false;
+scene.add(obj);
+
+/* ---- ghost hint: a wireframe of the solution --------------------- */
+const ghostMat = new THREE.MeshBasicMaterial({
+  color: 0x38e8c8, wireframe: true, transparent: true, opacity: 0, depthTest: false
+});
+const ghost = new THREE.Mesh(new THREE.BufferGeometry(), ghostMat);
+ghost.rotation.order = 'YXZ';
+ghost.frustumCulled = false;
+ghost.renderOrder = 5;
+ghost.visible = false;
+scene.add(ghost);
+
+/* ---- glowing dust ------------------------------------------------ */
+const dustPos  = new Float32Array(DUST_MAX * 3);
+const dustSize = new Float32Array(DUST_MAX);
+const dustLife = new Float32Array(DUST_MAX);
+const dustVel  = new Float32Array(DUST_MAX * 3);
+const dustGeo  = new THREE.BufferGeometry();
+dustGeo.setAttribute('position', new THREE.BufferAttribute(dustPos, 3));
+dustGeo.setAttribute('aSize',    new THREE.BufferAttribute(dustSize, 1));
+dustGeo.setAttribute('aLife',    new THREE.BufferAttribute(dustLife, 1));
+const dustUniforms = {
+  uColor: { value: new THREE.Color(0.6, 1.0, 0.92) },
+  uPx   : { value: 1 }
+};
+const dust = new THREE.Points(dustGeo, new THREE.ShaderMaterial({
+  uniforms: dustUniforms, vertexShader: DUST_VERT, fragmentShader: DUST_FRAG,
+  transparent: true, blending: THREE.AdditiveBlending,
+  depthWrite: false, depthTest: false
+}));
+dust.frustumCulled = false;
+dust.renderOrder = 9;
+dust.visible = false;
+scene.add(dust);
+
+/** Fire a burst of dust from the object's surface. */
+function burstDust(radius, color) {
+  dustUniforms.uColor.value.setRGB(color[0], color[1], color[2]);
+  for (let i = 0; i < DUST_MAX; i++) {
+    // Uniform point on a sphere, nudged outward.
+    const u = Math.random() * 2 - 1, t = Math.random() * Math.PI * 2;
+    const k = Math.sqrt(1 - u * u);
+    const nx = k * Math.cos(t), ny = k * Math.sin(t), nz = u;
+    const r  = radius * (0.55 + Math.random() * 0.6);
+    dustPos[i * 3]     = nx * r;
+    dustPos[i * 3 + 1] = ny * r;
+    dustPos[i * 3 + 2] = nz * r * 0.5;
+    const sp = 0.7 + Math.random() * 2.6;
+    dustVel[i * 3]     = nx * sp;
+    dustVel[i * 3 + 1] = ny * sp + 0.5;
+    dustVel[i * 3 + 2] = nz * sp * 0.4;
+    dustSize[i] = 2 + Math.random() * 7;
+    dustLife[i] = 0.55 + Math.random() * 0.45;
+  }
+  dustGeo.attributes.position.needsUpdate = true;
+  dustGeo.attributes.aSize.needsUpdate    = true;
+  dustGeo.attributes.aLife.needsUpdate    = true;
+  dust.visible = true;
+}
+
+function updateDust(dt) {
+  if (!dust.visible) return;
+  let alive = 0;
+  for (let i = 0; i < DUST_MAX; i++) {
+    if (dustLife[i] <= 0) continue;
+    alive++;
+    dustLife[i] -= dt * 0.85;
+    const drag = Math.pow(0.12, dt);          // frame-rate independent damping
+    dustVel[i * 3]     *= drag;
+    dustVel[i * 3 + 1] = dustVel[i * 3 + 1] * drag - 0.9 * dt;   // gentle fall
+    dustVel[i * 3 + 2] *= drag;
+    dustPos[i * 3]     += dustVel[i * 3]     * dt;
+    dustPos[i * 3 + 1] += dustVel[i * 3 + 1] * dt;
+    dustPos[i * 3 + 2] += dustVel[i * 3 + 2] * dt;
+  }
+  dustGeo.attributes.position.needsUpdate = true;
+  dustGeo.attributes.aLife.needsUpdate    = true;
+  if (!alive) dust.visible = false;
+}
+
+/* ==================================================================
+   7. GAME STATE
+   ================================================================== */
+const st = {
+  level: 0,
+  rx: 0, ry: 0, s: 1,        // live transform (the player's hands)
+  align: 0, bestAlign: 0,
+  shade: 1, flash: 0,        // eased shader values
+  time: 40, detect: 0,
+  running: false, locked: false, over: false, paused: false,
+  diff: 1,                   // index into DIFFS
+  gold: START_GOLD,
+  inv: { ghost:0, time:0, magnet:0, jam:0, skip:0 },
+  adGoldAt: 0, adBoostAt: 0,   // ms timestamps of the last ad claims
+  dailyDay: -1, streak: 0,     // day index of the last daily claim, and its run
+  magnetMul: 1, jammed: false, skipped: false,
+  sweepT: 0, sweepIdx: 0, beamOn: false, verify: false,
+  totalScore: 0, unlocked: 0
+};
+
+let L = getLevel(0);                     // current level record
+const DF = () => DIFFS[st.diff];         // active difficulty record
+
+/**
+ * Effective tolerances after the difficulty multiplier.
+ *
+ * The floors matter: level depth and the difficulty multiplier COMPOUND, and
+ * deep endless levels on Hard were landing under 1.5 degrees, which a probing
+ * player cannot hit inside the clock. The floor caps how bad that product may
+ * get, so no reachable level is ever tighter than a human can actually play.
+ */
+const ROT_TOL_FLOOR   = 0.62;
+const SCALE_TOL_FLOOR = 0.40;
+const rotTolNow   = () => Math.max(ROT_TOL_FLOOR, L.rotTol * DF().tol) * st.magnetMul;
+const scaleTolNow = () => L.target.s * Math.max(SCALE_TOL_FLOOR, L.scaleTol * DF().tol) * st.magnetMul;
+const geoCache  = {};
+const texCache  = {};
+const refMatrix = new THREE.Matrix4();
+const tmpMat    = new THREE.Matrix4();
+const tmpQuat   = new THREE.Quaternion();
+const tmpEuler  = new THREE.Euler(0, 0, 0, 'YXZ');
+const tmpVec    = new THREE.Vector3();
+const dbSize    = new THREE.Vector2();
+
+const getGeo = id => (geoCache[id] || (geoCache[id] = GEOMETRIES[id]()));
+
+/**
+ * Backdrop textures are 512x512 with mipmaps, so roughly 1.4 MB of GPU
+ * memory each. Thirty of them held forever is ~42 MB, which is a lot to ask
+ * of a phone for art the player walked past ten levels ago. Keep the recent
+ * ones and drop the rest; rebuilding one is a few milliseconds of canvas work.
+ */
+const TEX_CACHE_MAX = 10;
+const texOrder = [];
+
+function getTex(lv) {
+  const id = lv.pattern;
+  const seen = texOrder.indexOf(id);
+  if (seen >= 0) texOrder.splice(seen, 1);
+  texOrder.push(id);
+
+  if (!texCache[id]) texCache[id] = makePatternTexture(id, lv.seed);
+
+  while (texOrder.length > TEX_CACHE_MAX) {
+    const drop = texOrder.shift();
+    if (texCache[drop]) { texCache[drop].dispose(); delete texCache[drop]; }
+  }
+  return texCache[id];
+}
+
+const clamp  = (v, a, b) => v < a ? a : v > b ? b : v;
+const lerp   = (a, b, t) => a + (b - a) * t;
+function smoothstep(e0, e1, x) { const t = clamp((x - e0) / (e1 - e0), 0, 1); return t * t * (3 - 2 * t); }
+/** Wrap an angle into (-PI, PI]. */
+function shortAngle(a) { a = (a + Math.PI) % (Math.PI * 2); if (a < 0) a += Math.PI * 2; return a - Math.PI; }
+
+/**
+ * Rebuild `uRefMatrix` = projection * view * TARGET_model.
+ * This is the whole illusion: it tells the shader where each vertex
+ * would land on screen if the object were already camouflaged.
+ */
+function updateRefMatrix() {
+  camera.updateMatrixWorld();
+  tmpEuler.set(L.target.rx, L.target.ry, 0, 'YXZ');
+  tmpQuat.setFromEuler(tmpEuler);
+  tmpMat.compose(tmpVec.set(0, 0, 0), tmpQuat, new THREE.Vector3(L.target.s, L.target.s, L.target.s));
+  refMatrix.multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse);
+  refMatrix.multiply(tmpMat);
+  objUniforms.uRefMatrix.value.copy(refMatrix);
+}
+
+/**
+ * Invisibility metric.
+ * Normalised rotation + scale error folded into a smooth 0..1 curve
+ * that never flat-lines, so the meter always points uphill.
+ */
+function computeAlign() {
+  const dx = shortAngle(st.rx - L.target.rx);
+  const dy = shortAngle(st.ry - L.target.ry);
+  const er = Math.hypot(dx, dy) / rotTolNow();
+  const es = Math.abs(st.s - L.target.s) / scaleTolNow();
+  const n  = Math.hypot(er, es);
+  return 1 / (1 + 6.5 * Math.pow(n, 1.55));
+}
+
+function pixelsPerUnit() { return viewH / frustumH; }
+
+/* ==================================================================
+   8. RESIZE
+   ================================================================== */
+/**
+ * Last known-good viewport. Everything that needs screen dimensions reads
+ * these rather than window.innerWidth/Height, so a momentarily collapsed
+ * frame (hidden tab, an iframe laid out after load) can never poison the
+ * camera or the scanner geometry with zeroes.
+ */
+let viewW = 1, viewH = 1;
+
+function resize() {
+  const w = window.innerWidth | 0, h = window.innerHeight | 0;
+  if (w < 2 || h < 2) return;          // not laid out yet - keep the last size
+  viewW = w; viewH = h;
+  const a = w / h;
+  renderer.setSize(w, h, false);
+  canvas.style.width = w + 'px';
+  canvas.style.height = h + 'px';
+
+  // Portrait: grow the vertical extent so the horizontal one still covers
+  // FRUSTUM_MIN. Landscape: the height is already the short axis.
+  frustumH = a < 1 ? FRUSTUM_MIN / a : FRUSTUM_MIN;
+  camera.left = -a * frustumH / 2; camera.right = a * frustumH / 2;
+  camera.top  = frustumH / 2;      camera.bottom = -frustumH / 2;
+  camera.updateProjectionMatrix();
+
+  renderer.getDrawingBufferSize(dbSize);
+  objUniforms.uRes.value.set(dbSize.x, dbSize.y);
+
+  // World units -> device pixels, so the pattern scales with the object.
+  const dpr = renderer.getPixelRatio();
+  const ps = L.patScale * pixelsPerUnit() * dpr;
+  bgUniforms.uPatScale.value = ps;
+  objUniforms.uPatScale.value = ps;
+  dustUniforms.uPx.value = dpr;
+
+  updateRefMatrix();
+}
+window.addEventListener('resize', resize);
+window.addEventListener('orientationchange', () => setTimeout(resize, 120));
+
+/* ==================================================================
+   9. DOM REFERENCES
+   ================================================================== */
+const $ = id => document.getElementById(id);
+const el = {
+  scanner: $('scanner'), flash: $('flash'), alarmTint: $('alarmTint'), status: $('status'),
+  levelName: $('levelName'), levelNo: $('levelNo'), diffTag: $('diffTag'),
+  timeChip: $('timeChip'), timeVal: $('timeVal'),
+  alignFill: $('alignFill'), alignVal: $('alignVal'),
+  detectFill: $('detectFill'), detectVal: $('detectVal'),
+  tip: $('tip'), hintBtn: $('hintBtn'),
+  detectMeter: $('detectMeter'),
+  gizmo: $('gizmo'), gzRing: $('gzRing'), gzTarget: $('gzTarget'),
+  gzRingBack: $('gzRingBack'), gzTargetBack: $('gzTargetBack'),
+  gzUp: $('gzUp'), gzDown: $('gzDown'), gzLeft: $('gzLeft'), gzRight: $('gzRight'),
+  gzTiltDot: $('gzTiltDot'), gzTurnDot: $('gzTurnDot'),
+  dock: $('dock'), shopOv: $('shopOv'), shopList: $('shopList'),
+  introOv: $('introOv'), winOv: $('winOv'), loseOv: $('loseOv'),
+  wTime: $('wTime'), wScore: $('wScore'), wGold: $('wGold'),
+  lAlign: $('lAlign'), lNeed: $('lNeed'), loseWhy: $('loseWhy')
+};
+
+const SCAN_W = 230;   // must match #scanner width in the stylesheet
+
+function showOverlay(node) {
+  [el.introOv, el.winOv, el.loseOv, el.shopOv, $('dailyOv')]
+    .forEach(o => o.classList.toggle('on', o === node));
+  if (node !== el.shopOv) stopShopTicker();
+}
+function hideOverlays() { showOverlay(null); }
+
+/** Theme colours the game logic needs by value, not by CSS. */
+const THEME = {
+  accent : '#2FA890',
+  warn   : '#D9924A',
+  danger : '#C75B4A',
+  flashOk: 'rgba(120,206,188,.42)',
+  flashWin:'rgba(120,206,188,.34)',
+  flashBad:'rgba(199,91,74,.40)'
+};
+
+function flashScreen(color, ms) {
+  el.flash.style.background = color;
+  el.flash.style.transition = 'none';
+  el.flash.style.opacity = '1';
+  requestAnimationFrame(() => {
+    el.flash.style.transition = 'opacity ' + ms + 'ms cubic-bezier(.2,.7,.3,1)';
+    el.flash.style.opacity = '0';
+  });
+}
+function showStatus(text, color) {
+  el.status.textContent = text;
+  el.status.style.color = color;
+  el.status.classList.remove('show');
+  void el.status.offsetWidth;             // restart the CSS animation
+  el.status.classList.add('show');
+}
+function setTip(html) { el.tip.innerHTML = html; }
+
+/* ==================================================================
+   9b. ECONOMY, SHOP AND BOOSTS
+   ================================================================== */
+const inv = id => st.inv[id] | 0;
+
+function persist() {
+  SDK.save({ v: 3, unlocked: st.unlocked, total: st.totalScore,
+             diff: st.diff, gold: st.gold, inv: st.inv,
+             adGoldAt: st.adGoldAt, adBoostAt: st.adBoostAt,
+             dailyDay: st.dailyDay, streak: st.streak });
+}
+
+/* ---- cooldown clock ------------------------------------------------
+   All of this trusts the device clock, which a determined player can
+   move. We only guard the case that would actually hurt them: a clock
+   that jumped forward and then back, which would otherwise lock a
+   timer for years. Rewinding to farm rewards is left alone -- it is
+   their own save.                                                     */
+const dayIndex = () => Math.floor(Date.now() / 86400000);
+
+function sanitiseClock() {
+  const now = Date.now();
+  if (st.adGoldAt  > now) st.adGoldAt  = 0;
+  if (st.adBoostAt > now) st.adBoostAt = 0;
+  if (st.dailyDay  > dayIndex()) { st.dailyDay = -1; st.streak = 0; }
+}
+
+const adGoldLeft  = () => Math.max(0, st.adGoldAt  + AD_GOLD_COOLDOWN  - Date.now());
+const adBoostLeft = () => Math.max(0, st.adBoostAt + AD_BOOST_COOLDOWN - Date.now());
+
+/** "2h 14m" / "43m" / "58s" */
+function fmtLeft(ms) {
+  const sec = Math.ceil(ms / 1000);
+  if (sec >= 3600) return Math.floor(sec / 3600) + 'h ' + Math.floor((sec % 3600) / 60) + 'm';
+  if (sec >= 60)   return Math.ceil(sec / 60) + 'm';
+  return sec + 's';
+}
+
+/**
+ * Daily state. The streak advances only on consecutive days; any gap
+ * drops it back to day 1.
+ */
+function dailyStatus() {
+  const today = dayIndex();
+  const avail = st.dailyDay !== today;
+  const next  = (st.dailyDay === today - 1) ? Math.min(st.streak + 1, 7) : 1;
+  const shown = avail ? next : Math.max(1, Math.min(st.streak, 7));
+  return { avail, today, streak: shown, reward: DAILY_REWARDS[shown - 1] };
+}
+
+function claimDaily() {
+  const d = dailyStatus();
+  if (!d.avail) return false;
+  st.streak   = d.streak;
+  st.dailyDay = d.today;
+  addGold(d.reward);
+  if (d.streak >= 7) st.inv.skip = inv('skip') + 1;   // day-7 bonus
+  persist();
+  Audio2.win();
+  return true;
+}
+
+function renderDaily() {
+  const d = dailyStatus();
+  $('dailyStreak').textContent = 'DAY ' + d.streak + ' STREAK';
+  const strip = $('dayStrip');
+  strip.innerHTML = '';
+  for (let i = 1; i <= 7; i++) {
+    const cell = document.createElement('div');
+    const isToday = i === d.streak;
+    cell.className = 'day' + (i < d.streak ? ' done' : '') + (isToday ? ' today' : '');
+    cell.innerHTML = '<div class="dn">D' + i + '</div><div class="dv">' + DAILY_REWARDS[i-1] + '</div>';
+    strip.appendChild(cell);
+  }
+  const claim = $('dailyClaimBtn');
+  if (d.avail) {
+    claim.className = 'btn daily';
+    claim.textContent = 'Claim +' + d.reward + (d.streak >= 7 ? ' & a Skip' : '');
+    claim.disabled = false;
+    $('dailyNote').textContent = d.streak >= 7
+      ? 'Seven in a row. Take the bonus Skip Level as well.'
+      : 'Return tomorrow to move up the streak.';
+  } else {
+    claim.className = 'btn locked';
+    claim.textContent = 'Claimed \u2014 back in ' + fmtLeft((dayIndex() + 1) * 86400000 - Date.now());
+    claim.disabled = true;
+    $('dailyNote').textContent = 'Already collected today. The streak holds if you return tomorrow.';
+  }
+}
+
+/** Keep both entry points honest about whether a reward is waiting. */
+function refreshDailyButtons() {
+  const d = dailyStatus();
+  [$('introDailyBtn'), $('shopDailyBtn')].forEach(b => {
+    if (!b) return;
+    b.className = 'btn ' + (d.avail ? 'daily' : 'locked');
+    b.textContent = d.avail
+      ? 'Daily Reward \u00B7 +' + d.reward
+      : 'Daily in ' + fmtLeft((dayIndex() + 1) * 86400000 - Date.now());
+  });
+}
+
+function addGold(nGold) {
+  st.gold = Math.max(0, st.gold + nGold);
+  refreshGold();
+}
+
+/** Push the balance into every place it is displayed. */
+function refreshGold() {
+  document.querySelectorAll('.goldval').forEach(e => { e.textContent = st.gold; });
+  if (el.shopOv.classList.contains('on')) renderShop();
+}
+
+/* ---- boost effects ------------------------------------------------
+   Each returns false when it cannot apply, so the caller does not
+   consume the item.                                                   */
+const BOOST_FX = {
+  ghost()  { return useHint(true); },
+  time()   {
+    if (!st.running || st.locked || st.over) return false;
+    st.time += 15;
+    Audio2.clear(); showStatus('+15s', THEME.warn);
+    return true;
+  },
+  magnet() {
+    if (!st.running || st.locked || st.over || st.magnetMul > 1) return false;
+    st.magnetMul = MAGNET_BOOST;
+    Audio2.clear(); showStatus('MAGNET ON', THEME.accent);
+    return true;
+  },
+  jam()    {
+    if (!st.running || st.locked || st.over || st.jammed) return false;
+    st.jammed = true;
+    el.scanner.classList.add('safe');
+    Audio2.clear(); showStatus('SCANNER JAMMED', THEME.accent);
+    return true;
+  },
+  skip()   {
+    if (!st.running || st.locked || st.over) return false;
+    st.skipped = true;
+    st.rx = L.target.rx; st.ry = L.target.ry; st.s = L.target.s;
+    st.align = 1;
+    lockIn();
+    return true;
+  }
+};
+
+function useBoost(id) {
+  if (inv(id) <= 0) return;
+  Audio2.boot(); Audio2.resume();
+  if (!BOOST_FX[id]()) return;          // wrong moment: keep the item
+  st.inv[id] = inv(id) - 1;
+  persist();
+  renderDock();
+}
+
+/** Rebuild the in-game dock: the free hint plus one button per owned boost. */
+function renderDock() {
+  el.dock.querySelectorAll('.dockbtn.boost').forEach(b => b.remove());
+  BOOSTS.forEach(b => {
+    const count = inv(b.id);
+    if (!count) return;
+    const btn = document.createElement('button');
+    btn.className = 'dockbtn boost';
+    btn.innerHTML = b.tag + '<span class="cnt">' + count + '</span>';
+    btn.title = b.name + ' \u2014 ' + b.desc;
+    btn.addEventListener('click', () => useBoost(b.id));
+    el.dock.appendChild(btn);
+  });
+}
+
+/** Brief message inside the shop so a refused action always explains itself. */
+let toastTimer = null;
+function shopToast(msg) {
+  const t = $('shopToast');
+  t.textContent = msg;
+  t.classList.add('on');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('on'), 1800);
+}
+
+function grantBoost(id, viaAd) {
+  st.inv[id] = inv(id) + 1;
+  if (viaAd) st.adBoostAt = Date.now();
+  persist();
+  renderShop(); renderDock();
+}
+
+function renderShop() {
+  refreshDailyButtons();
+  el.shopList.innerHTML = '';
+
+  BOOSTS.forEach(b => {
+    const count = inv(b.id), afford = st.gold >= b.price;
+    const adOK  = AD_BOOSTS.indexOf(b.id) >= 0;
+
+    const row = document.createElement('div');
+    row.className = 'shopitem' + (count ? ' owned' : '');
+    row.innerHTML =
+      '<div class="tagbox">' + b.tag + '</div>' +
+      '<div class="meta"><div class="nm">' + b.name + '</div>' +
+      '<div class="ds">' + b.desc + '</div>' +
+      (count ? '<div class="own">OWNED \u00D7' + count + '</div>' : '') +
+      '</div>';
+
+    const col = document.createElement('div');
+    col.className = 'buycol';
+
+    // Free-via-ad option on the premium boosts.
+    if (adOK) {
+      const ad = document.createElement('button');
+      ad.className = 'adget';
+      ad.dataset.cd = 'boost';
+      col.appendChild(ad);
+      ad.addEventListener('click', () => {
+        const left = adBoostLeft();
+        if (left > 0) { shopToast('Free boost again in ' + fmtLeft(left)); return; }
+        Audio2.boot(); Audio2.resume();
+        ad.disabled = true;
+        Ads.rewarded(b.id).then(earned => {
+          ad.disabled = false;
+          if (earned === null)  { shopToast('Not available right now'); renderShop(); return; }
+          if (earned === false) { shopToast('Reward needs the full ad'); return; }
+          grantBoost(b.id, true);
+          shopToast(b.name + ' acquired');
+        });
+      });
+    }
+
+    // Price button. Never disabled -- a dead control that gives no reason
+    // is exactly what made this feel broken.
+    const buy = document.createElement('button');
+    buy.className = 'buybtn' + (afford ? '' : ' cant');
+    buy.innerHTML = '<span class="coin"></span>' + b.price;
+    buy.addEventListener('click', () => {
+      if (st.gold < b.price) {
+        shopToast('Need ' + (b.price - st.gold) + ' more gold');
+        buy.classList.remove('nope'); void buy.offsetWidth; buy.classList.add('nope');
+        return;
+      }
+      Audio2.boot(); Audio2.resume(); Audio2.click();
+      addGold(-b.price);
+      grantBoost(b.id, false);
+      shopToast(b.name + ' purchased');
+    });
+    col.appendChild(buy);
+
+    row.appendChild(col);
+    el.shopList.appendChild(row);
+  });
+
+  updateShopTimers();
+}
+
+/**
+ * Patch only the countdown labels each second. A full re-render would
+ * rebuild the buttons under the player's finger.
+ */
+function updateShopTimers() {
+  const gLeft = adGoldLeft(), bLeft = adBoostLeft();
+
+  // Only say "ad" when an ad will genuinely play.
+  const ads = adsOffered();
+  const gold = $('adBtn');
+  if (gold) {
+    gold.textContent = gLeft > 0
+      ? (ads ? 'Watch Ad in ' : 'Supply Drop in ') + fmtLeft(gLeft)
+      : (ads ? 'Watch Ad \u00B7 +' : 'Supply Drop \u00B7 +') + AD_REWARD;
+    gold.classList.toggle('locked', gLeft > 0);
+    gold.classList.toggle('adbtn',  gLeft <= 0);
+  }
+  el.shopList.querySelectorAll('[data-cd="boost"]').forEach(btn => {
+    btn.innerHTML = bLeft > 0 ? fmtLeft(bLeft) : (ads ? 'FREE&nbsp;AD' : 'FREE');
+    btn.classList.toggle('cool', bLeft > 0);
+  });
+  refreshDailyButtons();
+}
+
+let shopTicker = null;
+function startShopTicker() {
+  stopShopTicker();
+  shopTicker = setInterval(updateShopTimers, 1000);
+}
+function stopShopTicker() {
+  if (shopTicker) { clearInterval(shopTicker); shopTicker = null; }
+}
+
+/**
+ * Where each panel goes back to. These are deliberately SEPARATE: the shop
+ * and the daily panel can open each other, and sharing one variable let the
+ * shop record itself as its own destination -- which made Back re-open the
+ * shop and look completely dead. Each setter also refuses to store its own
+ * panel, so the trap cannot come back.
+ */
+let shopReturn  = null;   // shop  -> intro or lose
+let dailyReturn = null;   // daily -> intro or shop
+
+function openShop(returnTo) {
+  if (returnTo && returnTo !== el.shopOv) shopReturn = returnTo;
+  Audio2.boot(); Audio2.resume();
+  sanitiseClock();
+  refreshGold(); renderShop();
+  showOverlay(el.shopOv);
+  startShopTicker();
+}
+function closeShop() {
+  stopShopTicker();
+  showOverlay(shopReturn && shopReturn !== el.shopOv ? shopReturn : el.introOv);
+}
+
+/* ---- rewarded ads --------------------------------------------------
+   YouTube renders the ad itself and hands back a boolean, so the game
+   draws no ad UI of its own. Where ads do not run -- outside Playables,
+   or in a region without them -- the same rewards stay reachable as a
+   plain timed bonus, with no pretend advertisement anywhere.          */
+const REWARD_IDS = {
+  gold:   'camo3d-gold-75',
+  magnet: 'camo3d-boost-magnet',
+  jam:    'camo3d-boost-jammer',
+  skip:   'camo3d-boost-skip'
+};
+
+const Ads = {
+  /** True only when the host really can play a rewarded ad. */
+  get supported() { return SDK.adsAvailable(); },
+
+  /**
+   * Ask for a rewarded ad and resolve with whether the reward was earned.
+   * Resolves false when the player closed it early -- that is a normal
+   * outcome, not an error, and must not hand out the reward.
+   */
+  rewarded(kind) {
+    if (!this.supported) return Promise.resolve(true);   // timed-bonus path
+    const id = REWARD_IDS[kind] || REWARD_IDS.gold;
+    return SDK.rewardedAd(id).then(
+      earned => !!earned,
+      err => {
+        const type = SDK.errorType(err);
+        console.warn('[Camouflage 3D] rewarded ad failed:', type);
+        adsBlocked = (type === 'API_UNAVAILABLE');
+        return null;                                     // null = could not show
+      }
+    );
+  }
+};
+
+/** Set once an ad request comes back API_UNAVAILABLE, so we stop offering. */
+let adsBlocked = false;
+const adsOffered = () => Ads.supported && !adsBlocked;
+
+/* ==================================================================
+   10. LEVEL FLOW
+   ================================================================== */
+function loadLevel(i) {
+  st.level = Math.max(0, i | 0);
+  L = getLevel(st.level);
+
+  const geo = getGeo(L.geo);
+  obj.geometry = geo;
+  ghost.geometry = geo;
+
+  const tex = getTex(L);
+  bgUniforms.uPattern.value  = tex;
+  objUniforms.uPattern.value = tex;
+  objUniforms.uRim.value.setRGB(L.rim[0], L.rim[1], L.rim[2]);
+
+  // Start the player off the solution by the level's offset.
+  st.rx = clamp(L.target.rx + L.off.rx, -ROT_X_CLAMP, ROT_X_CLAMP);
+  st.ry = L.target.ry + L.off.ry;
+  st.s  = clamp(L.target.s * L.off.s, SCALE_MIN, SCALE_MAX);
+
+  st.time = L.time * DF().time;
+  st.detect = 0;
+  st.align = computeAlign();
+  st.bestAlign = st.align;
+  st.shade = 1; st.flash = 0;
+  st.locked = false; st.over = false; st.running = false;
+  st.sweepT = 0; st.sweepIdx = 0; st.beamOn = false; st.verify = false;
+  st.magnetMul = 1; st.jammed = false; st.skipped = false;
+
+  ghost.rotation.set(L.target.rx, L.target.ry, 0);
+  ghost.scale.setScalar(L.target.s);
+  ghost.visible = false; ghostMat.opacity = 0;
+
+  dust.visible = false;
+  for (let k = 0; k < DUST_MAX; k++) dustLife[k] = 0;
+
+  el.levelName.textContent = L.name;
+  el.levelNo.textContent = String(st.level + 1).padStart(3, '0') + ' / ' +
+    (st.level < authoredCount() ? authoredCount() : '\u221E');
+  const dk = DF().key;
+  el.diffTag.textContent = dk.toUpperCase();
+  el.diffTag.className = dk;
+  el.gizmo.classList.toggle('noguides', !DF().compass);
+  el.detectMeter.classList.toggle('off', !DF().detect);
+  el.scanner.classList.remove('safe');
+  el.scanner.style.opacity = '0';
+  el.alarmTint.style.opacity = '0';
+  el.hintBtn.disabled = false;
+  renderDock();
+  // Name the gesture the player's device actually has.
+  const zoomWord = matchMedia('(pointer: coarse)').matches ? 'PINCH' : 'SCROLL';
+  setTip('<b>DRAG</b> rotate &nbsp;·&nbsp; <b>' + zoomWord + '</b> scale'
+       + (DF().arrows ? '<span class="tipx"><br>follow the ring</span>' : ''));
+
+  resize();               // re-derives pattern scale for this level
+  syncHUD(true);
+}
+
+function startLevel() {
+  hideOverlays();
+  Audio2.boot(); Audio2.resume();
+  st.running = true;
+  st.sweepT = 0;
+  el.scanner.style.transition = 'opacity .5s';
+  el.scanner.style.opacity = '1';
+}
+
+/** The player crossed 95%: snap exactly onto the solution and lock it. */
+function lockIn() {
+  st.locked = true;
+  st.rx = L.target.rx;
+  st.ry = L.target.ry;
+  st.s  = L.target.s;
+  st.align = 1;
+  st.flash = 1;
+
+  Audio2.click();
+  Audio2.silenceHum();
+  burstDust(L.target.s * 1.2, L.rim);
+  flashScreen(THEME.flashOk, 420);
+  showStatus('LOCKED', THEME.accent);
+
+  // Trigger an immediate, faster confirmation sweep — the payoff moment.
+  st.verify = true;
+  st.sweepT = 0;
+  st.beamOn = false;
+  el.scanner.classList.add('safe');
+  setTip('<b>HOLD STILL</b> — verification sweep');
+}
+
+/** Leave the run and go back to the title card, ready to resume at `level`. */
+function toMenu(level) {
+  st.running = false;
+  st.over = false;
+  Audio2.silenceHum();
+  loadLevel(level);
+  el.scanner.style.opacity = '0';
+  el.alarmTint.style.opacity = '0';
+  $('startBtn').textContent = st.level > 0
+    ? 'Resume \u2014 Level ' + (st.level + 1)
+    : 'Begin Infiltration';
+  refreshDailyButtons();
+  shopReturn = dailyReturn = null;
+  showOverlay(el.introOv);
+}
+
+function win() {
+  if (st.over) return;
+  st.over = true; st.running = false;
+  Audio2.win(); Audio2.silenceHum();
+  flashScreen(THEME.flashWin, 660);
+
+  const score = Math.round(600 + st.time * 45 + (1 - st.detect) * 350 + st.level * 150);
+  st.totalScore += score;
+  st.unlocked = Math.max(st.unlocked, st.level + 1);
+
+  // A skipped level still pays, but only a token amount -- otherwise
+  // buying Skip would fund buying Skip.
+  const gold = st.skipped ? 15
+             : Math.round(25 + st.level * 3 + st.time * 1.5);
+  addGold(gold);
+
+  // --- YouTube Playables: report progress + persist it --------------
+  SDK.score(st.level + 1);                       // sendScore({ value: currentLevel })
+  persist();
+
+  el.wTime.textContent  = st.time.toFixed(1);
+  el.wScore.textContent = score;
+  el.wGold.textContent  = '+' + gold;
+  $('nextBtn').textContent = 'Next Level';
+
+  setTimeout(() => showOverlay(el.winOv), 900);
+}
+
+function lose(reason) {
+  if (st.over) return;
+  st.over = true; st.running = false;
+  Audio2.alarm(); Audio2.lose(); Audio2.silenceHum();
+
+  el.alarmTint.style.transition = 'opacity .18s';
+  el.alarmTint.style.opacity = '1';
+  flashScreen(THEME.flashBad, 540);
+  showStatus('DETECTED', THEME.danger);
+  st.shade = 1;                                   // slam the object back into view
+
+  addGold(10);
+  persist();
+
+  el.lAlign.textContent = Math.round(st.bestAlign * 100) + '%';
+  el.lNeed.textContent  = '95%';
+  el.loseWhy.textContent = reason;
+
+  setTimeout(() => { el.alarmTint.style.opacity = '0'; }, 900);
+  setTimeout(() => showOverlay(el.loseOv), 1050);
+}
+
+/** Flash the solution as a wireframe. Costs 5 seconds unless `free`. */
+function useHint(free) {
+  if (!st.running || st.locked || st.over) return false;
+  if (!free && st.time < 6) return false;
+  if (!free) st.time -= 5;
+  Audio2.ghost();
+  ghost.visible = true;
+  ghostMat.opacity = 0.85;
+  el.hintBtn.disabled = true;
+  setTimeout(() => { el.hintBtn.disabled = st.time < 6; }, 1500);
+  return true;
+}
+
+/* ==================================================================
+   11. SCANNER
+   ================================================================== */
+function updateScanner(dt) {
+  const W = viewW;
+  const period = st.verify ? VERIFY_PERIOD : SWEEP_PERIOD;
+  const travel = W + SCAN_W + 90;
+
+  st.sweepT += dt;
+  if (st.sweepT >= period) {
+    st.sweepT -= period;
+    st.sweepIdx++;
+    st.beamOn = false;
+    Audio2.sweep();
+  }
+
+  const beamX = -40 + (st.sweepT / period) * travel;
+  el.scanner.style.transform = 'translateX(' + (beamX - SCAN_W) + 'px)';
+
+  // Screen-space extent of the object (unit-radius geometry * scale).
+  const cx = W / 2;
+  const r  = st.s * pixelsPerUnit();
+  const overlapping = beamX > cx - r - 3 && beamX < cx + r + 3;
+
+  if (overlapping && !st.beamOn) {
+    st.beamOn = true;
+    if (!st.locked && DF().detect && !st.jammed) {
+      // One charge per pass. A nearly-camouflaged object still reads as
+      // something, but only faintly -- progress is rewarded.
+      const exposure = 1 - Math.min(st.align, 0.95) * 0.8;   // 1.00 .. 0.24
+      st.detect = Math.min(1, st.detect + DETECT_PER_SWEEP * exposure);
+      Audio2.ping();
+      el.alarmTint.style.transition = 'opacity .12s';
+      el.alarmTint.style.opacity = '0.30';
+      if (st.detect >= 1) lose('Detected on sweep ' + (st.sweepIdx + 1));
+    }
+  } else if (!overlapping && st.beamOn) {
+    st.beamOn = false;
+    el.alarmTint.style.transition = 'opacity .45s';
+    el.alarmTint.style.opacity = '0';
+    if (st.locked) {
+      // The beam crossed the whole object and found nothing at all.
+      Audio2.clear();
+      showStatus('NO CONTACT', THEME.accent);
+      win();
+    }
+  }
+
+}
+
+/* ==================================================================
+   12. INPUT  (drag = rotate, wheel/pinch = scale, keys = fine nudge)
+   ================================================================== */
+const pointers = new Map();
+let pinchDist = 0, dragging = false, lastTickBand = -1;
+
+const canInteract = () => st.running && !st.locked && !st.over;
+
+/** Control gain eases off near the solution so fine tuning is possible. */
+function sensitivity() { return 0.0068 * (1 - 0.58 * smoothstep(0.55, 0.95, st.align)); }
+function scaleGain()   { return 1 - 0.62 * smoothstep(0.55, 0.95, st.align); }
+
+function applyRotate(dx, dy) {
+  const k = sensitivity();
+  st.ry += dx * k;
+  st.rx = clamp(st.rx + dy * k, -ROT_X_CLAMP, ROT_X_CLAMP);
+}
+function applyScale(factor) {
+  const g = scaleGain();
+  st.s = clamp(st.s * (1 + (factor - 1) * g), SCALE_MIN, SCALE_MAX);
+}
+
+canvas.addEventListener('pointerdown', e => {
+  Audio2.boot(); Audio2.resume();
+  pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+  if (pointers.size === 2) {
+    const [a, b] = [...pointers.values()];
+    pinchDist = Math.hypot(a.x - b.x, a.y - b.y);
+  }
+  dragging = true;
+  canvas.setPointerCapture(e.pointerId);
+});
+
+canvas.addEventListener('pointermove', e => {
+  const p = pointers.get(e.pointerId);
+  if (!p) return;
+  const dx = e.clientX - p.x, dy = e.clientY - p.y;
+  p.x = e.clientX; p.y = e.clientY;
+  if (!canInteract()) return;
+
+  if (pointers.size >= 2) {
+    // Two fingers down: pinch to scale, no rotation.
+    const [a, b] = [...pointers.values()];
+    const d = Math.hypot(a.x - b.x, a.y - b.y);
+    if (pinchDist > 0 && d > 0) applyScale(d / pinchDist);
+    pinchDist = d;
+  } else {
+    applyRotate(dx, dy);
+  }
+});
+
+function endPointer(e) {
+  pointers.delete(e.pointerId);
+  if (pointers.size < 2) pinchDist = 0;
+  if (pointers.size === 0) dragging = false;
+}
+canvas.addEventListener('pointerup', endPointer);
+canvas.addEventListener('pointercancel', endPointer);
+canvas.addEventListener('pointerleave', endPointer);
+
+canvas.addEventListener('wheel', e => {
+  e.preventDefault();
+  if (!canInteract()) return;
+  Audio2.boot(); Audio2.resume();
+  applyScale(Math.exp(-e.deltaY * 0.0016));
+}, { passive: false });
+
+// Keyboard nudging — genuinely useful for the last fraction of a degree.
+window.addEventListener('keydown', e => {
+  if (!canInteract()) return;
+  const fine = e.shiftKey ? 0.004 : 0.022;
+  switch (e.key) {
+    case 'ArrowLeft':  st.ry -= fine; break;
+    case 'ArrowRight': st.ry += fine; break;
+    case 'ArrowUp':    st.rx = clamp(st.rx - fine, -ROT_X_CLAMP, ROT_X_CLAMP); break;
+    case 'ArrowDown':  st.rx = clamp(st.rx + fine, -ROT_X_CLAMP, ROT_X_CLAMP); break;
+    case '+': case '=': applyScale(1.012); break;
+    case '-': case '_': applyScale(0.988); break;
+    case 'h': case 'H': useHint(); return;
+    default: return;
+  }
+  e.preventDefault();
+}, { passive: false });
+
+/* ==================================================================
+   13. HUD SYNC
+   ================================================================== */
+let lastA = -1, lastD = -1, lastT = '';
+function syncHUD(force) {
+  const ap = Math.round(st.align * 100);
+  if (force || ap !== lastA) {
+    lastA = ap;
+    el.alignFill.style.width = Math.min(100, st.align * 100) + '%';
+    el.alignVal.textContent  = ap + '%';
+    el.alignVal.classList.toggle('hot', st.align >= 0.86);
+  }
+
+  // ---- per-axis guidance ------------------------------------------
+  // Sign convention is uniform: a POSITIVE need always means "go right",
+  // which is also the gesture the right-hand arrow describes.
+  //   TILT need > 0 -> drag down    TURN need > 0 -> drag right
+  //   SIZE need > 0 -> scale up
+  const rt = rotTolNow(), sTol = scaleTolNow();
+  const need = [
+    shortAngle(L.target.rx - st.rx) / rt,
+    shortAngle(L.target.ry - st.ry) / rt,
+    (L.target.s - st.s) / sTol
+  ];
+  const arrows = DF().arrows;
+
+  drawGizmo(need, arrows);
+
+  const dp = Math.round(st.detect * 100);
+  if (force || dp !== lastD) {
+    lastD = dp;
+    el.detectFill.style.width = dp + '%';
+    el.detectVal.textContent  = dp + '%';
+  }
+
+  const ts = st.time.toFixed(1);
+  if (force || ts !== lastT) {
+    lastT = ts;
+    el.timeVal.textContent = ts;
+    el.timeChip.classList.toggle('low',  st.time < 15 && st.time >= 7);
+    el.timeChip.classList.toggle('crit', st.time < 7);
+  }
+}
+
+/**
+ * Draw the guidance ring around the object.
+ *
+ * Radius carries the size axis: the solid ring is the object's real screen
+ * radius, the dashed ring is the radius it needs. Chevrons carry rotation --
+ * the lit one points the way to drag, and an axis that lands is replaced by
+ * a dot on the ring. All three collapse into one circle on the solve.
+ */
+const GZ_MARGIN = 1.12;      // how far the ring sits outside the silhouette
+const GZ_OFFSET = 21;        // chevron distance beyond the ring
+
+function drawGizmo(need, arrows) {
+  const cx = viewW / 2, cy = viewH / 2;
+  const ppu = pixelsPerUnit();
+  const rNow = st.s * ppu * GZ_MARGIN;
+  const rTgt = L.target.s * ppu * GZ_MARGIN;
+
+  const setC = (node, r) => {
+    node.setAttribute('cx', cx); node.setAttribute('cy', cy);
+    node.setAttribute('r', Math.max(6, r));
+  };
+  setC(el.gzRing, rNow);     setC(el.gzRingBack, rNow);
+  setC(el.gzTarget, rTgt);   setC(el.gzTargetBack, rTgt);
+  // Once size is right the two rings are the same circle, so drop the dashes.
+  const sizeDone = Math.abs(need[2]) < 0.05 ? 0 : 1;
+  el.gzTarget.style.opacity = sizeDone;
+  el.gzTargetBack.style.opacity = sizeDone;
+
+  const arm = Math.max(6, rNow) + GZ_OFFSET;
+  const place = (node, dx, dy) =>
+    node.setAttribute('transform', 'translate(' + (cx + dx * arm) + ',' + (cy + dy * arm) + ')');
+  place(el.gzUp, 0, -1);   place(el.gzDown, 0, 1);
+  place(el.gzLeft, -1, 0); place(el.gzRight, 1, 0);
+  el.gzTiltDot.setAttribute('cx', cx); el.gzTiltDot.setAttribute('cy', cy - arm);
+  el.gzTurnDot.setAttribute('cx', cx + arm); el.gzTurnDot.setAttribute('cy', cy);
+
+  // axis 0 = tilt (up/down), axis 1 = turn (left/right)
+  const axis = (lo, hi, dot, v) => {
+    const solved = st.locked || Math.abs(v) < 0.05;
+    const mag = Math.min(Math.abs(v), 1);
+    const heat = 0.72 + 0.28 * mag;
+    dot.style.opacity = solved ? 1 : 0;
+    if (solved) { lo.style.opacity = 0; hi.style.opacity = 0; return; }
+    // Without direction (Hard) both sides carry the same weight, so the
+    // player reads how far off they are but has to probe for the sign.
+    lo.style.opacity = arrows ? (v < 0 ? heat : 0.07) : heat;
+    hi.style.opacity = arrows ? (v > 0 ? heat : 0.07) : heat;
+  };
+  axis(el.gzUp, el.gzDown, el.gzTiltDot, need[0]);
+  axis(el.gzLeft, el.gzRight, el.gzTurnDot, need[1]);
+}
+
+/* ==================================================================
+   14. MAIN LOOP
+   ================================================================== */
+let last = performance.now();
+
+function update(dt) {
+  if (st.paused) return;
+
+  if (st.running && !st.over) {
+    // ---- clock -------------------------------------------------
+    if (!st.locked) {
+      st.time -= dt;
+      if (st.time <= 0) { st.time = 0; lose('Timer expired while still visible'); }
+      if (st.time < 6) el.hintBtn.disabled = true;
+    }
+
+    // ---- invisibility ------------------------------------------
+    st.align = st.locked ? 1 : computeAlign();
+
+    if (!st.locked) {
+      // Magnetic assist: inside the last few degrees the object is
+      // pulled onto the solution, so the lock feels like a snap
+      // rather than a pixel hunt.
+      const k = smoothstep(DF().assist, 0.965, st.align);
+      if (k > 0) {
+        const f = 1 - Math.pow(1 - 0.22 * k, dt * 60);
+        st.rx += shortAngle(L.target.rx - st.rx) * f;
+        st.ry += shortAngle(L.target.ry - st.ry) * f;
+        st.s  += (L.target.s - st.s) * f;
+        st.align = computeAlign();
+      }
+      if (st.align > st.bestAlign) st.bestAlign = st.align;
+      if (st.align >= WIN_THRESHOLD) lockIn();
+    }
+
+    updateScanner(dt);
+  } else if (!st.over) {
+    st.align = computeAlign();          // idle preview behind the intro card
+  }
+
+  // ---- audio feedback ------------------------------------------
+  Audio2.proximity(st.align, st.running && !st.locked && !st.over);
+  if (st.running && !st.locked && st.align > 0.45) {
+    const band = Math.floor(st.align * 40);
+    if (band !== lastTickBand) {
+      if (dragging) Audio2.tick(clamp((st.align - 0.45) / 0.55, 0, 1));
+      lastTickBand = band;
+    }
+  } else {
+    lastTickBand = -1;
+  }
+
+  // ---- eased shader values --------------------------------------
+  const targetShade = st.locked ? 0
+                    : st.over  ? 1
+                    : clamp((1 - st.align) / 0.22, 0, 1);
+  st.shade = lerp(st.shade, targetShade, 1 - Math.pow(0.02, dt));
+  st.flash *= Math.pow(0.015, dt);
+
+  objUniforms.uMismatch.value = st.shade;
+  objUniforms.uFlash.value    = st.flash;
+
+  // A ring left on screen would give the hiding place away, so it leaves
+  // with the object the moment the lock lands.
+  el.gizmo.style.opacity = (st.running && !st.locked && !st.over) ? 1 : 0;
+
+  // A whole-screen dip as detection rises. Applied identically to the
+  // backdrop and the object, so it can never betray the camouflage.
+  const dim = 1 - st.detect * 0.07;
+  bgUniforms.uDim.value  = dim;
+  objUniforms.uDim.value = dim;
+
+  // ---- transforms ------------------------------------------------
+  obj.rotation.set(st.rx, st.ry, 0);
+  obj.scale.setScalar(st.s);
+
+  if (ghost.visible) {
+    ghostMat.opacity -= dt * 0.7;
+    if (ghostMat.opacity <= 0) { ghostMat.opacity = 0; ghost.visible = false; }
+  }
+
+  updateDust(dt);
+  syncHUD(false);
+}
+
+function draw() {
+  renderer.clear();
+  renderer.render(bgScene, bgCam);   // pattern, straight in screen space
+  renderer.render(scene, camera);    // object, projected through the solution
+}
+
+function frame(now) {
+  requestAnimationFrame(frame);
+  if ((window.innerWidth | 0) !== viewW || (window.innerHeight | 0) !== viewH) resize();
+  let dt = (now - last) / 1000;
+  last = now;
+  if (dt > 0.05) dt = 0.05;          // survive tab-switches and stalls
+  update(dt);
+  draw();
+}
+
+/* ==================================================================
+   15. UI WIRING
+   ================================================================== */
+$('startBtn').addEventListener('click', () => { Audio2.boot(); Audio2.resume(); startLevel(); });
+$('nextBtn').addEventListener('click',  () => { loadLevel(st.level + 1); startLevel(); });
+$('replayBtn').addEventListener('click',() => { loadLevel(st.level);     startLevel(); });
+$('retryBtn').addEventListener('click', () => { loadLevel(st.level);     startLevel(); });
+$('winMenuBtn').addEventListener('click',  () => toMenu(st.level + 1));
+$('loseMenuBtn').addEventListener('click', () => toMenu(st.level));
+el.hintBtn.addEventListener('click', () => useHint(false));
+
+/** Difficulty is chosen on the intro card and persisted with progress. */
+function setDifficulty(d, silent) {
+  st.diff = clamp(d | 0, 0, DIFFS.length - 1);
+  document.querySelectorAll('.diff').forEach(b =>
+    b.classList.toggle('on', (b.dataset.d | 0) === st.diff));
+  loadLevel(st.level);                       // re-derives clock + tolerances
+  // `silent` on the boot restore: the value came FROM storage, so writing it
+  // straight back just burns one of the host's rate-limited saves.
+  if (!silent) persist();
+}
+document.querySelectorAll('.diff').forEach(b =>
+  b.addEventListener('click', () => { Audio2.boot(); Audio2.resume(); setDifficulty(b.dataset.d | 0); }));
+
+$('resetBtn').addEventListener('click', () => {
+  st.unlocked = 0; st.totalScore = 0;
+  st.gold = START_GOLD;
+  st.inv = { ghost:0, time:0, magnet:0, jam:0, skip:0 };
+  st.adGoldAt = 0; st.adBoostAt = 0; st.dailyDay = -1; st.streak = 0;
+  persist(); refreshGold(); refreshDailyButtons();
+  loadLevel(0);
+  $('startBtn').textContent = 'Begin Infiltration';
+  $('resetBtn').textContent = 'Progress cleared';
+});
+
+/* ---- shop + ad wiring ---- */
+$('introShopBtn').addEventListener('click', () => openShop(el.introOv));
+$('loseShopBtn').addEventListener('click',  () => openShop(el.loseOv));
+$('shopCloseBtn').addEventListener('click', closeShop);
+$('adBtn').addEventListener('click', () => {
+  const left = adGoldLeft();
+  if (left > 0) { shopToast('Available again in ' + fmtLeft(left)); return; }
+  Audio2.boot(); Audio2.resume();
+  const btn = $('adBtn');
+  btn.disabled = true;
+  Ads.rewarded('gold').then(earned => {
+    btn.disabled = false;
+    if (earned === null)  { shopToast('Not available right now'); renderShop(); return; }
+    if (earned === false) { shopToast('Reward needs the full ad'); return; }
+    st.adGoldAt = Date.now();
+    addGold(AD_REWARD);
+    persist();
+    Audio2.win();
+    renderShop();
+    shopToast('+' + AD_REWARD + ' gold');
+  });
+});
+
+/* ---- daily reward ---- */
+function openDaily(returnTo) {
+  const dOv = $('dailyOv');
+  if (returnTo && returnTo !== dOv) dailyReturn = returnTo;
+  Audio2.boot(); Audio2.resume();
+  sanitiseClock(); renderDaily();
+  showOverlay(dOv);
+}
+function closeDaily() {
+  const back = dailyReturn && dailyReturn !== $('dailyOv') ? dailyReturn : el.introOv;
+  // Re-entering the shop must go through openShop so the ticker restarts.
+  if (back === el.shopOv) openShop();
+  else showOverlay(back);
+}
+$('introDailyBtn').addEventListener('click', () => openDaily(el.introOv));
+$('shopDailyBtn').addEventListener('click',  () => openDaily(el.shopOv));
+$('dailyClaimBtn').addEventListener('click', () => {
+  if (claimDaily()) { renderDaily(); refreshDailyButtons(); }
+});
+$('dailyCloseBtn').addEventListener('click', closeDaily);
+
+/* Mirror YouTube's audio switch instead of fighting it. */
+SDK.onAudioChange(enabled => { Audio2.on = !!enabled; });
+
+document.addEventListener('contextmenu', e => e.preventDefault());
+document.addEventListener('gesturestart', e => e.preventDefault());   // iOS page zoom
+
+SDK.onPause(()  => { st.paused = true;  Audio2.silenceHum(); });
+SDK.onResume(() => { st.paused = false; last = performance.now(); });
+document.addEventListener('visibilitychange', () => {
+  st.paused = document.hidden;
+  if (!document.hidden) last = performance.now(); else Audio2.silenceHum();
+});
+
+/* ==================================================================
+   16. BOOT
+   ================================================================== */
+resize();
+loadLevel(0);
+last = performance.now();
+requestAnimationFrame(frame);
+
+// Restore progression, then tell the host we're live.
+SDK.load().then(save => {
+  if (save && typeof save.unlocked === 'number') {
+    st.unlocked    = clamp(save.unlocked | 0, 0, 998);
+    st.totalScore  = save.total || 0;
+    if (typeof save.diff === 'number') setDifficulty(save.diff, true);
+    if (typeof save.gold === 'number') st.gold = Math.max(0, save.gold | 0);
+    if (save.inv) BOOSTS.forEach(b => { st.inv[b.id] = Math.max(0, save.inv[b.id] | 0); });
+    if (typeof save.adGoldAt  === 'number') st.adGoldAt  = save.adGoldAt;
+    if (typeof save.adBoostAt === 'number') st.adBoostAt = save.adBoostAt;
+    if (typeof save.dailyDay  === 'number') st.dailyDay  = save.dailyDay;
+    if (typeof save.streak    === 'number') st.streak    = save.streak;
+    if (st.unlocked > 0) {
+      loadLevel(st.unlocked);
+      $('startBtn').textContent = 'Resume — Level ' + (st.unlocked + 1);
+    }
+  }
+}).catch(() => {}).then(() => {
+  console.log('[Camouflage 3D] ' + PATTERN_IDS.length + ' backdrops x ' +
+              GEO_IDS.length + ' shapes = ' + authoredCount() + ' levels');
+  sanitiseClock();
+  refreshGold();
+  renderDock();
+  refreshDailyButtons();
+  SDK.ready();     // ytgame.game.gameReady()
+  console.log('[Camouflage 3D] ready · ytgame ' + (SDK.real ? 'LIVE' : 'mock'));
+});
+</script>
+</body>
+</html>
