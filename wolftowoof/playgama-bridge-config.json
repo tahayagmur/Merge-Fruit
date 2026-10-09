@@ -1,0 +1,12 @@
+{
+    "advertisement": {
+        "minimumDelayBetweenInterstitial": 60,
+        "interstitial": {
+            "placements": [
+                {
+                    "id": "natural_break"
+                }
+            ]
+        }
+    }
+}

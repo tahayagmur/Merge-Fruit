@@ -1,0 +1,171 @@
+/* Wolf to Woof - texts. English by default; Turkish only when YouTube says so. */
+(function () {
+    'use strict';
+    var W = window.WTW = window.WTW || {};
+
+    var S = {
+        en: {
+            title: 'Wolf to Woof',
+            tagline: 'Befriend wolves. Raise the first dogs.',
+            tapStart: 'Tap to start',
+            intro: 'Long ago, wolves watched us from the dark...',
+            visitor: 'A curious wolf!',
+            visitorRare: 'A rare {kind}!',
+            kindWhite: 'white wolf', kindBlack: 'black wolf', kindRed: 'red wolf', kindGold: 'golden wolf',
+            tapEyes: 'Tap the wolf at the forest edge',
+            toss: 'Toss a treat into the glowing ring',
+            tooClose: 'Too close!', tooFar: 'Too far', good: 'Good!', perfect: 'Perfect!',
+            gaze: 'Hold when it looks at you',
+            waitEyes: 'Wait for eye contact...',
+            bonded: 'New friend!',
+            fled: 'It ran back into the forest...',
+            treats: 'Treats', moreTreats: '+3 treats',
+            navPack: 'Pack', navFamily: 'Family', navBook: 'Book', navCamp: 'Camp',
+            familyTitle: 'Start a family', familyPick: 'Pick one ♂ and one ♀',
+            denFull: 'The den is full. Send a grown dog to the village first.',
+            needTwo: 'You need a grown ♂ and ♀. Befriend more wolves!',
+            resting: 'Resting', breed: 'Have puppies!', lucky: 'Lucky litter',
+            luckyOn: 'Lucky litter ready: +1 puppy, more new traits!',
+            puppies: 'Puppies!', newTrait: 'NEW TRAIT!', generation: 'Generation {n}',
+            growNow: 'Grow all now', growing: 'Growing', grew: '{name} grew up!',
+            tameness: 'Tameness', cuteness: 'Cuteness', gen: 'Gen {n}',
+            toVillage: 'Send to village', sendName: 'Send {name} to the village', villageNote: 'Village dogs bring bones, even while you are away.',
+            village: 'Village', perMin: '/min', villageEmpty: 'No room in the village. Build more huts.',
+            pet: 'Pet', close: 'Close', ok: 'OK', max: 'MAX', free: 'Free',
+            stageWolf: 'Wolf', stageWolfdog: 'Wolfdog', stageDog: 'Dog', stageFriend: 'Best friend',
+            domestication: 'Domestication',
+            bookTitle: 'Trait Book', bookCount: '{a} / {b} traits', locked: '???', needTame: '{n}%+',
+            catEar: 'Ears', catTail: 'Tails', catCoat: 'Coats', catPat: 'Patterns', catFur: 'Fur', catEye: 'Eyes', catFace: 'Face', catSpecial: 'Special',
+            campTitle: 'Camp',
+            upFire: 'Campfire', upFireD: 'More visitors, rarer colors',
+            upDen: 'Den', upDenD: 'Room for {n} dogs',
+            upHuts: 'Homes', upHutsD: '{n} dogs can live in the village',
+            upPouch: 'Pantry', upPouchD: '{n} treats per visit',
+            rareBtn: 'Call a rare visitor',
+            adNone: 'No ad right now. Please try later.',
+            adDismissed: 'Watch the whole ad to get the reward.',
+            adLoading: 'Loading ad...',
+            welcomeBack: 'Welcome back! The village brought {n} bones.',
+            adBreak: 'Short ad break', welcomeTitle: 'Welcome back!', welcomeBody: 'Your village kept working while you were away.',
+            collect: 'Collect', collect2: 'Collect ×2', takeX2: 'Take ×2', chestX2: 'Open ×2: 200 bones + 1 🍀',
+            wakeText: '{name} is resting ({t} left). Watch a short ad to wake them up and play now!', wakeBtn: 'Wake up & play',
+            boostBtn: 'Village income ×2 for 10 min', boostOn: 'The village earns double for 10 minutes!',
+            tut1: 'A wolf is curious about your fire. Tap it!',
+            tut2: 'Toss a treat inside the glowing ring. Not too close to you!',
+            tut3: 'Now hold your finger on it when it looks at you',
+            tut4: 'Two friends! Tap Family to start a family.',
+            tut5: 'Pet the puppies, and hold for eye contact: they grow faster!',
+            tut6: 'Breed the tamest ones. Every generation becomes more dog!',
+            soundOn: 'Sound on', soundOff: 'Sound off',
+            traits: {
+                ear1: 'Tipped ears', ear2: 'Folded ears', ear3: 'Floppy ears', ear4: 'Long floppy ears',
+                tail1: 'Sickle tail', tail2: 'Curly tail', tail3: 'Double curl',
+                'coat:sable': 'Sable', 'coat:red': 'Red', 'coat:golden': 'Golden', 'coat:cream': 'Cream',
+                'coat:black': 'Black', 'coat:choc': 'Chocolate', 'coat:blue': 'Blue', 'coat:white': 'White',
+                'pat:mask': 'Mask', 'pat:saddle': 'Saddle', 'pat:pie': 'Piebald', 'pat:merle': 'Merle',
+                'pat:brindle': 'Brindle', 'pat:spots': 'Spots', 'pat:tux': 'Tuxedo',
+                'fur:fluffy': 'Fluffy', 'fur:curly': 'Curly', 'fur:wiry': 'Wiry',
+                'eye:brown': 'Brown eyes', 'eye:hazel': 'Hazel eyes', 'eye:blue': 'Blue eyes', 'eye:hetero': 'Odd eyes',
+                'face:button': 'Button nose', 'face:bigeyes': 'Big eyes', 'face:round': 'Round face', 'face:tiny': 'Tiny',
+                brow: 'Puppy-dog eyes'
+            },
+            names: ['Luna', 'Bolt', 'Pip', 'Mochi', 'Biscuit', 'Juniper', 'Pebble', 'Tofu', 'Maple', 'Nala', 'Koda', 'Aspen',
+                'Skye', 'Clover', 'Nugget', 'Sprout', 'Ash', 'Willow', 'Pepper', 'Hazel', 'Bear', 'Frost', 'Ember', 'Rusty',
+                'Cookie', 'Poppy', 'Scout', 'Fern', 'Moss', 'Birch', 'Dusty', 'Sunny', 'Otis', 'Milo', 'Remy', 'Ziggy',
+                'Kiwi', 'Bean', 'Toast', 'Waffle', 'Nova', 'Echo', 'Pixel', 'Taco', 'Bubbles', 'Rocket', 'Button', 'Marble']
+        },
+        tr: {
+            title: 'Kurttan Köpeğe',
+            tagline: 'Kurtlarla dost ol. İlk köpekleri yetiştir.',
+            tapStart: 'Başlamak için dokun',
+            intro: 'Çok eskiden kurtlar karanlıktan bizi izlerdi...',
+            visitor: 'Meraklı bir kurt!',
+            visitorRare: 'Nadir bir {kind}!',
+            kindWhite: 'beyaz kurt', kindBlack: 'kara kurt', kindRed: 'kızıl kurt', kindGold: 'altın kurt',
+            tapEyes: 'Orman kıyısındaki kurda dokun',
+            toss: 'Parlayan halkanın içine ödül at',
+            tooClose: 'Çok yakın!', tooFar: 'Çok uzak', good: 'Güzel!', perfect: 'Harika!',
+            gaze: 'Sana bakınca parmağını tut',
+            waitEyes: 'Göz temasını bekle...',
+            bonded: 'Yeni dost!',
+            fled: 'Ormana geri kaçtı...',
+            treats: 'Ödül', moreTreats: '+3 ödül',
+            navPack: 'Sürü', navFamily: 'Aile', navBook: 'Kitap', navCamp: 'Kamp',
+            familyTitle: 'Aile kur', familyPick: 'Bir ♂ ve bir ♀ seç',
+            denFull: 'İn dolu. Önce büyümüş bir köpeği köye gönder.',
+            needTwo: 'Büyümüş bir ♂ ve bir ♀ lazım. Daha çok kurtla dost ol!',
+            resting: 'Dinleniyor', breed: 'Yavrula!', lucky: 'Şanslı batın',
+            luckyOn: 'Şanslı batın hazır: +1 yavru, daha çok yeni özellik!',
+            puppies: 'Yavrular!', newTrait: 'YENİ ÖZELLİK!', generation: '{n}. kuşak',
+            growNow: 'Hepsini büyüt', growing: 'Büyüyor', grew: '{name} büyüdü!',
+            tameness: 'Uysallık', cuteness: 'Sevimlilik', gen: '{n}. kuşak',
+            toVillage: 'Köye gönder', sendName: '{name} köye gitsin', villageNote: 'Köydeki köpekler kemik getirir, sen yokken bile.',
+            village: 'Köy', perMin: '/dk', villageEmpty: 'Köyde yer yok. Daha çok kulübe yap.',
+            pet: 'Sev', close: 'Kapat', ok: 'Tamam', max: 'MAKS', free: 'Bedava',
+            stageWolf: 'Kurt', stageWolfdog: 'Kurt-köpek', stageDog: 'Köpek', stageFriend: 'Can dostu',
+            domestication: 'Evcilleşme',
+            bookTitle: 'Özellik Kitabı', bookCount: '{a} / {b} özellik', locked: '???', needTame: '%{n}+',
+            catEar: 'Kulak', catTail: 'Kuyruk', catCoat: 'Post rengi', catPat: 'Desen', catFur: 'Tüy', catEye: 'Göz', catFace: 'Yüz', catSpecial: 'Özel',
+            campTitle: 'Kamp',
+            upFire: 'Kamp ateşi', upFireD: 'Daha çok ve daha nadir ziyaretçi',
+            upDen: 'İn', upDenD: '{n} köpeklik yer',
+            upHuts: 'Evler', upHutsD: 'Köyde {n} köpek yaşayabilir',
+            upPouch: 'Kiler', upPouchD: 'Ziyaret başına {n} ödül',
+            rareBtn: 'Nadir ziyaretçi çağır',
+            adNone: 'Şu an reklam yok. Lütfen sonra dene.',
+            adDismissed: 'Ödül için reklamı sonuna kadar izle.',
+            adLoading: 'Reklam yükleniyor...',
+            welcomeBack: 'Tekrar hoş geldin! Köy {n} kemik getirdi.',
+            adBreak: 'Kısa reklam arası', welcomeTitle: 'Tekrar hoş geldin!', welcomeBody: 'Sen yokken köy çalışmaya devam etti.',
+            collect: 'Topla', collect2: '×2 topla', takeX2: '×2 al', chestX2: '×2 aç: 200 kemik + 1 🍀',
+            wakeText: '{name} dinleniyor ({t} kaldı). Kısa bir reklam izle, hemen uyansın ve oynasın!', wakeBtn: 'Uyandır ve oyna',
+            boostBtn: '10 dk köy geliri ×2', boostOn: 'Köy 10 dakika boyunca iki kat kazanıyor!',
+            tut1: 'Bir kurt ateşini merak ediyor. Ona dokun!',
+            tut2: 'Parlayan halkanın içine ödül at. Sana çok yakın olmasın!',
+            tut3: 'Şimdi sana baktığında parmağını üstünde tut',
+            tut4: 'İki dost! Aile kurmak için Aile\'ye dokun.',
+            tut5: 'Yavruları sev, parmağını tutup göz göze gel: daha hızlı büyürler!',
+            tut6: 'En uysalları çiftleştir. Her kuşak biraz daha köpekleşir!',
+            soundOn: 'Ses açık', soundOff: 'Ses kapalı',
+            traits: {
+                ear1: 'Kıvrık uçlu kulak', ear2: 'Katlanmış kulak', ear3: 'Sarkık kulak', ear4: 'Uzun sarkık kulak',
+                tail1: 'Orak kuyruk', tail2: 'Kıvrık kuyruk', tail3: 'Çift kıvrım',
+                'coat:sable': 'Samur', 'coat:red': 'Kızıl', 'coat:golden': 'Altın', 'coat:cream': 'Krem',
+                'coat:black': 'Siyah', 'coat:choc': 'Çikolata', 'coat:blue': 'Mavi-gri', 'coat:white': 'Beyaz',
+                'pat:mask': 'Maske', 'pat:saddle': 'Eyer', 'pat:pie': 'Alaca', 'pat:merle': 'Mermer',
+                'pat:brindle': 'Kaplan çizgili', 'pat:spots': 'Benekli', 'pat:tux': 'Smokin',
+                'fur:fluffy': 'Pofuduk', 'fur:curly': 'Kıvırcık', 'fur:wiry': 'Sert tüylü',
+                'eye:brown': 'Kahverengi göz', 'eye:hazel': 'Ela göz', 'eye:blue': 'Mavi göz', 'eye:hetero': 'Farklı renk göz',
+                'face:button': 'Düğme burun', 'face:bigeyes': 'Kocaman gözler', 'face:round': 'Yuvarlak yüz', 'face:tiny': 'Minik',
+                brow: 'Yavru köpek bakışı'
+            },
+            names: ['Boncuk', 'Pamuk', 'Karabaş', 'Duman', 'Kömür', 'Fındık', 'Tarçın', 'Zeytin', 'Paşa', 'Minnoş', 'Bulut',
+                'Çakıl', 'Kurabiye', 'Lokum', 'Badem', 'Kestane', 'Sarıkız', 'Poyraz', 'Şimşek', 'Yumoş', 'Fıstık', 'Mısır',
+                'Susam', 'Toprak', 'Ayaz', 'Kar', 'Rüzgar', 'Tomurcuk', 'Gofret', 'Pıtırcık', 'Sütlaç', 'Leblebi',
+                'Hardal', 'Kahve', 'Mercan', 'Nazlı', 'Oltu', 'Karamel', 'Ponçik', 'Tospik']
+        }
+    };
+
+    var lang = 'en';
+    W.i18n = {
+        set: function (l) { lang = (l === 'tr') ? 'tr' : 'en'; document.documentElement.lang = lang; },
+        lang: function () { return lang; },
+        t: function (key, p) {
+            var s = S[lang][key];
+            if (s === undefined) s = S.en[key];
+            if (s === undefined) return key;
+            if (p) s = s.replace(/\{(\w+)\}/g, function (m, k) { return p[k] !== undefined ? p[k] : m; });
+            return s;
+        },
+        /* a percentage the way the language writes it: "45%" in English, "%45" in Turkish */
+        pct: function (n) { return lang === 'tr' ? '%' + n : n + '%'; },
+        /* a decimal number: "2.5" in English, "2,5" in Turkish */
+        num: function (n, digits) { var s = n.toFixed(digits); return lang === 'tr' ? s.replace('.', ',') : s; },
+        trait: function (key) { return S[lang].traits[key] || S.en.traits[key] || key; },
+        names: function () { return S[lang].names; },
+        /* more texts from other files: { en: {...}, tr: {...} } */
+        add: function (more) {
+            ['en', 'tr'].forEach(function (l) { for (var k in more[l]) S[l][k] = more[l][k]; });
+        }
+    };
+})();
