@@ -39,7 +39,7 @@ Sürümler `package-lock.json` ile kilitlidir. Node.js **22.13+** (veya 24+) ger
 
 Ek belgeler: [DEPLOYMENT](docs/DEPLOYMENT.md) · [DATA_MODEL](docs/DATA_MODEL.md) ·
 [DESIGN_SYSTEM](docs/DESIGN_SYSTEM.md) · [GUVENLIK](docs/GUVENLIK.md) · [ROADMAP](docs/ROADMAP.md) ·
-[N8N](docs/N8N.md) · [PHASE2_PLAN](docs/PHASE2_PLAN.md)
+[N8N](docs/N8N.md) · [HERMES](docs/HERMES.md) · [PHASE2_PLAN](docs/PHASE2_PLAN.md)
 
 ---
 
@@ -53,7 +53,7 @@ Ek belgeler: [DEPLOYMENT](docs/DEPLOYMENT.md) · [DATA_MODEL](docs/DATA_MODEL.md
 | Game Studio | Kısmi | Oyun projeleri durum hattında, yayın kontrol listesi, mağaza entegrasyonlarının gerçek yapılandırma durumu | Faz 5: Google Play / App Store verisi |
 | SaaS & Business | Kısmi | SaaS projeleri, lansman kontrol listesi. Gelir verisi bağlı kaynak olmadan **hiç gösterilmez** (tahmini/örnek sayı yok) | Faz 6: salt okunur ödeme verisi |
 | AI Agent Hub | Kısmi | Ajan tanımları (talimat, sağlayıcı, model, yetenekler, sürüm), görev kuyruğu (kuyruğa alma, iptal, silme), arama, filtre, sayfalama | Faz 4: ajan çalıştırma ortamı |
-| Integrations | Kısmi | 7 entegrasyonun kataloğu, durum (Not configured / Ready to configure / Connected / Error), eksik ayar ve sunucu sırrı (yalnızca **var/yok**), yöneticiler için gizli olmayan ayarlar | Faz 3+: bağlantı testleri (connector'lar) |
+| Integrations | Kısmi | 8 entegrasyonun kataloğu (n8n, Hermes Agent, Claude, OpenAI, webhook'lar, Google Play, App Store, Stripe), durum (Not configured / Ready to configure / Connected / Error), eksik ayar ve sunucu sırrı (yalnızca **var/yok**), yöneticiler için gizli olmayan ayarlar | Faz 3+: bağlantı testleri (connector'lar) |
 | Activity Logs | Çalışıyor | Değiştirilemez denetim kaydı; 8 kayıt türüne göre filtre, arama, sayfalama | — |
 | Settings | Çalışıyor | Profil, parola değişimi (mevcut parola tekrar doğrulanır), tüm cihazlardan çıkış, çalışma alanı adı + saat dilimi, kullanıcılar ve roller, demo veri yükle/kaldır, ortam bilgisi | MFA (yol haritasında) |
 
@@ -106,7 +106,7 @@ tarayıcıya gönderilmez**. Üretim için ayrıntılı tablo: [docs/DEPLOYMENT.
 | `SUPABASE_PUBLISHABLE_KEY` | Evet | Publishable/anon anahtar. Secret/service_role anahtarı girilirse uygulama **başlamaz** |
 | `AI_HQ_ALLOWED_EMAILS` | Üretimde evet | Virgülle ayrılmış izinli e-postalar |
 | `SUPABASE_SECRET_KEY`, `DEV_SUPABASE_PROJECT_REF`, `DEV_SEED_EMAIL`, `DEV_SEED_PASSWORD` | Hayır | Yalnızca geliştirme seed betiği; üretime **konmaz** |
-| `N8N_API_KEY`, `ANTHROPIC_API_KEY`, `OPENAI_API_KEY`, `WEBHOOK_SIGNING_SECRET`, `GOOGLE_PLAY_SERVICE_ACCOUNT_JSON`, `APP_STORE_CONNECT_PRIVATE_KEY`, `STRIPE_RESTRICTED_KEY`, `N8N_WEBHOOK_SIGNING_SECRET` | Hayır | **Şu an kullanılmaz.** Integrations sayfası yalnızca tanımlı olup olmadıklarını gösterir; değerleri okunmaz, gösterilmez, kaydedilmez |
+| `N8N_API_KEY`, `HERMES_API_KEY`, `ANTHROPIC_API_KEY`, `OPENAI_API_KEY`, `WEBHOOK_SIGNING_SECRET`, `GOOGLE_PLAY_SERVICE_ACCOUNT_JSON`, `APP_STORE_CONNECT_PRIVATE_KEY`, `STRIPE_RESTRICTED_KEY`, `N8N_WEBHOOK_SIGNING_SECRET` | Hayır | **Şu an kullanılmaz.** Integrations sayfası yalnızca tanımlı olup olmadıklarını gösterir; değerleri okunmaz, gösterilmez, kaydedilmez |
 
 Bu depoya hiçbir gerçek anahtar, URL veya webhook adresi eklenmedi.
 

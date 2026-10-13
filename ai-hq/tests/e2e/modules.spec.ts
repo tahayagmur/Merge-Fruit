@@ -52,7 +52,7 @@ test("agents are defined, versioned and receive queued tasks that never run", as
   await page.getByLabel("Name").fill(name);
   await page.getByLabel("Purpose").fill("Drafts store release notes");
   await page.getByLabel("Instructions").fill("Write concise release notes from the changelog.");
-  await choose(page, "Model provider", "Anthropic Claude");
+  await choose(page, "Runtime / provider", "Hermes Agent");
   await page.getByLabel("Write").check();
   await page.getByLabel("Summarize").check();
   await page.getByRole("button", { name: "Create agent" }).click();

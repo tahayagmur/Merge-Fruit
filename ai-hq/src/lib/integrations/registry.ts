@@ -20,6 +20,40 @@ const httpsUrl = z
 
 const optionalText = (max: number) => z.string().trim().min(1).max(max).optional();
 
+/**
+ * True for hosts that are only reachable inside a private network: loopback,
+ * RFC 1918 and CGNAT/Tailscale (100.64/10) addresses, single-label names such
+ * as Docker service names, and private DNS suffixes.
+ */
+export function isPrivateHost(hostname: string): boolean {
+  const host = hostname.toLowerCase().replace(/^\[|\]$/g, "");
+  if (host === "localhost" || host === "::1") return true;
+  if (!host.includes(".") && !host.includes(":")) return true;
+  if (/\.(local|internal|lan|home\.arpa|ts\.net)$/.test(host)) return true;
+  const ipv4 = host.match(/^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/);
+  if (!ipv4) return false;
+  const [a, b] = [Number(ipv4[1]), Number(ipv4[2])];
+  return a === 127 || a === 10 || (a === 172 && b >= 16 && b <= 31) || (a === 192 && b === 168) || (a === 100 && b >= 64 && b <= 127);
+}
+
+/** https anywhere; plain http only inside a private network (localhost, LAN, Tailscale, Docker). */
+const privateOrHttpsUrl = z
+  .url({ message: "Enter a valid URL." })
+  .refine(
+    (value) => {
+      const url = new URL(value);
+      return url.protocol === "https:" || (url.protocol === "http:" && isPrivateHost(url.hostname));
+    },
+    { message: "Use https://, or http:// only for localhost or a private network address." },
+  )
+  .refine(
+    (value) => {
+      const url = new URL(value);
+      return !url.username && !url.password && !url.search && !url.hash;
+    },
+    { message: "The URL must not contain credentials, query strings or fragments." },
+  );
+
 export const INTEGRATIONS: IntegrationDefinition[] = [
   {
     key: "n8n",
@@ -75,6 +109,56 @@ export const INTEGRATIONS: IntegrationDefinition[] = [
       { key: "monthlyBudgetUsd", label: "Monthly budget (USD)", type: "number", required: false },
     ],
     secrets: [{ env: "ANTHROPIC_API_KEY", label: "Anthropic API key", required: true }],
+  },
+  {
+    key: "hermes",
+    name: "Hermes Agent",
+    category: "ai",
+    description:
+      "Self-hosted agent runtime by Nous Research. Runs AI Agent Hub tasks with the model configured inside Hermes (for example Gemini); that model key stays in Hermes.",
+    plannedUse: [
+      "Submit queued tasks of Ready agents as Hermes runs (idempotency key = task id)",
+      "Track run status, output and token usage on each task",
+      "Stop the Hermes run when a task is cancelled",
+    ],
+    plannedPhase: 4,
+    settingsSchema: z.strictObject({
+      baseUrl: privateOrHttpsUrl,
+      defaultProvider: z
+        .string()
+        .trim()
+        .regex(/^[a-z][a-z0-9:_-]{1,40}$/, { message: "Use a Hermes provider name such as gemini." })
+        .optional(),
+      defaultModel: optionalText(100),
+      requestTimeoutSeconds: z.number().int().min(1).max(120).optional(),
+    }),
+    settingFields: [
+      {
+        key: "baseUrl",
+        label: "API server URL",
+        type: "url",
+        required: true,
+        placeholder: "http://127.0.0.1:8642",
+        help: "Hermes API server (API_SERVER_ENABLED=true). Plain http only on localhost or a private network; never expose its port to the internet.",
+      },
+      {
+        key: "defaultProvider",
+        label: "Model provider in Hermes",
+        type: "text",
+        required: false,
+        placeholder: "gemini",
+        help: "Hermes provider name used for runs. Empty = Hermes' own default.",
+      },
+      {
+        key: "defaultModel",
+        label: "Default model id",
+        type: "text",
+        required: false,
+        help: "As listed by `hermes model`. Used when an agent does not name a model.",
+      },
+      { key: "requestTimeoutSeconds", label: "Request timeout (seconds)", type: "number", required: false },
+    ],
+    secrets: [{ env: "HERMES_API_KEY", label: "Hermes API server key (API_SERVER_KEY in Hermes)", required: true }],
   },
   {
     key: "openai",

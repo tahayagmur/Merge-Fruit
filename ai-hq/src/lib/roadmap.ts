@@ -46,7 +46,7 @@ export const ROADMAP_PHASES: RoadmapPhase[] = [
   {
     phase: 4,
     title: "Agent runtime",
-    goal: "Run queued agent tasks on the server with a model provider, with audited prompts, cost tracking and results.",
+    goal: "Run queued agent tasks through your Hermes Agent (Runs API) with the model configured in Hermes, e.g. Gemini; record status, output and usage on each task.",
     status: "later",
   },
   {
@@ -97,12 +97,15 @@ export const MODULE_PLANS: Record<string, ModulePlan> = {
     phase: 4,
     summary: "Agent definitions and the task queue work today; tasks run once an agent runtime and a model provider are connected.",
     planned: [
-      "Server-side runtime that picks up queued tasks",
-      "Model provider calls with token and cost tracking",
-      "Results and errors recorded on each task",
+      "Hermes Agent connector: queued tasks become Hermes runs (idempotent, task id as key)",
+      "Run status, output, errors and token usage recorded on each task",
+      "Cancel in AI HQ stops the Hermes run",
       "Hand-off to your existing n8n workflows for actions with side effects",
     ],
-    dependsOn: ["Model provider API key as a server secret", "Phase 3: n8n connection (for actions)"],
+    dependsOn: [
+      "Hermes API server reachable from AI HQ over localhost or a private network, HERMES_API_KEY as a server secret",
+      "Model key (e.g. Gemini) configured inside Hermes, not in AI HQ",
+    ],
   },
   integrations: {
     id: "integrations",
@@ -112,7 +115,7 @@ export const MODULE_PLANS: Record<string, ModulePlan> = {
     summary: "Every integration can be prepared (settings, required secrets, status); connectors are added one by one.",
     planned: [
       "n8n connector with connection test (Phase 3)",
-      "Model provider connectors (Phase 4)",
+      "Hermes Agent connector (Phase 4)",
       "Store console connectors (Phase 5)",
       "Payment provider connector (Phase 6)",
     ],

@@ -174,7 +174,12 @@ export function AgentFormDialog({ agent, providers, trigger, openAfterCreate }: 
             />
           </FormField>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <FormField id={`${uid}-agent-provider`} label="Model provider" error={errors.provider}>
+            <FormField
+              id={`${uid}-agent-provider`}
+              label="Runtime / provider"
+              error={errors.provider}
+              hint="Hermes Agent runs tasks with the model set up in Hermes (e.g. Gemini)."
+            >
               <Select value={provider} onValueChange={setProvider}>
                 <SelectTrigger id={`${uid}-agent-provider`} className="w-full" aria-invalid={Boolean(errors.provider)}>
                   <SelectValue />

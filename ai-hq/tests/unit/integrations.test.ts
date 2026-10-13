@@ -43,6 +43,48 @@ describe("integration registry", () => {
   });
 });
 
+describe("Hermes Agent definition", () => {
+  const hermes = getIntegrationDefinition("hermes")!;
+  const parse = (settings: Record<string, unknown>) => hermes.settingsSchema.safeParse(settings).success;
+
+  it("needs only the Hermes API key; the model key stays in Hermes", () => {
+    expect(hermes.category).toBe("ai");
+    expect(hermes.secrets.map((secret) => secret.env)).toEqual(["HERMES_API_KEY"]);
+  });
+
+  it("allows plain http only inside a private network", () => {
+    for (const baseUrl of [
+      "http://127.0.0.1:8642",
+      "http://localhost:8642",
+      "http://hermes:8642",
+      "http://192.168.1.20:8642",
+      "http://10.0.0.5:8642",
+      "http://100.101.102.103:8642",
+      "http://my-pc.tailnet-abc.ts.net:8642",
+      "https://hermes.example.com",
+    ]) {
+      expect(parse({ baseUrl }), baseUrl).toBe(true);
+    }
+    for (const baseUrl of [
+      "http://hermes.example.com:8642",
+      "http://8.8.8.8:8642",
+      "http://172.32.0.1:8642",
+      "https://user:pass@hermes.example.com",
+      "http://127.0.0.1:8642/?key=x",
+      "ftp://127.0.0.1",
+    ]) {
+      expect(parse({ baseUrl }), baseUrl).toBe(false);
+    }
+  });
+
+  it("validates the provider name and rejects secret fields", () => {
+    const base = { baseUrl: "http://127.0.0.1:8642" };
+    expect(parse({ ...base, defaultProvider: "gemini", defaultModel: "some-model" })).toBe(true);
+    expect(parse({ ...base, defaultProvider: "Gemini Pro!" })).toBe(false);
+    expect(parse({ ...base, apiKey: "smuggled" })).toBe(false);
+  });
+});
+
 describe("computeIntegrationStatus", () => {
   const allSecrets = { N8N_API_KEY: true, N8N_WEBHOOK_SIGNING_SECRET: false };
 
