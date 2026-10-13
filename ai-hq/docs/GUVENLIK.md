@@ -71,11 +71,22 @@
   eder (`src/lib/integrations/secrets.ts`), değerlerini okumaz, göstermez, kaydetmez.
 - Docker imajına sır gömülmez; TLS denetim vekili sertifikası gerekiyorsa build secret olarak verilir.
 
-## Güvenlik başlıkları
+## Güvenlik başlıkları ve İçerik Güvenlik Politikası (CSP)
 
-`X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`, `Referrer-Policy: strict-origin-when-cross-origin`,
-`Permissions-Policy` (kamera, mikrofon, konum, ödeme kapalı), `Cross-Origin-Opener-Policy: same-origin`,
-`X-Powered-By` kapalı; API yanıtları `Cache-Control: no-store`. HSTS ters vekilde verilir (bkz. DEPLOYMENT).
+Tüm yanıtlarda (`src/lib/security-headers.ts`): `Content-Security-Policy`, `X-Frame-Options: DENY`,
+`X-Content-Type-Options: nosniff`, `Referrer-Policy: strict-origin-when-cross-origin`, `Permissions-Policy`
+(kamera, mikrofon, konum, ödeme kapalı), `Cross-Origin-Opener-Policy: same-origin`; `X-Powered-By` kapalı;
+API yanıtları `Cache-Control: no-store`. HSTS ters vekilde verilir (bkz. DEPLOYMENT).
+
+CSP yalnızca bu siteye izin verir: başka sitelerden betik, stil, görsel, yazı tipi, çerçeve ve bağlantı yok;
+`object-src 'none'`, `frame-ancestors 'none'`, `base-uri 'self'`, `form-action 'self'`. Tarayıcı yalnızca kendi
+kökenine istek atabilir (Supabase çağrıları sunucudadır). Üretimde `eval` yasaktır.
+
+Bilinen sınır: betikler için `'unsafe-inline'` açıktır. Next.js, istek başına nonce'u yalnızca tüm sayfalar her
+istekte yeniden üretildiğinde ekleyebilir; bu, uygulamanın kullandığı Partial Prerendering ile uyumsuzdur
+(Next.js belgesi). Uygulama `dangerouslySetInnerHTML` kullanmaz ve React tüm çıktıyı kaçışlar; CSP ek olarak
+dışarıdan betik yüklenmesini ve veri sızdırılmasını engeller. E2E testi gerçek tarayıcıda CSP ihlali olmadığını
+doğrular.
 
 ## Doğrulanan senaryolar (testler)
 
@@ -92,7 +103,7 @@
 
 ## Bilinen sınırlar / sonraki adımlar
 
-- İçerik Güvenlik Politikası (CSP) henüz yok (Next.js satır içi betikleri için nonce altyapısı gerekir).
+- CSP'de betikler için `'unsafe-inline'` (nonce, Partial Prerendering ile uyumsuz; yukarıya bakın).
 - Hız sınırlayıcı bellek içidir; birden fazla uygulama örneği çalıştırılırsa paylaşılan bir depoya (ör. Redis)
   taşınmalıdır.
 - MFA arayüzde yok (Settings yol haritasında).

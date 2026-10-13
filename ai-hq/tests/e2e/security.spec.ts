@@ -111,3 +111,29 @@ test("integration settings reject secrets and unknown keys; agents enforce their
 
   expect((await alice.request.delete(`/api/agents/${agentData.id}`)).status()).toBe(204);
 });
+
+test("the content security policy is sent and the app runs without violations", async ({ page }) => {
+  const violations: string[] = [];
+  page.on("console", (message) => {
+    if (/content security policy/i.test(message.text())) violations.push(message.text());
+  });
+  page.on("pageerror", (error) => violations.push(error.message));
+
+  const login = await page.goto("/login");
+  const csp = login?.headers()["content-security-policy"] ?? "";
+  expect(csp).toContain("frame-ancestors 'none'");
+  expect(csp).toContain("object-src 'none'");
+
+  await signIn(page, USERS.alice);
+  for (const path of ["/", "/projects", "/agents", "/integrations/n8n", "/settings?tab=security"]) {
+    await page.goto(path);
+    await expect(page.getByRole("heading", { level: 1 }).first()).toBeVisible();
+  }
+  // Client-side interactivity (hydration, dialogs) works under the policy.
+  await page.goto("/projects");
+  await page.getByRole("button", { name: "New project" }).first().click();
+  await expect(page.getByRole("dialog", { name: "New project" })).toBeVisible();
+  await page.keyboard.press("Escape");
+
+  expect(violations).toEqual([]);
+});
