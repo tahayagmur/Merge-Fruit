@@ -4,7 +4,10 @@ import { Suspense } from "react";
 import { RoleBadge } from "@/components/common/status-badges";
 import { EnvBadge } from "@/components/layout/env-badge";
 import { PageHeader } from "@/components/layout/page-header";
+import { StatusIndicator } from "@/components/common/status-indicator";
 import { DemoDataPanel } from "@/components/settings/demo-data-panel";
+import { MfaDisable } from "@/components/settings/mfa-disable";
+import { MfaSetup } from "@/components/settings/mfa-setup";
 import { PasswordForm } from "@/components/settings/password-form";
 import { ProfileForm } from "@/components/settings/profile-form";
 import { RoleControl } from "@/components/settings/role-control";
@@ -73,7 +76,7 @@ async function SettingsContent({ searchParams }: { searchParams: PageProps<"/set
       </nav>
       <div className="grid min-w-0 content-start gap-6">
         {tab === "profile" && <ProfileTab workspace={workspace} />}
-        {tab === "security" && <SecurityTab />}
+        {tab === "security" && <SecurityTab workspace={workspace} />}
         {tab === "workspace" && <WorkspaceTab workspace={workspace} />}
         {tab === "users" && <UsersTab workspace={workspace} />}
         {tab === "demo" && <DemoTab workspace={workspace} />}
@@ -113,9 +116,46 @@ function ProfileTab({ workspace }: { workspace: WorkspaceContext }) {
   );
 }
 
-function SecurityTab() {
+async function SecurityTab({ workspace }: { workspace: WorkspaceContext }) {
+  const { data } = await workspace.supabase.auth.mfa.listFactors();
+  const factor = data?.totp.find((item) => item.status === "verified");
   return (
     <>
+      <Card>
+        <CardHeader>
+          <CardTitle>Two-factor sign-in</CardTitle>
+          <CardDescription>
+            After your password, AI HQ asks for a 6-digit code from an authenticator app. Recommended before connecting
+            any external service.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="grid gap-4">
+          {factor ? (
+            <>
+              <p className="flex flex-wrap items-center gap-2 text-sm">
+                <StatusIndicator tone="success" label="On" />
+                <span className="text-muted-foreground">
+                  Authenticator app added {formatDate(factor.created_at.slice(0, 10))}.
+                </span>
+              </p>
+              <div>
+                <MfaDisable />
+              </div>
+            </>
+          ) : (
+            <>
+              <p className="flex flex-wrap items-center gap-2 text-sm">
+                <StatusIndicator tone="neutral" label="Off" />
+                <span className="text-muted-foreground">Only your password protects this account.</span>
+              </p>
+              <MfaSetup />
+            </>
+          )}
+          <p className="text-xs text-muted-foreground">
+            Lost your phone? An administrator can remove the authenticator for your account in Supabase Auth.
+          </p>
+        </CardContent>
+      </Card>
       <Card>
         <CardHeader>
           <CardTitle>Password</CardTitle>

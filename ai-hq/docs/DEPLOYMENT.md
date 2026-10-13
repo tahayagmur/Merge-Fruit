@@ -56,6 +56,8 @@ sır yöneticisine yazılır.
    rakam; sızdırılmış parola koruması açık.
 4. Authentication → URL Configuration: **Site URL** = `https://hq.ornek.com`.
 5. İlk kullanıcınızı panelden ekleyin — ilk kullanıcı otomatik **owner** olur. Seed **çalıştırmayın**.
+6. Authentication → Multi-Factor: **TOTP (Authenticator app)** açık olsun (barındırılan projelerde varsayılan).
+   İlk girişten sonra Settings → Security'den iki adımlı girişi açın.
 
 ## 5. Kurulum adımları (sunucu bilgileri geldikten sonra)
 
@@ -147,7 +149,8 @@ bu bilinçli bir tercihtir (sorun uygulamada değil).
 - Docker `json-file` sürücüsü günlükleri döndürür: dosya başına 10 MB, en fazla 5 dosya.
 - Görüntüleme: `docker compose logs -f --since 1h ai-hq`
 - Önemli olaylar: `auth.sign_in_failed`, `auth.sign_in_rate_limited`, `auth.sign_in_not_allowlisted`,
-  `account.password_changed`, `account.signed_out_everywhere`, `api.unexpected_error` (`requestId` ile),
+  `account.password_changed`, `account.signed_out_everywhere`, `auth.mfa_verified`, `auth.mfa_code_rejected`,
+  `account.mfa_enabled`, `account.mfa_disabled`, `api.unexpected_error` (`requestId` ile),
   `health.auth_unreachable`.
 - Uzun süreli saklama gerekiyorsa günlükler sunucudaki mevcut toplayıcıya (Loki, Vector, journald) yönlendirilebilir.
 
@@ -197,6 +200,7 @@ Geri alma betiği `tests/db/rollback.test.ts` ile test edilir.
 - [ ] Konteyner `healthy`; `/api/health/ready` → `ready`.
 - [ ] Ters vekil yalnızca bu siteyi ekledi; HTTPS ve HSTS çalışıyor; 3000 portu dışarıya kapalı.
 - [ ] İlk giriş yapıldı; kullanıcı **Owner** rozetini görüyor; Settings → Environment "Production" gösteriyor.
+- [ ] Owner hesabında iki adımlı giriş (Settings → Security) açık.
 - [ ] Integrations sayfasında hiçbir servis "Connected" değil (bu fazda beklenen).
 - [ ] Yedekleme planı etkin; geri yükleme denendi.
 - [ ] Harici çalışma süresi izleme `/api/health/ready` adresine kuruldu.

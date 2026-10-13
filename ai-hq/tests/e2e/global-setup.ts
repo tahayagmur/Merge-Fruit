@@ -28,6 +28,19 @@ export default async function globalSetup() {
     }
   }
 
+  // Start the two-factor test without an authenticator (a previous run may have stopped half-way).
+  const { data: refreshed, error: refreshError } = await admin.auth.admin.listUsers({ perPage: 1000 });
+  if (refreshError) throw refreshError;
+  const carol = refreshed.users.find((candidate) => candidate.email === USERS.carol.email);
+  if (carol) {
+    const { data: factors, error: factorError } = await admin.auth.admin.mfa.listFactors({ userId: carol.id });
+    if (factorError) throw factorError;
+    for (const factor of factors.factors) {
+      const { error: deleteError } = await admin.auth.admin.mfa.deleteFactor({ id: factor.id, userId: carol.id });
+      if (deleteError) throw deleteError;
+    }
+  }
+
   // Deterministic roles: Alice owns the workspace, everyone else is a member.
   const { error: ownerError } = await admin.from("profiles").update({ role: "owner" }).eq("email", USERS.alice.email);
   if (ownerError) throw ownerError;

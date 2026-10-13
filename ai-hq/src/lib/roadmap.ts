@@ -126,8 +126,8 @@ export const MODULE_PLANS: Record<string, ModulePlan> = {
     title: "Settings",
     status: "live",
     phase: 2,
-    summary: "Profile, password, sessions, workspace settings, roles and demo data.",
-    planned: ["Multi-factor authentication", "Notification preferences", "Data export"],
-    dependsOn: ["Supabase Auth MFA enabled for the project"],
+    summary: "Profile, password, two-factor sign-in, sessions, workspace settings, roles and demo data.",
+    planned: ["Recovery codes for two-factor sign-in", "Notification preferences", "Data export"],
+    dependsOn: ["Supabase Auth recovery codes (currently experimental)"],
   },
 };

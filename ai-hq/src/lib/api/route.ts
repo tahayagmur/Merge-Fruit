@@ -125,6 +125,9 @@ export function apiRoute<P extends Record<string, string> = Record<string, never
       if (auth.status === "forbidden") {
         throw new ApiError("FORBIDDEN", "This account is not allowed to use AI HQ.");
       }
+      if (auth.status === "mfa_required") {
+        throw new ApiError("MFA_REQUIRED", "Complete two-factor sign-in to continue.");
+      }
 
       const params = await context.params;
       return await handler({ request, params, user: auth.user, supabase: auth.supabase });

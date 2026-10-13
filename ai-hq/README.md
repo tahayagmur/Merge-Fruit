@@ -55,7 +55,7 @@ Ek belgeler: [DEPLOYMENT](docs/DEPLOYMENT.md) · [DATA_MODEL](docs/DATA_MODEL.md
 | AI Agent Hub | Kısmi | Ajan tanımları (talimat, sağlayıcı, model, yetenekler, sürüm), görev kuyruğu (kuyruğa alma, iptal, silme), arama, filtre, sayfalama | Faz 4: ajan çalıştırma ortamı |
 | Integrations | Kısmi | 8 entegrasyonun kataloğu (n8n, Hermes Agent, Claude, OpenAI, webhook'lar, Google Play, App Store, Stripe), durum (Not configured / Ready to configure / Connected / Error), eksik ayar ve sunucu sırrı (yalnızca **var/yok**), yöneticiler için gizli olmayan ayarlar | Faz 3+: bağlantı testleri (connector'lar) |
 | Activity Logs | Çalışıyor | Değiştirilemez denetim kaydı; 8 kayıt türüne göre filtre, arama, sayfalama | — |
-| Settings | Çalışıyor | Profil, parola değişimi (mevcut parola tekrar doğrulanır), tüm cihazlardan çıkış, çalışma alanı adı + saat dilimi, kullanıcılar ve roller, demo veri yükle/kaldır, ortam bilgisi | MFA (yol haritasında) |
+| Settings | Çalışıyor | Profil, parola değişimi (mevcut parola tekrar doğrulanır), **iki adımlı giriş (kimlik doğrulayıcı uygulaması)**, tüm cihazlardan çıkış, çalışma alanı adı + saat dilimi, kullanıcılar ve roller, demo veri yükle/kaldır, ortam bilgisi | Kurtarma kodları |
 
 Üst çubukta global arama (projeler, görevler, otomasyonlar, ajanlar), çalışma alanı adı, ortam rozeti ve rol
 rozeti bulunur.
@@ -194,7 +194,7 @@ Tablolar, ilişkiler, indeksler ve erişim kuralları: [docs/DATA_MODEL.md](docs
 | `tests/unit` (Node) | ortam doğrulama, izin listesi, güvenli yönlendirme, Zod şemaları, API sarmalayıcı (401/403/415/413/400/422/503/500, CSRF), yönetici uçları, proxy oturumu, çerez ayarları, maskeleyen logger, hız sınırlayıcı, sağlık uçları, entegrasyon durum kuralları, demo servis, menü–sayfa–plan tutarlılığı, seed koruması |
 | `tests/unit/*.test.tsx` (jsdom) | menü, aktivite akışı, filtre/sayfalama/arama bileşenleri |
 | `tests/db` | iki migration'ı uygulayıp RLS, rol yetkileri, sütun yetkileri, tetikleyiciler, ajan görev kuralları, RPC'ler, geri alma (rollback) betiği — PGlite'ta; `TEST_DATABASE_URL` ile gerçek PostgreSQL'de |
-| `tests/e2e` | giriş/çıkış, çerez güvenliği, izin listesi, kullanıcılar arası izolasyon, CSRF, rol kısıtları (API'yi doğrudan çağırarak), dokuz ekranın akışları, arama/filtre/sayfalama, demo veri, entegrasyon ayarları |
+| `tests/e2e` | giriş/çıkış, iki adımlı giriş, CSP ihlali olmaması, çerez güvenliği, izin listesi, kullanıcılar arası izolasyon, CSRF, rol kısıtları (API'yi doğrudan çağırarak), dokuz ekranın akışları, arama/filtre/sayfalama, demo veri, entegrasyon ayarları |
 
 Uçtan uca testler iki hedefte çalışır: depodaki test emülatörü (Docker gerekmez) veya gerçek yerel Supabase
 (`npm run test:e2e:supabase`). Emülatör yalnızca testler içindir; gerçek Supabase ile doğrulamanın yerini tutmaz.
@@ -220,6 +220,8 @@ Adım adım kontrol listesi, ters vekil sunucu örneği, günlükler, yedekleme 
 
 - Oturum her istekte sunucuda `supabase.auth.getUser()` ile doğrulanır: proxy, her sayfa ve her API ucu.
 - Oturum çerezleri `httpOnly`, `SameSite=Lax`, üretimde `Secure`, en fazla 7 gün.
+- İsteğe bağlı **iki adımlı giriş (TOTP)**: açıksa parola oturumu (`aal1`) kod girilene kadar hiçbir sayfaya veya API'ye erişemez (proxy + sayfalar + API).
+- İçerik Güvenlik Politikası (CSP): betik, stil, bağlantı yalnızca bu siteden; çerçeveleme ve eklentiler kapalı.
 - İzin listesi proxy'de, API'lerde ve girişte uygulanır. Giriş ve parola değişiminde başarısız deneme sınırı.
 - Uygulama yalnızca publishable anahtarla çalışır; tüm sorgular kullanıcı olarak RLS'ye tabidir.
 - Yönetici/owner işlemleri API'de rol kontrolü + veritabanında RLS ve sütun yetkileriyle korunur.
@@ -256,7 +258,7 @@ Tüm uçlar oturum ister (aksi `401`); izin listesi dışı hesaplar `403` alır
 | GET | `/api/search?q=` | Global arama |
 | GET | `/api/activity` | Aktivite (`?limit`, `?before`, `?entityType`, `?q`) |
 
-Hata kodları: `VALIDATION_ERROR`, `INVALID_JSON` (400) · `UNAUTHENTICATED` (401) · `FORBIDDEN` (403) ·
+Hata kodları: `VALIDATION_ERROR`, `INVALID_JSON` (400) · `UNAUTHENTICATED`, `MFA_REQUIRED` (401) · `FORBIDDEN` (403) ·
 `NOT_FOUND` (404) · `CONFLICT` (409) · `PAYLOAD_TOO_LARGE` (413) · `UNSUPPORTED_MEDIA_TYPE` (415) ·
 `RULE_VIOLATION` (422) · `INTERNAL_ERROR` (500, `requestId` ile) · `CONFIGURATION_ERROR` (503).
 

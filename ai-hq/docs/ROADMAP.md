@@ -27,7 +27,7 @@ arasındaki tutarlılığı denetler).
 | AI Agent Hub | Kısmi | Ajan tanımları (sürümlü), görev kuyruğu, iptal | Faz 4: Hermes Agent ile çalıştırma |
 | Integrations | Kısmi | 8 servisin kataloğu (Hermes Agent dahil), durum, ayarlar (admin), sır varlığı | Faz 3–6: connector'lar ve bağlantı testleri |
 | Activity Logs | Çalışıyor | Değiştirilemez denetim kaydı, 8 tür, arama | Faz 3'te n8n çalışmaları |
-| Settings | Çalışıyor | Profil, parola, oturumlar, çalışma alanı, roller, demo veri, ortam | MFA, bildirim tercihleri, veri dışa aktarma |
+| Settings | Çalışıyor | Profil, parola, iki adımlı giriş (TOTP), oturumlar, çalışma alanı, roller, demo veri, ortam | Kurtarma kodları, bildirim tercihleri, veri dışa aktarma |
 
 ## Sıradaki faz için sizden gerekenler
 

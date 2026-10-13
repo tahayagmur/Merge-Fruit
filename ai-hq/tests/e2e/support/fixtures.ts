@@ -12,6 +12,8 @@ export const USERS = {
   bob: { id: "00000000-0000-4000-8000-000000000b0b", email: "bob@e2e.test", password: "Bob-e2e-Passw0rd" },
   // Has a valid Supabase account but is not on AI_HQ_ALLOWED_EMAILS.
   mallory: { id: "00000000-0000-4000-8000-0000000ba11d", email: "mallory@e2e.test", password: "Mallory-e2e-Passw0rd" },
+  // Used only by the two-factor sign-in test.
+  carol: { id: "00000000-0000-4000-8000-0000000ca201", email: "carol@e2e.test", password: "Carol-e2e-Passw0rd" },
 } as const;
 
-export const ALLOWED_EMAILS = [USERS.alice.email, USERS.bob.email].join(",");
+export const ALLOWED_EMAILS = [USERS.alice.email, USERS.bob.email, USERS.carol.email].join(",");

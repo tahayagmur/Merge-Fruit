@@ -17,6 +17,13 @@
   denemeler sayılır. Adres, ters vekilin ayarladığı `X-Real-IP` veya `X-Forwarded-For`'un son değerinden alınır
   (istemcinin taklit edebileceği önceki değerler yok sayılır). Sınırlayıcı bellek içidir (tek sunucu için
   yeterli); Supabase Auth'un kendi sınırları da geçerlidir.
+- **İki adımlı giriş (TOTP, Supabase Auth MFA):** Settings → Security'den kimlik doğrulayıcı uygulaması eklenir
+  (QR kod veya anahtar + ilk kodla doğrulama). Açıksa parola girişi yalnızca `aal1` oturumu verir; proxy, sayfalar
+  (`requireUser`) ve API (`apiRoute` → `401 MFA_REQUIRED`) `aal2` olmadan erişime izin vermez, kullanıcı `/login/mfa`
+  sayfasına yönlendirilir. "Faktör var mı" bilgisi çerezden değil Supabase Auth'un `getUser()` yanıtından alınır
+  (kullanıcı kendi çerezini değiştirerek adımı atlayamaz). Kapatmak için geçerli bir kod gerekir. Hatalı kodlar
+  kullanıcı başına 15 dakikada 5 ile sınırlanır; kod ve gizli anahtar günlüğe yazılmaz. Telefon kaybında yönetici
+  Supabase panelinden (Authentication → Users → kullanıcı → MFA) faktörü kaldırabilir.
 - Parola değişimi mevcut parolanın yeniden doğrulanmasını ister ve diğer tüm oturumları kapatır.
   "Sign out everywhere" tüm cihazlardaki oturumları iptal eder.
 
@@ -100,11 +107,12 @@ doğrular.
 - `tests/e2e/security.spec.ts`: iki gerçek oturumla izolasyon, CSRF, üye hesabıyla admin/owner uçlarının doğrudan
   çağrılması (`403`), entegrasyon ayarına sır eklenememesi, ajan kuralları.
 - `tests/e2e/auth.spec.ts`: çerezlerin `httpOnly`/`Lax`/≤7 gün olduğu ve `document.cookie` ile okunamadığı.
+- `tests/e2e/mfa.spec.ts`: kurulum, yanlış kod reddi, parola oturumunun sayfa ve API'ye erişememesi, ikinci adım, kodla kapatma (emülatör ve gerçek Supabase Auth).
 
 ## Bilinen sınırlar / sonraki adımlar
 
 - CSP'de betikler için `'unsafe-inline'` (nonce, Partial Prerendering ile uyumsuz; yukarıya bakın).
 - Hız sınırlayıcı bellek içidir; birden fazla uygulama örneği çalıştırılırsa paylaşılan bir depoya (ör. Redis)
   taşınmalıdır.
-- MFA arayüzde yok (Settings yol haritasında).
+- İki adımlı giriş için kurtarma kodları yok (Supabase'de deneysel); telefon kaybında yönetici faktörü kaldırır.
 - Aktivite kayıtları kişiseldir; admin için çalışma alanı genelinde denetim görünümü henüz yok.

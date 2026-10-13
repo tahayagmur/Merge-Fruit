@@ -46,6 +46,13 @@ describe("apiRoute authentication", () => {
     expect((await response.json()).error.code).toBe("FORBIDDEN");
   });
 
+  it("returns 401 MFA_REQUIRED until the second factor is verified", async () => {
+    getAuthContext.mockResolvedValue({ status: "mfa_required", user: USER, supabase: {} });
+    const response = await echo(request("GET"), context);
+    expect(response.status).toBe(401);
+    expect((await response.json()).error.code).toBe("MFA_REQUIRED");
+  });
+
   it("passes the verified user to the handler", async () => {
     const response = await echo(request("GET"), context);
     expect(response.status).toBe(200);

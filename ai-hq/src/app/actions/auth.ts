@@ -3,6 +3,7 @@
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { isEmailAllowed, safeRedirectPath } from "@/lib/auth/access";
+import { mfaState } from "@/lib/auth/assurance";
 import { getServerEnvStatus } from "@/lib/env";
 import { logger } from "@/lib/logger";
 import { clientAddress, signInLimiterByAddress, signInLimiterByEmail } from "@/lib/rate-limit";
@@ -68,8 +69,13 @@ export async function signIn(_previous: SignInState, formData: FormData): Promis
   }
 
   signInLimiterByEmail.reset(parsed.data.email);
+  const next = safeRedirectPath(parsed.data.next);
+  if (!mfaState(data.user.factors, data.session?.access_token).satisfied) {
+    logger.info("auth.sign_in_mfa_pending", { userId: data.user.id });
+    redirect(next === "/" ? "/login/mfa" : `/login/mfa?next=${encodeURIComponent(next)}`);
+  }
   logger.info("auth.sign_in", { userId: data.user.id });
-  redirect(safeRedirectPath(parsed.data.next));
+  redirect(next);
 }
 
 export async function signOut(): Promise<void> {

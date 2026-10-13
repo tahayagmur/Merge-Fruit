@@ -74,5 +74,5 @@ harici webhook'lar ve kullanıcının sunucusuna herhangi bir bağlantı veya i�
 | 12 | Dağıtım altyapısı | Giderildi: standalone çıktı, Dockerfile, Compose, sağlık uçları, [DEPLOYMENT.md](DEPLOYMENT.md) — sunucuya dokunulmadı |
 | 13 | Ortak arayüz bileşenleri | Giderildi: [DESIGN_SYSTEM.md](DESIGN_SYSTEM.md) |
 
-Açık kalanlar (CSP Faz 2 sonrası eklendi; bkz. GUVENLIK): MFA, çok örnekli dağıtımda paylaşılan hız sınırlayıcı, çalışma alanı geneli denetim görünümü
+Faz 2 sonrası ek çalışmada CSP ve iki adımlı giriş (TOTP) eklendi. Açık kalanlar: çok örnekli dağıtımda paylaşılan hız sınırlayıcı, çalışma alanı geneli denetim görünümü
 (bkz. [GUVENLIK.md](GUVENLIK.md#bilinen-sınırlar--sonraki-adımlar)).

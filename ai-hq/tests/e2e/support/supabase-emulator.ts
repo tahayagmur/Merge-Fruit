@@ -14,11 +14,23 @@
 import { createHmac, randomBytes, randomUUID, timingSafeEqual } from "node:crypto";
 import { createServer, type IncomingMessage, type Server, type ServerResponse } from "node:http";
 import type { PGlite } from "@electric-sql/pglite";
+import { newTotpSecret, verifyTotp } from "./totp";
 
 export interface EmulatorUser {
   id: string;
   email: string;
   password: string;
+}
+
+interface Factor {
+  id: string;
+  userId: string;
+  friendly_name: string;
+  factor_type: "totp";
+  status: "unverified" | "verified";
+  secret: string;
+  created_at: string;
+  updated_at: string;
 }
 
 export interface EmulatorOptions {
@@ -263,7 +275,11 @@ export async function startSupabaseEmulator(options: EmulatorOptions): Promise<{
   const { db, port, publishableKey, secretKey } = options;
   const users = [...options.users];
   const jwtSecret = options.jwtSecret ?? randomBytes(32).toString("hex");
-  const refreshTokens = new Map<string, string>();
+  // refresh token → user id and the assurance level of that session (kept on refresh, like GoTrue)
+  const refreshTokens = new Map<string, { userId: string; aal: string }>();
+  const factors = new Map<string, Factor>();
+  const challenges = new Map<string, { factorId: string; expiresAt: number }>();
+  const userFactors = (userId: string) => [...factors.values()].filter((factor) => factor.userId === userId);
   let queue: Promise<unknown> = Promise.resolve();
 
   for (const user of users) {
@@ -299,20 +315,31 @@ export async function startSupabaseEmulator(options: EmulatorOptions): Promise<{
       app_metadata: { provider: "email", providers: ["email"] },
       user_metadata: {},
       identities: [],
+      factors: userFactors(user.id).map(({ id, friendly_name, factor_type, status, created_at, updated_at }) => ({
+        id,
+        friendly_name,
+        factor_type,
+        status,
+        created_at,
+        updated_at,
+      })),
       created_at: now,
       updated_at: now,
     };
   }
 
-  function session(user: EmulatorUser) {
+  function session(user: EmulatorUser, aal = "aal1") {
     const now = Math.floor(Date.now() / 1000);
     const expiresIn = 3600;
+    const amr = [{ method: "password", timestamp: now }, ...(aal === "aal2" ? [{ method: "totp", timestamp: now }] : [])];
     const accessToken = signJwt(
       {
         sub: user.id,
         email: user.email,
         role: "authenticated",
         aud: "authenticated",
+        aal,
+        amr,
         iat: now,
         exp: now + expiresIn,
         session_id: randomUUID(),
@@ -320,7 +347,7 @@ export async function startSupabaseEmulator(options: EmulatorOptions): Promise<{
       jwtSecret,
     );
     const refreshToken = randomBytes(24).toString("hex");
-    refreshTokens.set(refreshToken, user.id);
+    refreshTokens.set(refreshToken, { userId: user.id, aal });
     return {
       access_token: accessToken,
       token_type: "bearer",
@@ -359,11 +386,11 @@ export async function startSupabaseEmulator(options: EmulatorOptions): Promise<{
         return send(response, 200, session(user));
       }
       if (grant === "refresh_token") {
-        const userId = refreshTokens.get(body.refresh_token);
-        const user = users.find((candidate) => candidate.id === userId);
-        if (!user) return send(response, 400, { code: "refresh_token_not_found", msg: "Invalid Refresh Token" });
+        const stored = refreshTokens.get(body.refresh_token);
+        const user = users.find((candidate) => candidate.id === stored?.userId);
+        if (!user || !stored) return send(response, 400, { code: "refresh_token_not_found", msg: "Invalid Refresh Token" });
         refreshTokens.delete(body.refresh_token);
-        return send(response, 200, session(user));
+        return send(response, 200, session(user, stored.aal));
       }
       return send(response, 400, { code: "unsupported_grant_type", msg: "Unsupported grant type" });
     }
@@ -372,6 +399,74 @@ export async function startSupabaseEmulator(options: EmulatorOptions): Promise<{
       const user = claims && claims !== "invalid" ? users.find((candidate) => candidate.id === claims.sub) : undefined;
       if (!user) return send(response, 403, { code: "bad_jwt", msg: "invalid JWT" });
       return send(response, 200, userJson(user));
+    }
+    const factorRoute = path.match(/^\/factors(?:\/([0-9a-f-]{36})(?:\/(challenge|verify))?)?$/);
+    if (factorRoute) {
+      const claims = claimsFrom(request);
+      const user =
+        claims && claims !== "invalid" ? users.find((candidate) => candidate.id === claims.sub) : undefined;
+      if (!user || !claims || claims === "invalid") return send(response, 401, { code: "bad_jwt", msg: "invalid JWT" });
+      const [, factorId, action] = factorRoute;
+      const factor = factorId ? factors.get(factorId) : undefined;
+      if (factorId && factor?.userId !== user.id) return send(response, 404, { code: "mfa_factor_not_found", msg: "Factor not found" });
+
+      if (!factorId && request.method === "POST") {
+        const body = ((await readBody(request)) ?? {}) as Record<string, string>;
+        if (body.factor_type !== "totp") return send(response, 422, { code: "validation_failed", msg: "Only totp is supported" });
+        if (userFactors(user.id).some((item) => item.friendly_name === body.friendly_name)) {
+          return send(response, 422, { code: "mfa_factor_name_conflict", msg: "A factor with this friendly name already exists" });
+        }
+        const now = new Date().toISOString();
+        const created: Factor = {
+          id: randomUUID(),
+          userId: user.id,
+          friendly_name: body.friendly_name ?? "",
+          factor_type: "totp",
+          status: "unverified",
+          secret: newTotpSecret(),
+          created_at: now,
+          updated_at: now,
+        };
+        factors.set(created.id, created);
+        return send(response, 200, {
+          id: created.id,
+          type: "totp",
+          friendly_name: created.friendly_name,
+          totp: {
+            qr_code: '<svg xmlns="http://www.w3.org/2000/svg" width="8" height="8"><rect width="8" height="8" fill="#000"/></svg>',
+            secret: created.secret,
+            uri: `otpauth://totp/${encodeURIComponent(body.issuer ?? "")}:${encodeURIComponent(user.email)}?secret=${created.secret}`,
+          },
+        });
+      }
+      if (factor && action === "challenge" && request.method === "POST") {
+        const id = randomUUID();
+        const expiresAt = Math.floor(Date.now() / 1000) + 300;
+        challenges.set(id, { factorId: factor.id, expiresAt });
+        return send(response, 200, { id, type: "totp", expires_at: expiresAt });
+      }
+      if (factor && action === "verify" && request.method === "POST") {
+        const body = ((await readBody(request)) ?? {}) as Record<string, string>;
+        const challenge = challenges.get(body.challenge_id);
+        if (!challenge || challenge.factorId !== factor.id || challenge.expiresAt * 1000 < Date.now()) {
+          return send(response, 422, { code: "mfa_challenge_expired", msg: "Challenge not found or expired" });
+        }
+        challenges.delete(body.challenge_id);
+        if (!verifyTotp(factor.secret, String(body.code ?? ""))) {
+          return send(response, 422, { code: "mfa_verification_failed", msg: "Invalid TOTP code entered" });
+        }
+        factor.status = "verified";
+        factor.updated_at = new Date().toISOString();
+        return send(response, 200, session(user, "aal2"));
+      }
+      if (factor && !action && request.method === "DELETE") {
+        if (factor.status === "verified" && claims.aal !== "aal2") {
+          return send(response, 422, { code: "insufficient_aal", msg: "AAL2 required to unenroll verified factor" });
+        }
+        factors.delete(factor.id);
+        return send(response, 200, { id: factor.id });
+      }
+      return send(response, 405, { code: "method_not_allowed", msg: "Unsupported factor operation" });
     }
     if (path.startsWith("/admin/")) {
       const claims = claimsFrom(request);
@@ -397,7 +492,7 @@ export async function startSupabaseEmulator(options: EmulatorOptions): Promise<{
     if (path === "/logout" && request.method === "POST") {
       const claims = claimsFrom(request);
       if (claims && claims !== "invalid") {
-        for (const [token, userId] of refreshTokens) if (userId === claims.sub) refreshTokens.delete(token);
+        for (const [token, stored] of refreshTokens) if (stored.userId === claims.sub) refreshTokens.delete(token);
       }
       return send(response, 204);
     }
