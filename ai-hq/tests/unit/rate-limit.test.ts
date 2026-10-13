@@ -41,9 +41,15 @@ describe("createRateLimiter", () => {
 });
 
 describe("clientAddress", () => {
-  it("uses the first forwarded hop, then x-real-ip", () => {
-    expect(clientAddress(new Headers({ "x-forwarded-for": "203.0.113.5, 10.0.0.1" }))).toBe("203.0.113.5");
-    expect(clientAddress(new Headers({ "x-real-ip": "198.51.100.7" }))).toBe("198.51.100.7");
+  it("prefers x-real-ip, then the hop added by the proxy", () => {
+    expect(clientAddress(new Headers({ "x-real-ip": "198.51.100.7", "x-forwarded-for": "1.2.3.4" }))).toBe("198.51.100.7");
+    expect(clientAddress(new Headers({ "x-forwarded-for": "203.0.113.5" }))).toBe("203.0.113.5");
     expect(clientAddress(new Headers())).toBe("unknown");
+  });
+
+  it("ignores forwarded hops a client can forge", () => {
+    // A client sends "X-Forwarded-For: 10.9.9.9"; the proxy appends the real address.
+    expect(clientAddress(new Headers({ "x-forwarded-for": "10.9.9.9, 203.0.113.5" }))).toBe("203.0.113.5");
+    expect(clientAddress(new Headers({ "x-forwarded-for": " , " }))).toBe("unknown");
   });
 });

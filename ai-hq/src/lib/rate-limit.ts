@@ -79,10 +79,17 @@ export function createRateLimiter({
   };
 }
 
-/** Client address as reported by the reverse proxy (first X-Forwarded-For hop). */
+/**
+ * Client address as reported by OUR reverse proxy: X-Real-IP (set, not
+ * appended, by the proxy), else the LAST X-Forwarded-For hop (the one the
+ * proxy added). Earlier hops come from the client and can be forged, so they
+ * are ignored. The app port must not be reachable without the proxy.
+ */
 export function clientAddress(headers: Headers): string {
-  const forwarded = headers.get("x-forwarded-for")?.split(",")[0]?.trim();
-  return forwarded || headers.get("x-real-ip")?.trim() || "unknown";
+  const realIp = headers.get("x-real-ip")?.trim();
+  if (realIp) return realIp;
+  const hops = headers.get("x-forwarded-for")?.split(",").map((hop) => hop.trim()).filter(Boolean) ?? [];
+  return hops.at(-1) ?? "unknown";
 }
 
 // Shared limiters for authentication. They count FAILED attempts only.

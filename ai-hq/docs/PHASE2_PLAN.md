@@ -55,3 +55,24 @@ harici webhook'lar ve kullanıcının sunucusuna herhangi bir bağlantı veya i�
   ayarlar, ajanlar, entegrasyon ayarları) siler; öncesinde yedek alınmalıdır (bkz. `docs/DEPLOYMENT.md`).
 - **Sıra:** önce uygulamayı Faz 1 sürümüne döndür, sonra down migration'ı çalıştır (Faz 1 kodu yeni sütun adlarını
   tanımaz).
+
+## 5. Sonuç (Faz 2 sonunda)
+
+| # | Bulgu | Durum |
+| --- | --- | --- |
+| 1 | Oturum çerezleri | Giderildi: `httpOnly`, `SameSite=Lax`, üretimde `Secure`, ≤7 gün (E2E ile doğrulandı) |
+| 2 | Ham hata günlükleri | Giderildi: maskeleyen JSON logger |
+| 3 | Giriş denemesi sınırı | Giderildi: başarısız giriş ve parola değişimi için sınır; adres tespiti taklide dayanıklı |
+| 4 | Roller | Giderildi: owner/admin/member; arayüz + API + RLS/sütun yetkileri |
+| 5 | Eksik veri modelleri | Giderildi: profiller, sistem ayarları, entegrasyon yapılandırmaları, ajan tanımları, ajan görev kayıtları |
+| 6 | n8n'e bağlı otomasyon alanı | Giderildi: `provider` + `external_workflow_id` |
+| 7 | Demo veri ayrımı | Giderildi: `is_demo`, rozet, Command Center'da varsayılan olarak hariç, yükle/kaldır |
+| 8 | Arama ve sayfalama | Giderildi: global arama, liste aramaları, filtreler, sayfalama |
+| 9 | Plan sayfası olan modüller | Giderildi: Game Studio, SaaS & Business, AI Agent Hub, Integrations iç verilerle çalışıyor; dış kısımlar "Planned next" |
+| 10 | UTC'ye sabit "bugün" | Giderildi: çalışma alanı saat dilimi |
+| 11 | Ortak entegrasyon arayüzü | Giderildi: kayıt + durum kuralları + connector arayüzü (connector yok) |
+| 12 | Dağıtım altyapısı | Giderildi: standalone çıktı, Dockerfile, Compose, sağlık uçları, [DEPLOYMENT.md](DEPLOYMENT.md) — sunucuya dokunulmadı |
+| 13 | Ortak arayüz bileşenleri | Giderildi: [DESIGN_SYSTEM.md](DESIGN_SYSTEM.md) |
+
+Açık kalanlar: CSP, MFA, çok örnekli dağıtımda paylaşılan hız sınırlayıcı, çalışma alanı geneli denetim görünümü
+(bkz. [GUVENLIK.md](GUVENLIK.md#bilinen-sınırlar--sonraki-adımlar)).
