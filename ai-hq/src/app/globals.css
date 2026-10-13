@@ -1,0 +1,126 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+/*
+ * AI HQ design tokens — dark graphite surfaces, restrained turquoise accent,
+ * hairline borders. The app is dark-only; tokens follow the shadcn/ui naming
+ * so generated components pick them up unchanged.
+ */
+:root {
+  color-scheme: dark;
+  --radius: 0.625rem;
+
+  --background: oklch(0.155 0.006 250);
+  --foreground: oklch(0.93 0.006 250);
+  --card: oklch(0.185 0.007 250);
+  --card-foreground: oklch(0.93 0.006 250);
+  --popover: oklch(0.2 0.008 250);
+  --popover-foreground: oklch(0.93 0.006 250);
+  --primary: oklch(0.8 0.13 182);
+  --primary-foreground: oklch(0.2 0.04 185);
+  --secondary: oklch(0.235 0.008 250);
+  --secondary-foreground: oklch(0.93 0.006 250);
+  --muted: oklch(0.215 0.007 250);
+  --muted-foreground: oklch(0.68 0.012 250);
+  --accent: oklch(0.26 0.03 190);
+  --accent-foreground: oklch(0.94 0.04 182);
+  --destructive: oklch(0.66 0.2 22);
+  --destructive-foreground: oklch(0.98 0 0);
+  --success: oklch(0.76 0.15 155);
+  --warning: oklch(0.82 0.14 80);
+  --border: oklch(1 0 0 / 8%);
+  --input: oklch(1 0 0 / 11%);
+  --ring: oklch(0.8 0.13 182 / 55%);
+
+  --chart-1: oklch(0.8 0.13 182);
+  --chart-2: oklch(0.7 0.12 230);
+  --chart-3: oklch(0.82 0.14 80);
+  --chart-4: oklch(0.66 0.2 22);
+  --chart-5: oklch(0.72 0.1 300);
+
+  --sidebar: oklch(0.135 0.006 250);
+  --sidebar-foreground: oklch(0.82 0.008 250);
+  --sidebar-primary: oklch(0.8 0.13 182);
+  --sidebar-primary-foreground: oklch(0.2 0.04 185);
+  --sidebar-accent: oklch(0.2 0.012 220);
+  --sidebar-accent-foreground: oklch(0.95 0.02 182);
+  --sidebar-border: oklch(1 0 0 / 7%);
+  --sidebar-ring: oklch(0.8 0.13 182 / 55%);
+}
+
+@theme inline {
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, SFMono-Regular, monospace;
+
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+    font-feature-settings: "ss01", "cv11";
+  }
+
+  ::selection {
+    background: oklch(0.8 0.13 182 / 30%);
+  }
+}
+
+@layer components {
+  /* Faint grid behind the workspace: a quiet "command center" texture. */
+  .hq-grid {
+    background-image:
+      linear-gradient(to right, oklch(1 0 0 / 2.5%) 1px, transparent 1px),
+      linear-gradient(to bottom, oklch(1 0 0 / 2.5%) 1px, transparent 1px);
+    background-size: 48px 48px;
+    mask-image: radial-gradient(ellipse at top, black 30%, transparent 75%);
+  }
+
+  .hq-label {
+    @apply font-mono text-[0.68rem] font-medium uppercase tracking-[0.14em] text-muted-foreground;
+  }
+}
