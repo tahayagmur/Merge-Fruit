@@ -97,6 +97,7 @@ test("automation entries are catalogued without running anything", async ({ page
 
   const created = await page.request.post("/api/projects", { data: { name: project } });
   expect(created.status()).toBe(201);
+  const { data: projectData } = await created.json();
 
   await page.goto("/automation");
   await expect(page.getByText("No workflow engine is connected")).toBeVisible();
@@ -143,6 +144,7 @@ test("automation entries are catalogued without running anything", async ({ page
   await page.getByRole("menuitem", { name: "Delete" }).click();
   await page.getByRole("alertdialog").getByRole("button", { name: "Delete" }).click();
   await expect(page.getByTestId("automation-row").filter({ hasText: automation })).toHaveCount(0);
+  expect((await page.request.delete(`/api/projects/${projectData.id}`)).status()).toBe(204);
 });
 
 test("project lists paginate and global search finds records", async ({ page }) => {

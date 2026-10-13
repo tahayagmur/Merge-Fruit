@@ -16,8 +16,8 @@ export function StatCard({
 }) {
   return (
     <div className="relative min-w-0 overflow-hidden rounded-xl border bg-card p-4">
-      <div className="flex items-center justify-between gap-2">
-        <p className="hq-label truncate">{label}</p>
+      <div className="flex items-start justify-between gap-2">
+        <p className="hq-label line-clamp-2 min-h-8 leading-4">{label}</p>
         <Icon
           className={cn(
             "size-4 shrink-0 text-muted-foreground",

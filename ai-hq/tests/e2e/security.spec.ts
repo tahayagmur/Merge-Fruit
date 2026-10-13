@@ -36,6 +36,8 @@ test("users cannot see or change each other's data", async ({ browser }) => {
   // Alice's data is untouched.
   const check = await alice.request.get(`/api/projects/${project.id}`);
   expect((await check.json()).data.name).toBe(name);
+
+  expect((await alice.request.delete(`/api/projects/${project.id}`)).status()).toBe(204);
 });
 
 test("state-changing requests are protected against cross-site use", async ({ page }) => {
