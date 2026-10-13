@@ -3,8 +3,9 @@ import { NextResponse, type NextRequest } from "next/server";
 import { isEmailAllowed, safeRedirectPath } from "@/lib/auth/access";
 import type { Database } from "@/lib/database.types";
 import { getServerEnvStatus } from "@/lib/env";
+import { authCookieOptions, withSessionLifetime } from "./cookie-options";
 
-const PUBLIC_PATHS = new Set(["/login", "/api/health"]);
+const PUBLIC_PATHS = new Set(["/login", "/api/health", "/api/health/ready"]);
 
 function isApiPath(pathname: string) {
   return pathname === "/api" || pathname.startsWith("/api/");
@@ -48,6 +49,7 @@ export async function updateSession(request: NextRequest): Promise<NextResponse>
 
   let response = NextResponse.next({ request });
   const supabase = createServerClient<Database>(env.supabaseUrl, env.supabasePublishableKey, {
+    cookieOptions: authCookieOptions(env),
     cookies: {
       getAll() {
         return request.cookies.getAll();
@@ -55,7 +57,9 @@ export async function updateSession(request: NextRequest): Promise<NextResponse>
       setAll(cookiesToSet, headers) {
         for (const { name, value } of cookiesToSet) request.cookies.set(name, value);
         response = NextResponse.next({ request });
-        for (const { name, value, options } of cookiesToSet) response.cookies.set(name, value, options);
+        for (const { name, value, options } of cookiesToSet) {
+          response.cookies.set(name, value, withSessionLifetime(options));
+        }
         for (const [key, value] of Object.entries(headers)) response.headers.set(key, value);
       },
     },

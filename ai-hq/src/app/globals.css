@@ -124,3 +124,15 @@
     @apply font-mono text-[0.68rem] font-medium uppercase tracking-[0.14em] text-muted-foreground;
   }
 }
+
+/* Respect the operating system's "reduce motion" preference. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

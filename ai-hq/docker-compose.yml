@@ -1,0 +1,51 @@
+# AI HQ — single-server deployment (application only).
+#
+# The database and authentication run on Supabase (hosted project, or a
+# separately managed self-hosted Supabase). This file does not start Supabase.
+#
+#   cp .env.example .env.production   # fill in on the server, never commit
+#   docker compose up -d --build
+#
+# The app listens on 127.0.0.1:3000 only; put a TLS-terminating reverse proxy
+# (Caddy, Nginx, Traefik) in front of it. See docs/DEPLOYMENT.md.
+
+services:
+  ai-hq:
+    build:
+      context: .
+      args:
+        NODE_IMAGE: ${NODE_IMAGE:-node:22-alpine}
+    image: ai-hq:${AI_HQ_VERSION:-latest}
+    container_name: ai-hq
+    restart: unless-stopped
+    env_file:
+      - .env.production
+    environment:
+      NODE_ENV: production
+      PORT: "3000"
+      HOSTNAME: 0.0.0.0
+    ports:
+      - "127.0.0.1:${AI_HQ_PORT:-3000}:3000"
+    read_only: true
+    tmpfs:
+      - /tmp
+      - /app/.next/cache
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    healthcheck:
+      test:
+        - CMD
+        - node
+        - -e
+        - "fetch('http://127.0.0.1:3000/api/health/ready').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"
+      interval: 30s
+      timeout: 5s
+      start_period: 20s
+      retries: 3
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "5"

@@ -66,6 +66,16 @@ test.describe("sign in", () => {
     await signIn(page, USERS.alice);
     await expect(page.getByTitle("APP_ENV=development").first()).toBeVisible();
 
+    // Session cookies are not readable from JavaScript and expire within a week.
+    const authCookies = (await page.context().cookies()).filter((cookie) => cookie.name.startsWith("sb-"));
+    expect(authCookies.length).toBeGreaterThan(0);
+    for (const cookie of authCookies) {
+      expect(cookie.httpOnly).toBe(true);
+      expect(cookie.sameSite).toBe("Lax");
+      expect(cookie.expires * 1000 - Date.now()).toBeLessThanOrEqual(7 * 24 * 3600 * 1000 + 60_000);
+    }
+    expect(await page.evaluate(() => document.cookie)).not.toContain("sb-");
+
     await page.getByRole("button", { name: "Account menu" }).click();
     await page.getByRole("menuitem", { name: "Sign out" }).click();
     await expect(page).toHaveURL("/login");

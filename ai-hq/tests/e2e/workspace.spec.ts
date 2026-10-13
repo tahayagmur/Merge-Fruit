@@ -63,7 +63,10 @@ test("projects and tasks are created, updated and persisted", async ({ page }) =
     await expect(page.getByTestId("task-card").filter({ hasText: title })).toBeVisible();
   }
 
-  await choose(page, "Status of Design sidebar", "Done");
+  await Promise.all([
+    page.waitForResponse((response) => response.request().method() === "PATCH" && response.ok()),
+    choose(page, "Status of Design sidebar", "Done"),
+  ]);
   await expect(page.getByRole("region", { name: "Done" }).getByText("Design sidebar")).toBeVisible();
   await expect(page.getByText("1/2 · 50%")).toBeVisible();
 
@@ -124,7 +127,10 @@ test("automation entries are catalogued without running anything", async ({ page
   await expect(row).toContainText("wf_telegram_1");
   await expect(row).toContainText(project);
 
-  await choose(page, `Status of ${automation}`, "Ready for n8n");
+  await Promise.all([
+    page.waitForResponse((response) => response.request().method() === "PATCH" && response.ok()),
+    choose(page, `Status of ${automation}`, "Ready for n8n"),
+  ]);
   await page.reload();
   await expect(page.getByRole("combobox", { name: `Status of ${automation}` })).toHaveText("Ready for n8n");
 

@@ -1,0 +1,16 @@
+# Keep the build context small and free of secrets.
+node_modules
+.next
+coverage
+test-results
+playwright-report
+blob-report
+.env*
+!.env.example
+.git
+.vercel
+supabase/.temp
+supabase/.branches
+*.log
+Dockerfile
+docker-compose*.yml

@@ -307,6 +307,9 @@ export async function startSupabaseEmulator(options: EmulatorOptions): Promise<{
 
   async function handleAuth(request: IncomingMessage, response: ServerResponse, url: URL) {
     const path = url.pathname.replace(/^\/auth\/v1/, "");
+    if (path === "/health" && request.method === "GET") {
+      return send(response, 200, { name: "GoTrue (emulator)", description: "test double" });
+    }
     if (path === "/token" && request.method === "POST") {
       const body = ((await readBody(request)) ?? {}) as Record<string, string>;
       const grant = url.searchParams.get("grant_type");

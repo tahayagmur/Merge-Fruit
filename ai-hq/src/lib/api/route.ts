@@ -5,6 +5,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import type { z } from "zod";
 import { getAuthContext, type AuthUser } from "@/lib/auth/session";
 import { ConfigurationError } from "@/lib/env";
+import { logger } from "@/lib/logger";
 import type { AppSupabaseClient } from "@/lib/supabase/server";
 import { ApiError, type ApiErrorBody } from "./errors";
 
@@ -36,7 +37,7 @@ export function errorResponse(error: unknown): NextResponse<ApiErrorBody> {
   }
 
   if (error instanceof ConfigurationError) {
-    console.error("[api] configuration error", error.issues);
+    logger.error("api.configuration_error", { issues: error.issues });
     return NextResponse.json(
       { error: { code: "CONFIGURATION_ERROR", message: "AI HQ is not configured. See the setup guide." } },
       { status: 503, headers: NO_STORE },
@@ -44,7 +45,7 @@ export function errorResponse(error: unknown): NextResponse<ApiErrorBody> {
   }
 
   const requestId = crypto.randomUUID();
-  console.error(`[api] unexpected error (requestId=${requestId})`, error);
+  logger.error("api.unexpected_error", { requestId, error });
   return NextResponse.json(
     { error: { code: "INTERNAL_ERROR", message: "Something went wrong. Try again.", requestId } },
     { status: 500, headers: NO_STORE },

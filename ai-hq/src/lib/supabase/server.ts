@@ -6,6 +6,7 @@ import { cookies } from "next/headers";
 import { connection } from "next/server";
 import type { Database } from "@/lib/database.types";
 import { getServerEnv } from "@/lib/env";
+import { authCookieOptions, withSessionLifetime } from "./cookie-options";
 
 export type AppSupabaseClient = SupabaseClient<Database>;
 
@@ -23,6 +24,7 @@ export async function createSupabaseServerClient(): Promise<AppSupabaseClient> {
   const env = getServerEnv();
 
   return createServerClient<Database>(env.supabaseUrl, env.supabasePublishableKey, {
+    cookieOptions: authCookieOptions(env),
     cookies: {
       getAll() {
         return cookieStore.getAll();
@@ -30,7 +32,7 @@ export async function createSupabaseServerClient(): Promise<AppSupabaseClient> {
       setAll(cookiesToSet) {
         try {
           for (const { name, value, options } of cookiesToSet) {
-            cookieStore.set(name, value, options);
+            cookieStore.set(name, value, withSessionLifetime(options));
           }
         } catch {
           // Server Components cannot write cookies. proxy.ts refreshes the
