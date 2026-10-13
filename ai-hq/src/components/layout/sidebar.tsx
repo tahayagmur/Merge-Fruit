@@ -21,7 +21,7 @@ export function SidebarContent() {
       >
         <MapIcon className="size-4 text-primary" />
         <span className="flex flex-col">
-          <span className="font-medium text-foreground">Phase 1 · Foundation</span>
+          <span className="font-medium text-foreground">Phase 2 · Core system</span>
           <span>View development plan</span>
         </span>
       </Link>

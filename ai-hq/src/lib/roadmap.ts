@@ -1,7 +1,7 @@
 /**
- * The AI HQ development plan. Single source of truth for the roadmap pages
- * and docs/ROADMAP.md. Modules that are not built yet render this plan instead
- * of placeholder UI, so nothing pretends to work before it does.
+ * The AI HQ development plan. Single source of truth for the roadmap page,
+ * the "what is planned" sections of partially available modules and
+ * docs/ROADMAP.md.
  */
 
 export type ModuleStatus = "live" | "partial" | "planned";
@@ -17,45 +17,48 @@ export interface ModulePlan {
   id: string;
   title: string;
   status: ModuleStatus;
+  /** Phase in which the remaining (external) parts are planned. */
   phase: number;
   summary: string;
-  /** What exists in the product today, stated plainly. */
-  availableToday: string[];
   planned: string[];
   dependsOn: string[];
-  /** Optional link to the part of the app that already covers this area. */
-  todayLink?: { href: string; label: string };
 }
 
 export const ROADMAP_PHASES: RoadmapPhase[] = [
   {
     phase: 1,
     title: "Working foundation",
-    goal: "Auth, database, Command Center, Projects & tasks, Automation drafts, activity log.",
+    goal: "Auth, database, Command Center, Projects & tasks, Automation catalogue, activity log.",
     status: "done",
   },
   {
     phase: 2,
+    title: "Core system",
+    goal: "Roles, workspace settings, AI agent definitions and task queue, integration framework, demo data separation, search, Docker packaging.",
+    status: "done",
+  },
+  {
+    phase: 3,
     title: "n8n connection",
     goal: "Connect your existing n8n Cloud workflows server-side, link them to automation entries, trigger them and record executions. AI HQ does not create workflows.",
     status: "next",
   },
   {
-    phase: 3,
-    title: "AI Agent Hub",
-    goal: "Register agents, run them server-side with audited prompts, track cost and outcomes.",
-    status: "later",
-  },
-  {
     phase: 4,
-    title: "Game Studio",
-    goal: "Production pipeline for game projects: milestones, builds, store listings and playtests.",
+    title: "Agent runtime",
+    goal: "Run queued agent tasks on the server with a model provider, with audited prompts, cost tracking and results.",
     status: "later",
   },
   {
     phase: 5,
-    title: "SaaS & Business",
-    goal: "Revenue, customers and KPI tracking with read-only finance integrations.",
+    title: "Game platforms",
+    goal: "Release and review status from Google Play Console and App Store Connect in Game Studio.",
+    status: "later",
+  },
+  {
+    phase: 6,
+    title: "Business data",
+    goal: "Read-only revenue, churn and customer figures for SaaS & Business.",
     status: "later",
   },
 ];
@@ -64,93 +67,64 @@ export const MODULE_PLANS: Record<string, ModulePlan> = {
   "game-studio": {
     id: "game-studio",
     title: "Game Studio",
-    status: "planned",
-    phase: 4,
-    summary: "A production pipeline for game projects, from prototype to store release.",
-    availableToday: ["Game projects can be tracked in Projects with the “Game” category, including their tasks."],
+    status: "partial",
+    phase: 5,
+    summary: "Game projects, release pipeline and checklists work today; store data arrives with the platform integrations.",
     planned: [
-      "Milestone templates (prototype, vertical slice, soft launch, release)",
-      "Build and release log per platform",
-      "Store listing checklist (screenshots, descriptions, age rating, privacy)",
-      "Playtest feedback inbox linked to tasks",
+      "Build and release status per platform from the store consoles",
+      "Store review import as tasks",
       "Trigger your existing n8n workflows for builds and release notes",
     ],
-    dependsOn: ["Phase 2: n8n connection (build/release automations)"],
-    todayLink: { href: "/projects?category=game", label: "Open game projects" },
+    dependsOn: ["Google Play Console and App Store Connect credentials (server-side only)", "Phase 3: n8n connection"],
   },
   saas: {
     id: "saas",
     title: "SaaS & Business",
-    status: "planned",
-    phase: 5,
-    summary: "One place for revenue, customers and business KPIs across products.",
-    availableToday: ["SaaS work can be tracked in Projects with the “SaaS & Business” category."],
+    status: "partial",
+    phase: 6,
+    summary: "SaaS products and launch checklists work today; revenue figures need a read-only payment provider integration.",
     planned: [
-      "Product catalogue with pricing and status",
-      "MRR / revenue and churn dashboard from read-only payment provider data",
-      "Customer and lead overview",
-      "Link the weekly KPI report to one of your existing n8n workflows",
+      "MRR, revenue and churn from read-only payment provider data",
+      "Customer overview",
+      "Weekly KPI report linked to one of your existing n8n workflows",
     ],
-    dependsOn: ["Phase 2: n8n connection", "Read-only API credentials for the payment provider (server-side only)"],
-    todayLink: { href: "/projects?category=saas", label: "Open SaaS projects" },
+    dependsOn: ["Stripe restricted read-only key (server-side only)", "Phase 3: n8n connection"],
   },
   agents: {
     id: "agents",
     title: "AI Agent Hub",
-    status: "planned",
-    phase: 3,
-    summary: "Define AI agents, run them on the server and keep a full audit trail.",
-    availableToday: ["AI agent initiatives can be tracked in Projects with the “AI Agent” category."],
+    status: "partial",
+    phase: 4,
+    summary: "Agent definitions and the task queue work today; tasks run once an agent runtime and a model provider are connected.",
     planned: [
-      "Agent registry: purpose, model, tools and owner",
-      "Versioned prompts with review before activation",
-      "Server-side runs only; API keys never reach the browser",
-      "Run history with inputs, outputs, cost and duration in the activity log",
+      "Server-side runtime that picks up queued tasks",
+      "Model provider calls with token and cost tracking",
+      "Results and errors recorded on each task",
       "Hand-off to your existing n8n workflows for actions with side effects",
     ],
-    dependsOn: ["Phase 2: n8n connection", "Model provider API key stored as a server secret"],
-    todayLink: { href: "/projects?category=ai_agent", label: "Open AI agent projects" },
+    dependsOn: ["Model provider API key as a server secret", "Phase 3: n8n connection (for actions)"],
   },
   integrations: {
     id: "integrations",
     title: "Integrations",
-    status: "planned",
-    phase: 2,
-    summary: "Connections to external services, starting with the n8n Cloud workflows you already run. AI HQ connects to them; it does not create or edit workflows.",
-    availableToday: [
-      "A server-only n8n service layer with configuration validation. It never connects in Phase 1.",
-      "Automation entries in the Automation Center can reference the id of one of your n8n workflows.",
-    ],
+    status: "partial",
+    phase: 3,
+    summary: "Every integration can be prepared (settings, required secrets, status); connectors are added one by one.",
     planned: [
-      "n8n Cloud connection test from the server",
-      "Read-only list of your existing workflows",
-      "Linking each automation entry to one of your workflows",
-      "Triggering linked workflows with idempotency keys",
-      "Signed inbound webhooks (HMAC) for execution results",
-      "Execution history in Activity Logs",
+      "n8n connector with connection test (Phase 3)",
+      "Model provider connectors (Phase 4)",
+      "Store console connectors (Phase 5)",
+      "Payment provider connector (Phase 6)",
     ],
-    dependsOn: [
-      "Your existing n8n workflows (shared by you; none are created by AI HQ)",
-      "n8n Cloud API key and base URL provided as server environment variables",
-    ],
-    todayLink: { href: "/automation", label: "Open Automation Center" },
+    dependsOn: ["Server environment variables for each integration's credentials"],
   },
   settings: {
     id: "settings",
     title: "Settings",
-    status: "partial",
+    status: "live",
     phase: 2,
-    summary: "Account, environment and security settings.",
-    availableToday: [
-      "Read-only view of your account, environment and access policy.",
-      "Sign out.",
-    ],
-    planned: [
-      "Password change and multi-factor authentication",
-      "Notification preferences",
-      "Integration credentials status (never the values themselves)",
-      "Data export",
-    ],
+    summary: "Profile, password, sessions, workspace settings, roles and demo data.",
+    planned: ["Multi-factor authentication", "Notification preferences", "Data export"],
     dependsOn: ["Supabase Auth MFA enabled for the project"],
   },
 };

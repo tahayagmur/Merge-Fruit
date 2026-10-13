@@ -46,7 +46,7 @@ export default function RoadmapPage() {
                       <Icon className="size-4 text-muted-foreground group-hover:text-primary" />
                       <span className="flex-1 text-sm font-medium group-hover:text-primary">{item.label}</span>
                       <span className="hidden text-xs text-muted-foreground sm:inline">
-                        {plan ? `Phase ${plan.phase}` : "Phase 1"}
+                        {item.status === "live" ? "Delivered" : `Remaining parts · Phase ${plan?.phase ?? "—"}`}
                       </span>
                       <Badge variant={STATUS_VARIANT[item.status]}>{STATUS_LABEL[item.status]}</Badge>
                       <ArrowRight className="size-4 text-muted-foreground" />

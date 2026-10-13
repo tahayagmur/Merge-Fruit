@@ -2,7 +2,7 @@
 
 import { Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { type FormEvent, type ReactNode, useState } from "react";
+import { type FormEvent, type ReactNode, useId, useState } from "react";
 import { toast } from "sonner";
 import { FormField } from "@/components/common/form-field";
 import { OptionSelect } from "@/components/common/option-select";
@@ -41,6 +41,7 @@ interface ProjectFormDialogProps {
 }
 
 export function ProjectFormDialog({ project, trigger, openAfterCreate, defaultCategory }: ProjectFormDialogProps) {
+  const uid = useId();
   const router = useRouter();
   const editing = Boolean(project);
   const [open, setOpen] = useState(false);
@@ -105,9 +106,9 @@ export function ProjectFormDialog({ project, trigger, openAfterCreate, defaultCa
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={onSubmit} className="grid gap-4" noValidate>
-          <FormField id="project-name" label="Name" error={errors.name}>
+          <FormField id={`${uid}-project-name`} label="Name" error={errors.name}>
             <Input
-              id="project-name"
+              id={`${uid}-project-name`}
               value={name}
               onChange={(event) => setName(event.target.value)}
               maxLength={120}
@@ -117,9 +118,9 @@ export function ProjectFormDialog({ project, trigger, openAfterCreate, defaultCa
               required
             />
           </FormField>
-          <FormField id="project-description" label="Description" error={errors.description}>
+          <FormField id={`${uid}-project-description`} label="Description" error={errors.description}>
             <Textarea
-              id="project-description"
+              id={`${uid}-project-description`}
               value={description}
               onChange={(event) => setDescription(event.target.value)}
               maxLength={2000}
@@ -128,36 +129,36 @@ export function ProjectFormDialog({ project, trigger, openAfterCreate, defaultCa
             />
           </FormField>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <FormField id="project-status" label="Status" error={errors.status}>
+            <FormField id={`${uid}-project-status`} label="Status" error={errors.status}>
               <OptionSelect
-                id="project-status"
+                id={`${uid}-project-status`}
                 value={status}
                 options={PROJECT_STATUSES}
                 labels={PROJECT_STATUS_LABELS}
                 onChange={setStatus}
               />
             </FormField>
-            <FormField id="project-category" label="Category" error={errors.category}>
+            <FormField id={`${uid}-project-category`} label="Category" error={errors.category}>
               <OptionSelect
-                id="project-category"
+                id={`${uid}-project-category`}
                 value={category}
                 options={PROJECT_CATEGORIES}
                 labels={PROJECT_CATEGORY_LABELS}
                 onChange={setCategory}
               />
             </FormField>
-            <FormField id="project-priority" label="Priority" error={errors.priority}>
+            <FormField id={`${uid}-project-priority`} label="Priority" error={errors.priority}>
               <OptionSelect
-                id="project-priority"
+                id={`${uid}-project-priority`}
                 value={priority}
                 options={PRIORITIES}
                 labels={PRIORITY_LABELS}
                 onChange={setPriority}
               />
             </FormField>
-            <FormField id="project-due" label="Due date" error={errors.dueDate}>
+            <FormField id={`${uid}-project-due`} label="Due date" error={errors.dueDate}>
               <Input
-                id="project-due"
+                id={`${uid}-project-due`}
                 type="date"
                 value={dueDate}
                 onChange={(event) => setDueDate(event.target.value)}

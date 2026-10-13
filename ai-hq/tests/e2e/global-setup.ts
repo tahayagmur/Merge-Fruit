@@ -27,4 +27,19 @@ export default async function globalSetup() {
       if (createError) throw createError;
     }
   }
+
+  // Deterministic roles: Alice owns the workspace, everyone else is a member.
+  const { error: ownerError } = await admin.from("profiles").update({ role: "owner" }).eq("email", USERS.alice.email);
+  if (ownerError) throw ownerError;
+  const { error: memberError } = await admin.from("profiles").update({ role: "member" }).neq("email", USERS.alice.email);
+  if (memberError) throw memberError;
+
+  // Reset shared workspace state left over from earlier runs.
+  const { error: settingsError } = await admin
+    .from("system_settings")
+    .update({ workspace_name: "AI HQ", timezone: "UTC" })
+    .eq("id", true);
+  if (settingsError) throw settingsError;
+  const { error: integrationsError } = await admin.from("integration_configs").delete().neq("key", "");
+  if (integrationsError) throw integrationsError;
 }

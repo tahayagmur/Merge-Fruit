@@ -4,23 +4,20 @@ import Link from "next/link";
 import { Suspense } from "react";
 import { ActivityFeed } from "@/components/activity/activity-feed";
 import { EmptyState } from "@/components/common/empty-state";
+import { FilterChips } from "@/components/common/filter-chips";
+import { SearchForm } from "@/components/common/search-form";
 import { PageHeader } from "@/components/layout/page-header";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { requireUser } from "@/lib/auth/session";
+import { requireWorkspace } from "@/lib/auth/workspace";
 import { listActivity } from "@/lib/data/activity";
-import { ACTIVITY_ENTITY_TYPES, type ActivityEntityType } from "@/lib/domain";
-import { cn } from "@/lib/utils";
-import { activityQuerySchema } from "@/lib/validation/activity";
+import { ACTIVITY_ENTITY_LABELS, ACTIVITY_ENTITY_TYPES } from "@/lib/domain";
+import { type ActivityQuery, activityQuerySchema } from "@/lib/validation/activity";
 
 export const metadata: Metadata = { title: "Activity Logs" };
 
-const FILTER_LABELS: Record<ActivityEntityType, string> = {
-  project: "Projects",
-  task: "Tasks",
-  automation: "Automations",
-};
+const PAGE_SIZE = 50;
 
 export default function ActivityPage(props: PageProps<"/activity">) {
   return (
@@ -37,75 +34,88 @@ export default function ActivityPage(props: PageProps<"/activity">) {
   );
 }
 
-function filterHref(entityType?: ActivityEntityType) {
-  return entityType ? `/activity?entityType=${entityType}` : "/activity";
+function single(value: string | string[] | undefined) {
+  return typeof value === "string" ? value : undefined;
+}
+
+function activityHref(params: Record<string, string | undefined>) {
+  const search = new URLSearchParams();
+  for (const [key, value] of Object.entries(params)) if (value) search.set(key, value);
+  const query = search.toString();
+  return query ? `/activity?${query}` : "/activity";
 }
 
 async function ActivityContent({ searchParams }: { searchParams: PageProps<"/activity">["searchParams"] }) {
   const raw = await searchParams;
   const parsed = activityQuerySchema.safeParse({
-    entityType: typeof raw.entityType === "string" ? raw.entityType : undefined,
-    before: typeof raw.before === "string" ? raw.before : undefined,
-    limit: 50,
+    entityType: single(raw.entityType),
+    before: single(raw.before),
+    q: single(raw.q),
+    limit: PAGE_SIZE,
   });
-  const query = parsed.success ? parsed.data : { limit: 50 };
+  // Invalid parameters fall back to the unfiltered first page instead of an error screen.
+  const query: ActivityQuery = parsed.success ? parsed.data : { limit: PAGE_SIZE, q: undefined };
 
-  const { supabase } = await requireUser();
+  const { supabase } = await requireWorkspace();
   const page = await listActivity(supabase, query);
   const now = new Date();
 
-  const nextHref = page.nextCursor
-    ? `/activity?${new URLSearchParams({
-        ...(query.entityType ? { entityType: query.entityType } : {}),
-        before: String(page.nextCursor),
-      })}`
-    : null;
+  const params = { entityType: query.entityType, q: query.q };
+  const filtered = Boolean(query.entityType || query.q);
+  const nextHref = page.nextCursor ? activityHref({ ...params, before: String(page.nextCursor) }) : null;
 
   return (
     <div className="grid grid-cols-1 gap-4">
-      <div className="flex flex-wrap items-center gap-2" role="group" aria-label="Filter by type">
-        {[undefined, ...ACTIVITY_ENTITY_TYPES].map((type) => {
-          const active = query.entityType === type;
-          return (
-            <Link
-              key={type ?? "all"}
-              href={filterHref(type)}
-              aria-current={active ? "true" : undefined}
-              className={cn(
-                "rounded-md border px-2.5 py-1 text-xs transition-colors hover:border-primary/30 hover:text-foreground",
-                active ? "border-primary/40 bg-primary/10 text-primary" : "text-muted-foreground",
-              )}
-            >
-              {type ? FILTER_LABELS[type] : "All"}
-            </Link>
-          );
-        })}
+      <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+        <FilterChips
+          label="Type"
+          param="entityType"
+          current={query.entityType}
+          basePath="/activity"
+          params={params}
+          options={ACTIVITY_ENTITY_TYPES.map((value) => ({ value, label: ACTIVITY_ENTITY_LABELS[value] }))}
+        />
+        <SearchForm
+          basePath="/activity"
+          params={params}
+          defaultValue={query.q}
+          placeholder="Search summaries"
+          label="Search activity"
+        />
       </div>
       <Card>
         <CardContent>
           {page.entries.length === 0 ? (
-            <EmptyState icon={Activity} title="No activity" description="Changes to projects, tasks and automations appear here." />
+            <EmptyState
+              icon={Activity}
+              title={filtered ? "No matching activity" : "No activity yet"}
+              description={
+                filtered
+                  ? "Try another type or search term."
+                  : "Changes to projects, tasks, automations, agents, settings and integrations appear here."
+              }
+            />
           ) : (
             <ActivityFeed entries={page.entries} now={now} />
           )}
         </CardContent>
       </Card>
-      <div className="flex justify-between">
+      <nav aria-label="Pagination" className="flex justify-between">
         {query.before ? (
           <Button variant="ghost" size="sm" asChild>
-            <Link href={filterHref(query.entityType)}>Newest</Link>
+            <Link href={activityHref(params)}>Newest</Link>
           </Button>
         ) : (
           <span />
         )}
         {nextHref && (
           <Button variant="outline" size="sm" asChild>
-            <Link href={nextHref}>
+            <Link href={nextHref} rel="next">
               Older <ArrowRight />
             </Link>
           </Button>
         )}
-      </div>
+      </nav>
     </div>
   );
 }

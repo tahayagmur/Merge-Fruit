@@ -3,6 +3,7 @@ import "server-only";
 import { ApiError } from "@/lib/api/errors";
 import { mapPostgrestError } from "@/lib/api/postgrest-errors";
 import type { Task, TaskWithProject } from "@/lib/domain";
+import type { ProjectTemplateDefinition } from "@/lib/templates";
 import type { AppSupabaseClient } from "@/lib/supabase/server";
 import type { TaskCreateInput, TaskUpdateInput } from "@/lib/validation/tasks";
 import { toTask } from "./mappers";
@@ -31,14 +32,19 @@ export async function listTasks(supabase: AppSupabaseClient, projectId: string):
 }
 
 /** Open tasks across all projects, soonest due first (no due date last). */
-export async function listUpcomingTasks(supabase: AppSupabaseClient, limit = 8): Promise<TaskWithProject[]> {
-  const { data, error } = await supabase
+export async function listUpcomingTasks(
+  supabase: AppSupabaseClient,
+  options: { limit?: number; includeDemo?: boolean } = {},
+): Promise<TaskWithProject[]> {
+  let query = supabase
     .from("tasks")
     .select("*, project:projects!tasks_project_owner_fkey(name)")
     .neq("status", "done")
     .order("due_date", { ascending: true, nullsFirst: false })
     .order("created_at", { ascending: true })
-    .limit(limit);
+    .limit(options.limit ?? 8);
+  if (!options.includeDemo) query = query.eq("is_demo", false);
+  const { data, error } = await query;
   if (error) throw mapPostgrestError(error, "Task");
   return data.map(({ project, ...row }) => ({ ...toTask(row), projectName: project?.name ?? "Unknown project" }));
 }
@@ -98,4 +104,29 @@ export async function deleteTask(supabase: AppSupabaseClient, id: string): Promi
   const { data, error } = await supabase.from("tasks").delete().eq("id", id).select("id");
   if (error) throw mapPostgrestError(error, "Task");
   if (data.length === 0) throw ApiError.notFound("Task");
+}
+
+/** Adds a template's tasks to a project, skipping titles that already exist (safe to apply twice). */
+export async function applyProjectTemplate(
+  supabase: AppSupabaseClient,
+  ownerId: string,
+  projectId: string,
+  template: ProjectTemplateDefinition,
+): Promise<{ created: number; skipped: number }> {
+  const existing = await listTasks(supabase, projectId);
+  const titles = new Set(existing.map((task) => task.title.toLowerCase()));
+  const toCreate = template.tasks.filter((task) => !titles.has(task.title.toLowerCase()));
+  if (toCreate.length > 0) {
+    const { error } = await supabase.from("tasks").insert(
+      toCreate.map((task) => ({
+        owner_id: ownerId,
+        project_id: projectId,
+        title: task.title,
+        description: task.description || null,
+        priority: task.priority,
+      })),
+    );
+    if (error) throw mapPostgrestError(error, "Task");
+  }
+  return { created: toCreate.length, skipped: template.tasks.length - toCreate.length };
 }

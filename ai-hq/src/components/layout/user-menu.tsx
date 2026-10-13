@@ -13,8 +13,9 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-export function UserMenu({ email }: { email: string | null }) {
-  const initial = (email ?? "?").charAt(0).toUpperCase();
+export function UserMenu({ email, displayName }: { email: string | null; displayName?: string | null }) {
+  const name = displayName || email;
+  const initial = (name ?? "?").charAt(0).toUpperCase();
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -22,7 +23,7 @@ export function UserMenu({ email }: { email: string | null }) {
           <span className="grid size-6 place-items-center rounded bg-primary/15 font-mono text-xs text-primary">
             {initial}
           </span>
-          <span className="hidden max-w-40 truncate text-xs sm:inline">{email ?? "Signed in"}</span>
+          <span className="hidden max-w-40 truncate text-xs sm:inline">{name ?? "Signed in"}</span>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-60">

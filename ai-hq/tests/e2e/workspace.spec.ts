@@ -12,7 +12,7 @@ test("sidebar navigation reaches every section", async ({ page }) => {
     ["Automation Center", "/automation", "Automations"],
     ["Game Studio", "/game-studio", "Game Studio"],
     ["SaaS & Business", "/saas", "SaaS & Business"],
-    ["AI Agent Hub", "/agents", "AI Agent Hub"],
+    ["AI Agent Hub", "/agents", "Agents"],
     ["Integrations", "/integrations", "Integrations"],
     ["Activity Logs", "/activity", "Activity"],
     ["Settings", "/settings", "Settings"],
@@ -25,17 +25,6 @@ test("sidebar navigation reaches every section", async ({ page }) => {
     await expect(page.getByRole("heading", { level: 1, name: heading })).toBeVisible();
     await expect(nav.getByRole("link", { name: new RegExp(`^${link}`) })).toHaveAttribute("aria-current", "page");
   }
-});
-
-test("planned modules show their development plan instead of placeholder features", async ({ page }) => {
-  await page.goto("/game-studio");
-  await expect(page.getByText("Planned · Phase 4")).toBeVisible();
-  await expect(page.getByText("Not built yet. Delivered in Phase 4.")).toBeVisible();
-  await page.getByRole("link", { name: "Open game projects" }).click();
-  await expect(page).toHaveURL("/projects?category=game");
-
-  await page.goto("/integrations");
-  await expect(page.getByText("Connection: not connected")).toBeVisible();
 });
 
 test("projects and tasks are created, updated and persisted", async ({ page }) => {
@@ -110,32 +99,77 @@ test("automation entries are catalogued without running anything", async ({ page
   expect(created.status()).toBe(201);
 
   await page.goto("/automation");
-  await expect(page.getByText("n8n Cloud is not connected")).toBeVisible();
+  await expect(page.getByText("No workflow engine is connected")).toBeVisible();
   await page.getByRole("button", { name: "New automation" }).first().click();
   await page.getByLabel("Name").fill(automation);
-  await page.getByLabel("What it does").fill("Existing n8n workflow, linked in Phase 2.");
+  await page.getByLabel("What it does").fill("Existing n8n workflow, referenced by id only.");
   await choose(page, "Project", project);
-  await page.getByLabel("n8n workflow id (optional)").fill("https://example.test/webhook");
+
+  // A workflow id needs an engine, and URLs are never accepted as ids.
+  await page.getByLabel("Workflow id (optional)").fill("wf_telegram_1");
+  await page.getByRole("button", { name: "Save draft" }).click();
+  await expect(page.getByText("Choose the workflow engine for this workflow id.")).toBeVisible();
+  await choose(page, "Workflow engine", "n8n Cloud");
+  await page.getByLabel("Workflow id (optional)").fill("https://example.test/webhook");
   await page.getByRole("button", { name: "Save draft" }).click();
   await expect(page.getByText("Use the workflow id only")).toBeVisible();
 
-  await page.getByLabel("n8n workflow id (optional)").fill("wf_telegram_1");
+  await page.getByLabel("Workflow id (optional)").fill("wf_telegram_1");
   await page.getByRole("button", { name: "Save draft" }).click();
   const row = page.getByTestId("automation-row").filter({ hasText: automation });
   await expect(row).toBeVisible();
-  await expect(row).toContainText("Not linked to n8n yet");
-  await expect(row).toContainText("wf_telegram_1");
+  await expect(row).toContainText("Not running — no connector yet");
+  await expect(row).toContainText("n8n Cloud workflow: wf_telegram_1");
   await expect(row).toContainText(project);
 
   await Promise.all([
     page.waitForResponse((response) => response.request().method() === "PATCH" && response.ok()),
-    choose(page, `Status of ${automation}`, "Ready for n8n"),
+    choose(page, `Status of ${automation}`, "Ready to link"),
   ]);
   await page.reload();
-  await expect(page.getByRole("combobox", { name: `Status of ${automation}` })).toHaveText("Ready for n8n");
+  await expect(page.getByRole("combobox", { name: `Status of ${automation}` })).toHaveText("Ready to link");
+
+  // Search and status filters narrow the list through the URL.
+  await page.getByRole("searchbox", { name: "Search automations" }).fill(automation);
+  await page.getByRole("searchbox", { name: "Search automations" }).press("Enter");
+  await expect(page).toHaveURL(/\/automation\?q=/);
+  await expect(page.getByTestId("automation-row")).toHaveCount(1);
+  await page.getByRole("group", { name: "Filter by status" }).getByRole("link", { name: "Paused" }).click();
+  await expect(page.getByText("No automations match")).toBeVisible();
+  await page.getByRole("group", { name: "Filter by status" }).getByRole("link", { name: "Ready to link" }).click();
+  await expect(page.getByTestId("automation-row")).toHaveCount(1);
 
   await page.getByRole("button", { name: `Actions for ${automation}` }).click();
   await page.getByRole("menuitem", { name: "Delete" }).click();
   await page.getByRole("alertdialog").getByRole("button", { name: "Delete" }).click();
   await expect(page.getByTestId("automation-row").filter({ hasText: automation })).toHaveCount(0);
+});
+
+test("project lists paginate and global search finds records", async ({ page }) => {
+  const prefix = uniqueName("Paged");
+  for (let index = 1; index <= 13; index += 1) {
+    const response = await page.request.post("/api/projects", { data: { name: `${prefix} ${String(index).padStart(2, "0")}` } });
+    expect(response.status()).toBe(201);
+  }
+
+  await page.goto(`/projects?q=${encodeURIComponent(prefix)}`);
+  await expect(page.getByText("1–12 of 13 projects")).toBeVisible();
+  await page.getByRole("link", { name: /Next/ }).click();
+  await expect(page).toHaveURL(/page=2/);
+  await expect(page.getByText("13–13 of 13 projects")).toBeVisible();
+  await expect(page.getByRole("link", { name: new RegExp(`${prefix} 01`) })).toBeVisible();
+
+  await page.getByRole("searchbox", { name: "Search everything" }).first().fill(`${prefix} 07`);
+  await page.getByRole("searchbox", { name: "Search everything" }).first().press("Enter");
+  await expect(page).toHaveURL(/\/search\?q=/);
+  await page.getByRole("link", { name: new RegExp(`${prefix} 07`) }).click();
+  await expect(page.getByRole("heading", { level: 1, name: `${prefix} 07` })).toBeVisible();
+
+  const ids: string[] = [];
+  for (const pageNumber of [1, 2]) {
+    const response = await page.request.get(`/api/projects?q=${encodeURIComponent(prefix)}&page=${pageNumber}`);
+    ids.push(...((await response.json()).data.items as Array<{ id: string }>).map((project) => project.id));
+  }
+  expect(ids).toHaveLength(13);
+  for (const id of ids) expect((await page.request.delete(`/api/projects/${id}`)).status()).toBe(204);
 });

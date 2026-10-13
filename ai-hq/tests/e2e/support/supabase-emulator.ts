@@ -31,8 +31,25 @@ export interface EmulatorOptions {
   users: EmulatorUser[];
 }
 
-const RELATIONS = new Set(["projects", "tasks", "automations", "activity_logs", "project_overview"]);
-const FUNCTIONS = new Set(["command_center_summary"]);
+const RELATIONS = new Set([
+  "projects",
+  "tasks",
+  "automations",
+  "activity_logs",
+  "project_overview",
+  "profiles",
+  "system_settings",
+  "integration_configs",
+  "agent_definitions",
+  "agent_task_records",
+]);
+const FUNCTIONS = new Set(["command_center_summary", "set_workspace_role"]);
+/** Supported many-to-one embeds: relation → embedded table → foreign key column. */
+const EMBEDS: Record<string, Record<string, string>> = {
+  tasks: { projects: "project_id" },
+  automations: { projects: "project_id" },
+  agent_task_records: { agent_definitions: "agent_id" },
+};
 const IDENTIFIER = /^[a-z_][a-z0-9_]*$/;
 const FILTER_COLUMN = /^([a-z_][a-z0-9_]*)(?:->>([a-z_][a-z0-9_]*))?$/;
 const OPERATORS: Record<string, string> = {
@@ -45,7 +62,7 @@ const OPERATORS: Record<string, string> = {
   like: "like",
   ilike: "ilike",
 };
-const RESERVED_PARAMS = new Set(["select", "order", "limit", "offset", "columns", "on_conflict"]);
+const RESERVED_PARAMS = new Set(["select", "order", "limit", "offset", "columns", "on_conflict", "or"]);
 
 // ---------------------------------------------------------------------------
 // JWT (HS256)
@@ -147,7 +164,7 @@ function splitTopLevel(input: string): string[] {
   return parts.map((part) => part.trim()).filter(Boolean);
 }
 
-/** Supports `*`, plain columns and one-level many-to-one embeds on project_id. */
+/** Supports `*`, plain columns and one-level many-to-one embeds listed in EMBEDS. */
 function buildSelect(relation: string, select: string | null): string {
   const items = splitTopLevel(select ?? "*");
   return items
@@ -156,48 +173,64 @@ function buildSelect(relation: string, select: string | null): string {
       const embed = item.match(/^(?:([a-z_]+):)?([a-z_]+)(?:!([a-z_]+))?\((.*)\)$/);
       if (embed) {
         const [, alias, target, , columns] = embed;
-        if (target !== "projects" || !["tasks", "automations"].includes(relation)) {
-          throw new PostgrestError(400, "PGRST200", `Unsupported embed ${target} on ${relation}`);
-        }
+        const foreignKey = EMBEDS[relation]?.[target];
+        if (!foreignKey) throw new PostgrestError(400, "PGRST200", `Unsupported embed ${target} on ${relation}`);
         const fields = splitTopLevel(columns)
-          .map((column) => `'${column}', p.${quoteIdent(column)}`)
+          .map((column) => `'${column}', e.${quoteIdent(column)}`)
           .join(", ");
-        return `(select json_build_object(${fields}) from public.projects p where p.id = t.project_id) as ${quoteIdent(alias ?? target)}`;
+        return `(select json_build_object(${fields}) from public.${quoteIdent(target)} e where e.id = t.${quoteIdent(foreignKey)}) as ${quoteIdent(alias ?? target)}`;
       }
       return `t.${quoteIdent(item)}`;
     })
     .join(", ");
 }
 
+function unquote(value: string) {
+  return value.replace(/^"(.*)"$/, "$1");
+}
+
+/** One `column=operator.value` condition. */
+function buildCondition(key: string, raw: string, values: unknown[]): string {
+  const column = key.match(FILTER_COLUMN);
+  if (!column) throw new PostgrestError(400, "PGRST100", `Unsupported filter column: ${key}`);
+  const target = column[2] ? `t.${quoteIdent(column[1])}->>'${column[2]}'` : `t.${quoteIdent(column[1])}`;
+  const dot = raw.indexOf(".");
+  const operator = raw.slice(0, dot);
+  const value = raw.slice(dot + 1);
+  if (operator === "is") {
+    if (!["null", "true", "false"].includes(value)) throw new PostgrestError(400, "PGRST100", "Bad is filter");
+    return `${target} is ${value}`;
+  }
+  if (operator === "in") {
+    const list = value.replace(/^\(|\)$/g, "").split(",").map(unquote);
+    const placeholders = list.map((item) => {
+      values.push(item);
+      return `$${values.length}`;
+    });
+    return `${target} in (${placeholders.join(", ")})`;
+  }
+  if (OPERATORS[operator]) {
+    const operand = unquote(value);
+    values.push(operator === "like" || operator === "ilike" ? operand.replaceAll("*", "%") : operand);
+    return `${target} ${OPERATORS[operator]} $${values.length}`;
+  }
+  throw new PostgrestError(400, "PGRST100", `Unsupported operator: ${operator}`);
+}
+
 function buildFilters(params: URLSearchParams, values: unknown[]): string {
   const clauses: string[] = [];
   for (const [key, raw] of params) {
-    if (RESERVED_PARAMS.has(key)) continue;
-    const column = key.match(FILTER_COLUMN);
-    if (!column) throw new PostgrestError(400, "PGRST100", `Unsupported filter column: ${key}`);
-    const target = column[2] ? `t.${quoteIdent(column[1])}->>'${column[2]}'` : `t.${quoteIdent(column[1])}`;
-    const dot = raw.indexOf(".");
-    const operator = raw.slice(0, dot);
-    const value = raw.slice(dot + 1);
-    if (operator === "is") {
-      if (!["null", "true", "false"].includes(value)) throw new PostgrestError(400, "PGRST100", "Bad is filter");
-      clauses.push(`${target} is ${value}`);
-    } else if (operator === "in") {
-      const list = value
-        .replace(/^\(|\)$/g, "")
-        .split(",")
-        .map((item) => item.replace(/^"(.*)"$/, "$1"));
-      const placeholders = list.map((item) => {
-        values.push(item);
-        return `$${values.length}`;
+    if (key === "or") {
+      // or=(name.ilike."%x%",description.ilike."%x%")
+      const parts = splitTopLevel(raw.replace(/^\(|\)$/g, "")).map((part) => {
+        const first = part.indexOf(".");
+        return buildCondition(part.slice(0, first), part.slice(first + 1), values);
       });
-      clauses.push(`${target} in (${placeholders.join(", ")})`);
-    } else if (OPERATORS[operator]) {
-      values.push(operator === "like" || operator === "ilike" ? value.replaceAll("*", "%") : value);
-      clauses.push(`${target} ${OPERATORS[operator]} $${values.length}`);
-    } else {
-      throw new PostgrestError(400, "PGRST100", `Unsupported operator: ${operator}`);
+      if (parts.length) clauses.push(`(${parts.join(" or ")})`);
+      continue;
     }
+    if (RESERVED_PARAMS.has(key)) continue;
+    clauses.push(buildCondition(key, raw, values));
   }
   return clauses.length ? `where ${clauses.join(" and ")}` : "";
 }
@@ -383,23 +416,59 @@ export async function startSupabaseEmulator(options: EmulatorOptions): Promise<{
       if (path.startsWith("rpc/")) {
         const fn = path.slice(4);
         if (!FUNCTIONS.has(fn)) throw new PostgrestError(404, "PGRST202", `Function ${fn} not found`);
-        const body = await runAs(claims, `select to_json(public.${quoteIdent(fn)}()) as body`, []);
+        const args =
+          request.method === "POST"
+            ? (((await readBody(request)) ?? {}) as Record<string, unknown>)
+            : Object.fromEntries(params);
+        const named = Object.entries(args).map(([name, value]) => {
+          values.push(value);
+          return `${quoteIdent(name)} => $${values.length}`;
+        });
+        const body = await runAs(claims, `select to_json(public.${quoteIdent(fn)}(${named.join(", ")})) as body`, values);
         return send(response, 200, body);
       }
 
       if (!RELATIONS.has(path)) throw new PostgrestError(404, "PGRST205", `Relation ${path} not found`);
       const table = `public.${quoteIdent(path)}`;
       const select = buildSelect(path, params.get("select"));
+      const wantsCount = /count=exact/.test(String(request.headers.prefer ?? ""));
       let sql: string;
 
-      switch (request.method) {
-        case "GET": {
-          const where = buildFilters(params, values);
-          sql = `select coalesce(json_agg(_r), '[]'::json) as body from (
-                   select ${select} from ${table} t ${where} ${buildOrder(params.get("order"))} ${buildLimit(params)}
-                 ) _r`;
-          break;
+      if (request.method === "GET" || request.method === "HEAD") {
+        // Rows and (optionally) the exact count, like PostgREST with `Prefer: count=exact`.
+        const where = buildFilters(params, values);
+        const result = await runAs<{ rows: unknown[]; count: number | null }>(
+          claims,
+          `select json_build_object(
+             'rows', (select coalesce(json_agg(_r), '[]'::json) from (
+                       select ${select} from ${table} t ${where} ${buildOrder(params.get("order"))} ${buildLimit(params)}
+                     ) _r),
+             'count', ${wantsCount ? `(select count(*) from ${table} t ${where})` : "null"}
+           ) as body`,
+          values,
+        );
+        if (wantsCount) {
+          const offset = Number(params.get("offset") ?? 0);
+          const range = result.rows.length ? `${offset}-${offset + result.rows.length - 1}` : "*";
+          response.setHeader("content-range", `${range}/${result.count}`);
         }
+        if (request.method === "HEAD") return send(response, 200);
+        const wantsObject = request.headers.accept?.includes("application/vnd.pgrst.object+json");
+        if (wantsObject) {
+          if (result.rows.length !== 1) {
+            return send(response, 406, {
+              code: "PGRST116",
+              message: "JSON object requested, multiple (or no) rows returned",
+              details: `The result contains ${result.rows.length} rows`,
+              hint: null,
+            });
+          }
+          return send(response, 200, result.rows[0]);
+        }
+        return send(response, 200, result.rows);
+      }
+
+      switch (request.method) {
         case "POST": {
           const body = await readBody(request);
           const rows = (Array.isArray(body) ? body : [body]) as Array<Record<string, unknown>>;

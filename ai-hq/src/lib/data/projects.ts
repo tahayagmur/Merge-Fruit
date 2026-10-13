@@ -2,22 +2,36 @@ import "server-only";
 
 import { ApiError } from "@/lib/api/errors";
 import { mapPostgrestError } from "@/lib/api/postgrest-errors";
-import type { Project, ProjectSummary } from "@/lib/domain";
+import type { Page, Project, ProjectSummary } from "@/lib/domain";
 import type { AppSupabaseClient } from "@/lib/supabase/server";
 import type { ProjectCreateInput, ProjectListQuery, ProjectUpdateInput } from "@/lib/validation/projects";
 import { toProject, toProjectSummary } from "./mappers";
+import { pageRange, searchFilter, toPage } from "./query-helpers";
+
+export const PROJECTS_PAGE_SIZE = 12;
 
 export async function listProjects(
   supabase: AppSupabaseClient,
-  filters: ProjectListQuery = {},
-): Promise<ProjectSummary[]> {
-  let query = supabase.from("project_overview").select("*").order("updated_at", { ascending: false });
+  filters: Partial<ProjectListQuery> & { pageSize?: number; includeDemo?: boolean } = {},
+): Promise<Page<ProjectSummary>> {
+  const page = filters.page ?? 1;
+  const pageSize = filters.pageSize ?? PROJECTS_PAGE_SIZE;
+  const [from, to] = pageRange(page, pageSize);
+
+  let query = supabase
+    .from("project_overview")
+    .select("*", { count: "exact" })
+    .order("updated_at", { ascending: false })
+    .order("id", { ascending: true })
+    .range(from, to);
   if (filters.status) query = query.eq("status", filters.status);
   if (filters.category) query = query.eq("category", filters.category);
+  if (filters.includeDemo === false) query = query.eq("is_demo", false);
+  if (filters.q) query = query.or(searchFilter(["name", "description"], filters.q));
 
-  const { data, error } = await query;
+  const { data, error, count } = await query;
   if (error) throw mapPostgrestError(error, "Project");
-  return data.map(toProjectSummary);
+  return toPage(data.map(toProjectSummary), count, page, pageSize);
 }
 
 export async function getProject(supabase: AppSupabaseClient, id: string): Promise<ProjectSummary | null> {
@@ -85,7 +99,8 @@ export async function listProjectOptions(
     .from("projects")
     .select("id, name, status")
     .neq("status", "archived")
-    .order("name");
+    .order("name")
+    .limit(500);
   if (error) throw mapPostgrestError(error, "Project");
   return data;
 }

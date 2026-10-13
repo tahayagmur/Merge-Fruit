@@ -36,7 +36,11 @@ describe("project validation", () => {
   });
 
   it("validates list filters", () => {
-    expect(projectListQuerySchema.parse({ status: "active", category: "game" })).toEqual({ status: "active", category: "game" });
+    expect(projectListQuerySchema.parse({ status: "active", category: "game" })).toEqual({
+      status: "active",
+      category: "game",
+      page: 1,
+    });
     expect(projectListQuerySchema.safeParse({ status: "deleted" }).success).toBe(false);
   });
 });
@@ -53,16 +57,23 @@ describe("task validation", () => {
 
 describe("automation validation", () => {
   it("accepts workflow identifiers but never URLs or keys", () => {
-    expect(automationCreateSchema.parse({ name: "Digest", n8nWorkflowId: "aBc-123_x" }).n8nWorkflowId).toBe("aBc-123_x");
+    expect(
+      automationCreateSchema.parse({ name: "Digest", provider: "n8n", externalWorkflowId: "aBc-123_x" }).externalWorkflowId,
+    ).toBe("aBc-123_x");
     for (const value of ["https://n8n.example/webhook/abc", "abc def", "x".repeat(65)]) {
-      expect(automationCreateSchema.safeParse({ name: "Digest", n8nWorkflowId: value }).success).toBe(false);
+      expect(automationCreateSchema.safeParse({ name: "Digest", provider: "n8n", externalWorkflowId: value }).success).toBe(
+        false,
+      );
     }
   });
 
   it("normalises empty optional references to null", () => {
-    expect(automationCreateSchema.parse({ name: "Digest", projectId: "", n8nWorkflowId: "" })).toMatchObject({
+    expect(
+      automationCreateSchema.parse({ name: "Digest", projectId: "", provider: "", externalWorkflowId: "" }),
+    ).toMatchObject({
       projectId: null,
-      n8nWorkflowId: null,
+      provider: null,
+      externalWorkflowId: null,
     });
     expect(automationCreateSchema.safeParse({ name: "Digest", projectId: "not-a-uuid" }).success).toBe(false);
   });

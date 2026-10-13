@@ -2,7 +2,7 @@
 
 import { Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { type FormEvent, type ReactNode, useState } from "react";
+import { type FormEvent, type ReactNode, useId, useState } from "react";
 import { toast } from "sonner";
 import { FormField } from "@/components/common/form-field";
 import { OptionSelect } from "@/components/common/option-select";
@@ -35,11 +35,19 @@ export interface ProjectOption {
   name: string;
 }
 
+/** A workflow-engine integration from the catalogue (e.g. n8n). */
+export interface EngineOption {
+  key: string;
+  name: string;
+}
+
 const NO_PROJECT = "__none__";
+const NO_ENGINE = "__none__";
 
 interface AutomationFormDialogProps {
   automation?: Automation;
   projects: ProjectOption[];
+  engines: EngineOption[];
   trigger?: ReactNode;
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
@@ -48,10 +56,12 @@ interface AutomationFormDialogProps {
 export function AutomationFormDialog({
   automation,
   projects,
+  engines,
   trigger,
   open: controlledOpen,
   onOpenChange,
 }: AutomationFormDialogProps) {
+  const uid = useId();
   const router = useRouter();
   const editing = Boolean(automation);
   const [uncontrolledOpen, setUncontrolledOpen] = useState(false);
@@ -65,7 +75,8 @@ export function AutomationFormDialog({
   const [projectId, setProjectId] = useState(automation?.projectId ?? NO_PROJECT);
   const [triggerType, setTriggerType] = useState<AutomationTrigger>(automation?.triggerType ?? "manual");
   const [triggerNotes, setTriggerNotes] = useState(automation?.triggerNotes ?? "");
-  const [workflowId, setWorkflowId] = useState(automation?.n8nWorkflowId ?? "");
+  const [engine, setEngine] = useState(automation?.provider ?? NO_ENGINE);
+  const [workflowId, setWorkflowId] = useState(automation?.externalWorkflowId ?? "");
   const [status, setStatus] = useState<AutomationStatus>(automation?.status ?? "draft");
 
   function reset() {
@@ -76,6 +87,7 @@ export function AutomationFormDialog({
       setProjectId(NO_PROJECT);
       setTriggerType("manual");
       setTriggerNotes("");
+      setEngine(NO_ENGINE);
       setWorkflowId("");
       setStatus("draft");
     }
@@ -91,7 +103,8 @@ export function AutomationFormDialog({
       projectId: projectId === NO_PROJECT ? null : projectId,
       triggerType,
       triggerNotes,
-      n8nWorkflowId: workflowId,
+      provider: engine === NO_ENGINE ? null : engine,
+      externalWorkflowId: workflowId,
       status,
     };
     try {
@@ -122,13 +135,14 @@ export function AutomationFormDialog({
         <DialogHeader>
           <DialogTitle>{editing ? "Edit automation" : "New automation"}</DialogTitle>
           <DialogDescription>
-            Describe an automation you run in n8n. It is linked to your existing workflow in Phase 2; until then it is a catalogue entry and nothing runs.
+            Describe an automation you already run elsewhere. AI HQ keeps it as a catalogue entry: nothing is
+            created in, sent to or run on the workflow engine in this phase.
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={onSubmit} className="grid gap-4" noValidate>
-          <FormField id="automation-name" label="Name" error={errors.name}>
+          <FormField id={`${uid}-automation-name`} label="Name" error={errors.name}>
             <Input
-              id="automation-name"
+              id={`${uid}-automation-name`}
               value={name}
               onChange={(event) => setName(event.target.value)}
               maxLength={120}
@@ -138,9 +152,9 @@ export function AutomationFormDialog({
               required
             />
           </FormField>
-          <FormField id="automation-description" label="What it does" error={errors.description}>
+          <FormField id={`${uid}-automation-description`} label="What it does" error={errors.description}>
             <Textarea
-              id="automation-description"
+              id={`${uid}-automation-description`}
               value={description}
               onChange={(event) => setDescription(event.target.value)}
               maxLength={2000}
@@ -149,18 +163,18 @@ export function AutomationFormDialog({
             />
           </FormField>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <FormField id="automation-trigger" label="Trigger" error={errors.triggerType}>
+            <FormField id={`${uid}-automation-trigger`} label="Trigger" error={errors.triggerType}>
               <OptionSelect
-                id="automation-trigger"
+                id={`${uid}-automation-trigger`}
                 value={triggerType}
                 options={AUTOMATION_TRIGGERS}
                 labels={AUTOMATION_TRIGGER_LABELS}
                 onChange={setTriggerType}
               />
             </FormField>
-            <FormField id="automation-status" label="Status" error={errors.status}>
+            <FormField id={`${uid}-automation-status`} label="Status" error={errors.status}>
               <OptionSelect
-                id="automation-status"
+                id={`${uid}-automation-status`}
                 value={status}
                 options={AUTOMATION_STATUSES}
                 labels={AUTOMATION_STATUS_LABELS}
@@ -169,50 +183,65 @@ export function AutomationFormDialog({
             </FormField>
           </div>
           <FormField
-            id="automation-trigger-notes"
+            id={`${uid}-automation-trigger-notes`}
             label="Trigger details"
             error={errors.triggerNotes}
             hint="e.g. “Every Monday 09:00” or “When a task is marked done”."
           >
             <Input
-              id="automation-trigger-notes"
+              id={`${uid}-automation-trigger-notes`}
               value={triggerNotes}
               onChange={(event) => setTriggerNotes(event.target.value)}
               maxLength={500}
               aria-invalid={Boolean(errors.triggerNotes)}
             />
           </FormField>
+          <FormField id={`${uid}-automation-project`} label="Project" error={errors.projectId}>
+            <Select value={projectId} onValueChange={setProjectId}>
+              <SelectTrigger id={`${uid}-automation-project`} className="w-full">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value={NO_PROJECT}>No project</SelectItem>
+                {projects.map((project) => (
+                  <SelectItem key={project.id} value={project.id}>
+                    {project.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </FormField>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <FormField id="automation-project" label="Project" error={errors.projectId}>
-              <Select value={projectId} onValueChange={setProjectId}>
-                <SelectTrigger id="automation-project" className="w-full">
+            <FormField id={`${uid}-automation-engine`} label="Workflow engine" error={errors.provider}>
+              <Select value={engine} onValueChange={setEngine}>
+                <SelectTrigger id={`${uid}-automation-engine`} className="w-full" aria-invalid={Boolean(errors.provider)}>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value={NO_PROJECT}>No project</SelectItem>
-                  {projects.map((project) => (
-                    <SelectItem key={project.id} value={project.id}>
-                      {project.name}
+                  <SelectItem value={NO_ENGINE}>Not linked</SelectItem>
+                  {engines.map((option) => (
+                    <SelectItem key={option.key} value={option.key}>
+                      {option.name}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
             </FormField>
             <FormField
-              id="automation-workflow"
-              label="n8n workflow id (optional)"
-              error={errors.n8nWorkflowId}
+              id={`${uid}-automation-workflow`}
+              label="Workflow id (optional)"
+              error={errors.externalWorkflowId}
               hint="Identifier only — never a URL or API key."
             >
               <Input
-                id="automation-workflow"
+                id={`${uid}-automation-workflow`}
                 value={workflowId}
                 onChange={(event) => setWorkflowId(event.target.value)}
                 maxLength={64}
                 autoComplete="off"
                 spellCheck={false}
                 className="font-mono"
-                aria-invalid={Boolean(errors.n8nWorkflowId)}
+                aria-invalid={Boolean(errors.externalWorkflowId)}
               />
             </FormField>
           </div>

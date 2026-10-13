@@ -2,7 +2,7 @@
 
 import { Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { type FormEvent, type ReactNode, useState } from "react";
+import { type FormEvent, type ReactNode, useId, useState } from "react";
 import { toast } from "sonner";
 import { FormField } from "@/components/common/form-field";
 import { OptionSelect } from "@/components/common/option-select";
@@ -47,6 +47,7 @@ export function TaskFormDialog({
   onOpenChange,
   defaultStatus = "todo",
 }: TaskFormDialogProps) {
+  const uid = useId();
   const router = useRouter();
   const editing = Boolean(task);
   const [uncontrolledOpen, setUncontrolledOpen] = useState(false);
@@ -107,9 +108,9 @@ export function TaskFormDialog({
           <DialogDescription>{editing ? "Update the task." : "Add a task to this project."}</DialogDescription>
         </DialogHeader>
         <form onSubmit={onSubmit} className="grid gap-4" noValidate>
-          <FormField id="task-title" label="Title" error={errors.title}>
+          <FormField id={`${uid}-task-title`} label="Title" error={errors.title}>
             <Input
-              id="task-title"
+              id={`${uid}-task-title`}
               value={title}
               onChange={(event) => setTitle(event.target.value)}
               maxLength={200}
@@ -118,9 +119,9 @@ export function TaskFormDialog({
               required
             />
           </FormField>
-          <FormField id="task-description" label="Description" error={errors.description}>
+          <FormField id={`${uid}-task-description`} label="Description" error={errors.description}>
             <Textarea
-              id="task-description"
+              id={`${uid}-task-description`}
               value={description}
               onChange={(event) => setDescription(event.target.value)}
               maxLength={5000}
@@ -128,27 +129,27 @@ export function TaskFormDialog({
             />
           </FormField>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-            <FormField id="task-status" label="Status" error={errors.status}>
+            <FormField id={`${uid}-task-status`} label="Status" error={errors.status}>
               <OptionSelect
-                id="task-status"
+                id={`${uid}-task-status`}
                 value={status}
                 options={TASK_STATUSES}
                 labels={TASK_STATUS_LABELS}
                 onChange={setStatus}
               />
             </FormField>
-            <FormField id="task-priority" label="Priority" error={errors.priority}>
+            <FormField id={`${uid}-task-priority`} label="Priority" error={errors.priority}>
               <OptionSelect
-                id="task-priority"
+                id={`${uid}-task-priority`}
                 value={priority}
                 options={PRIORITIES}
                 labels={PRIORITY_LABELS}
                 onChange={setPriority}
               />
             </FormField>
-            <FormField id="task-due" label="Due date" error={errors.dueDate}>
+            <FormField id={`${uid}-task-due`} label="Due date" error={errors.dueDate}>
               <Input
-                id="task-due"
+                id={`${uid}-task-due`}
                 type="date"
                 value={dueDate}
                 onChange={(event) => setDueDate(event.target.value)}

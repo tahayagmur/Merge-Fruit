@@ -27,3 +27,34 @@ export const optionalDate = z
 export function requireAtLeastOneField<T extends Record<string, unknown>>(value: T) {
   return Object.values(value).some((field) => field !== undefined);
 }
+
+/**
+ * Free-text search term. Only letters, digits, spaces and a few safe symbols
+ * survive, so the value can be embedded in PostgREST filters (`or=(…)`,
+ * `ilike`) without escaping and without LIKE wildcards from the user.
+ */
+export function sanitizeSearchTerm(raw: string): string {
+  return raw
+    .normalize("NFKC")
+    .replace(/[^\p{L}\p{N}\s@#-]/gu, " ")
+    .replace(/\s+/g, " ")
+    .trim()
+    .slice(0, 80);
+}
+
+export const searchQuerySchema = z
+  .string()
+  .max(200)
+  .optional()
+  .transform((value) => {
+    const term = value ? sanitizeSearchTerm(value) : "";
+    return term.length >= 2 ? term : undefined;
+  });
+
+export const pageSchema = z.coerce.number().int().min(1).max(1000).default(1);
+
+/** Strings from <select multiple>/checkbox groups arrive as one value or an array. */
+export function toArray(value: unknown): unknown[] {
+  if (value === undefined || value === null || value === "") return [];
+  return Array.isArray(value) ? value : [value];
+}

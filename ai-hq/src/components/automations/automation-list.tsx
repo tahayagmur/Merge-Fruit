@@ -7,6 +7,7 @@ import { useState, useTransition } from "react";
 import { toast } from "sonner";
 import { ConfirmDelete } from "@/components/common/confirm-delete";
 import { OptionSelect } from "@/components/common/option-select";
+import { DemoBadge } from "@/components/common/status-indicator";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -24,9 +25,17 @@ import {
   type AutomationStatus,
 } from "@/lib/domain";
 import { cn } from "@/lib/utils";
-import { AutomationFormDialog, type ProjectOption } from "./automation-form-dialog";
+import { AutomationFormDialog, type EngineOption, type ProjectOption } from "./automation-form-dialog";
 
-function AutomationRow({ automation, projects }: { automation: Automation; projects: ProjectOption[] }) {
+function AutomationRow({
+  automation,
+  projects,
+  engines,
+}: {
+  automation: Automation;
+  projects: ProjectOption[];
+  engines: EngineOption[];
+}) {
   const router = useRouter();
   const [status, setStatus] = useState<AutomationStatus>(automation.status);
   const [saving, setSaving] = useState(false);
@@ -34,6 +43,7 @@ function AutomationRow({ automation, projects }: { automation: Automation; proje
   const [editOpen, setEditOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const project = projects.find((candidate) => candidate.id === automation.projectId);
+  const engine = engines.find((candidate) => candidate.key === automation.provider);
 
   async function changeStatus(next: AutomationStatus) {
     const previous = status;
@@ -73,9 +83,10 @@ function AutomationRow({ automation, projects }: { automation: Automation; proje
       <div className="min-w-0 space-y-2">
         <div className="flex flex-wrap items-center gap-2">
           <h3 className="font-medium">{automation.name}</h3>
+          {automation.isDemo && <DemoBadge />}
           <Badge variant="muted">{AUTOMATION_TRIGGER_LABELS[automation.triggerType]}</Badge>
           <Badge variant="outline" className="gap-1 text-muted-foreground">
-            <PlugZap /> Not linked to n8n yet
+            <PlugZap /> Not running — no connector yet
           </Badge>
         </div>
         {automation.description && <p className="line-clamp-2 text-sm text-muted-foreground">{automation.description}</p>}
@@ -86,9 +97,10 @@ function AutomationRow({ automation, projects }: { automation: Automation; proje
               <FolderKanban className="size-3" /> {project.name}
             </Link>
           )}
-          {automation.n8nWorkflowId && (
+          {automation.externalWorkflowId && (
             <span>
-              n8n workflow: <code className="font-mono text-foreground/80">{automation.n8nWorkflowId}</code>
+              {engine?.name ?? automation.provider} workflow:{" "}
+              <code className="font-mono text-foreground/80">{automation.externalWorkflowId}</code>
             </span>
           )}
         </div>
@@ -120,10 +132,16 @@ function AutomationRow({ automation, projects }: { automation: Automation; proje
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
-        <AutomationFormDialog automation={automation} projects={projects} open={editOpen} onOpenChange={setEditOpen} />
+        <AutomationFormDialog
+          automation={automation}
+          projects={projects}
+          engines={engines}
+          open={editOpen}
+          onOpenChange={setEditOpen}
+        />
         <ConfirmDelete
           title="Delete this automation?"
-          description={`“${automation.name}” will be permanently deleted.`}
+          description={`“${automation.name}” will be permanently deleted. Workflows in the engine itself are not affected.`}
           open={deleteOpen}
           onOpenChange={setDeleteOpen}
           onConfirm={remove}
@@ -133,11 +151,24 @@ function AutomationRow({ automation, projects }: { automation: Automation; proje
   );
 }
 
-export function AutomationList({ automations, projects }: { automations: Automation[]; projects: ProjectOption[] }) {
+export function AutomationList({
+  automations,
+  projects,
+  engines,
+}: {
+  automations: Automation[];
+  projects: ProjectOption[];
+  engines: EngineOption[];
+}) {
   return (
-    <ul className="grid gap-3">
+    <ul className="grid grid-cols-1 gap-3">
       {automations.map((automation) => (
-        <AutomationRow key={`${automation.id}-${automation.updatedAt}`} automation={automation} projects={projects} />
+        <AutomationRow
+          key={`${automation.id}-${automation.updatedAt}`}
+          automation={automation}
+          projects={projects}
+          engines={engines}
+        />
       ))}
     </ul>
   );

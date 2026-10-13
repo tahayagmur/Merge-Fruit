@@ -1,6 +1,7 @@
 import { AlertTriangle, CalendarDays, CircleSlash } from "lucide-react";
 import Link from "next/link";
 import { CategoryBadge, PriorityBadge, ProjectStatusBadge } from "@/components/common/status-badges";
+import { DemoBadge } from "@/components/common/status-indicator";
 import { Progress } from "@/components/ui/progress";
 import type { ProjectSummary } from "@/lib/domain";
 import { formatDate, isOverdue, percentage } from "@/lib/format";
@@ -17,7 +18,10 @@ export function ProjectCard({ project, today }: { project: ProjectSummary; today
     >
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0 space-y-1">
-          <h3 className="truncate font-medium group-hover:text-primary">{project.name}</h3>
+          <h3 className="flex items-center gap-2 font-medium group-hover:text-primary">
+            <span className="truncate">{project.name}</span>
+            {project.isDemo && <DemoBadge />}
+          </h3>
           <p className="line-clamp-2 min-h-10 text-sm text-muted-foreground">
             {project.description || "No description"}
           </p>

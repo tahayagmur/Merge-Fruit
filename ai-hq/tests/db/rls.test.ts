@@ -267,14 +267,22 @@ describe("automations", () => {
     ).rejects.toThrow(/foreign key/);
   });
 
-  it("only accepts identifier-shaped n8n workflow ids", async () => {
+  it("only accepts identifier-shaped external workflow ids", async () => {
     await expect(
       db.asUser(ALICE, (q) =>
-        q.query("insert into public.automations (name, n8n_workflow_id) values ('x', $1)", [
+        q.query("insert into public.automations (name, provider, external_workflow_id) values ('x', 'n8n', $1)", [
           "https://example.test/webhook/123",
         ]),
       ),
     ).rejects.toThrow(/check constraint/);
+  });
+
+  it("requires a provider when an external workflow id is set", async () => {
+    await expect(
+      db.asUser(ALICE, (q) =>
+        q.query("insert into public.automations (name, external_workflow_id) values ('x', 'wf_1')"),
+      ),
+    ).rejects.toThrow(/automations_external_workflow_requires_provider/);
   });
 });
 

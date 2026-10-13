@@ -1,5 +1,18 @@
-import { CircleDot, FolderKanban, ListChecks, Pencil, Plus, Trash2, Workflow } from "lucide-react";
-import type { ActivityAction, ActivityEntityType, ActivityEntry } from "@/lib/domain";
+import {
+  Bot,
+  CircleDot,
+  FolderKanban,
+  ListChecks,
+  ListTodo,
+  Pencil,
+  Plug,
+  Plus,
+  Settings,
+  Trash2,
+  UserRound,
+  Workflow,
+} from "lucide-react";
+import { ACTIVITY_ENTITY_LABELS, type ActivityAction, type ActivityEntityType, type ActivityEntry } from "@/lib/domain";
 import { formatRelativeTime } from "@/lib/format";
 import { cn } from "@/lib/utils";
 
@@ -7,6 +20,11 @@ const ENTITY_ICON: Record<ActivityEntityType, typeof FolderKanban> = {
   project: FolderKanban,
   task: ListChecks,
   automation: Workflow,
+  agent: Bot,
+  agent_task: ListTodo,
+  profile: UserRound,
+  system_settings: Settings,
+  integration: Plug,
 };
 
 const ACTION_ICON: Record<ActivityAction, typeof Plus> = {
@@ -47,7 +65,7 @@ export function ActivityFeed({ entries, now, compact }: { entries: ActivityEntry
                   {formatRelativeTime(entry.createdAt, now)}
                 </time>
                 <span className="mx-1.5">·</span>
-                <span className="capitalize">{entry.entityType}</span>
+                <span>{ACTIVITY_ENTITY_LABELS[entry.entityType]}</span>
               </p>
             </div>
           </li>

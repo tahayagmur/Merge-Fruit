@@ -5,6 +5,8 @@ import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { ActivityFeed } from "@/components/activity/activity-feed";
 import { CategoryBadge, PriorityBadge, ProjectStatusBadge } from "@/components/common/status-badges";
+import { DemoBadge } from "@/components/common/status-indicator";
+import { ApplyTemplateButton } from "@/components/projects/apply-template-button";
 import { ProjectActions } from "@/components/projects/project-actions";
 import { QuickAddTask } from "@/components/tasks/quick-add-task";
 import { TaskBoard } from "@/components/tasks/task-board";
@@ -13,11 +15,11 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Skeleton } from "@/components/ui/skeleton";
-import { requireUser } from "@/lib/auth/session";
+import { requireWorkspace } from "@/lib/auth/workspace";
 import { listProjectActivity } from "@/lib/data/activity";
 import { getProject } from "@/lib/data/projects";
 import { listTasks } from "@/lib/data/tasks";
-import { formatDate, isOverdue, percentage, todayUtc } from "@/lib/format";
+import { formatDate, isOverdue, percentage, todayInTimeZone } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import { idSchema } from "@/lib/validation/common";
 
@@ -44,7 +46,7 @@ async function ProjectContent({ params }: { params: PageProps<"/projects/[projec
   const { projectId } = await params;
   if (!idSchema.safeParse(projectId).success) notFound();
 
-  const { supabase } = await requireUser();
+  const { supabase, settings } = await requireWorkspace();
   const project = await getProject(supabase, projectId);
   if (!project) notFound();
 
@@ -53,7 +55,7 @@ async function ProjectContent({ params }: { params: PageProps<"/projects/[projec
     listProjectActivity(supabase, project.id, 15),
   ]);
   const now = new Date();
-  const today = todayUtc(now);
+  const today = todayInTimeZone(settings.timezone, now);
   const progress = percentage(project.taskDone, project.taskTotal);
   const overdue = isOverdue(project.dueDate, project.status, today);
 
@@ -65,6 +67,7 @@ async function ProjectContent({ params }: { params: PageProps<"/projects/[projec
             <ProjectStatusBadge status={project.status} />
             <CategoryBadge category={project.category} />
             <PriorityBadge priority={project.priority} />
+            {project.isDemo && <DemoBadge />}
             {project.dueDate && (
               <span className={cn("inline-flex items-center gap-1 text-xs text-muted-foreground", overdue && "text-warning")}>
                 <CalendarDays className="size-3" /> Due {formatDate(project.dueDate)}
@@ -76,7 +79,13 @@ async function ProjectContent({ params }: { params: PageProps<"/projects/[projec
             <p className="max-w-3xl text-sm whitespace-pre-line text-muted-foreground">{project.description}</p>
           )}
         </div>
-        <div className="flex shrink-0 gap-2">
+        <div className="flex shrink-0 flex-wrap gap-2">
+          {project.category === "game" && (
+            <ApplyTemplateButton projectId={project.id} template="game_release" label="Add release checklist" />
+          )}
+          {project.category === "saas" && (
+            <ApplyTemplateButton projectId={project.id} template="saas_launch" label="Add launch checklist" />
+          )}
           <ProjectActions project={project} taskCount={project.taskTotal} />
         </div>
       </div>

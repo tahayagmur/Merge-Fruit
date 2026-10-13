@@ -35,13 +35,14 @@ describe("SidebarNav", () => {
     expect(screen.getByRole("link", { name: /Command Center/ })).not.toHaveAttribute("aria-current");
   });
 
-  it("labels modules that are not built yet instead of hiding them", () => {
+  it("labels modules whose external parts are not built yet", () => {
     render(<SidebarNav />);
     for (const name of ["Game Studio", "SaaS & Business", "AI Agent Hub", "Integrations"]) {
-      expect(screen.getByRole("link", { name: new RegExp(name) })).toHaveTextContent("Planned");
+      expect(screen.getByRole("link", { name: new RegExp(name) })).toHaveTextContent("Partial");
     }
-    expect(screen.getByRole("link", { name: /Settings/ })).toHaveTextContent("Partial");
-    expect(screen.getByRole("link", { name: /Automation Center/ })).not.toHaveTextContent(/Planned|Partial/);
+    for (const name of ["Command Center", "Projects", "Automation Center", "Activity Logs", "Settings"]) {
+      expect(screen.getByRole("link", { name: new RegExp(name) })).not.toHaveTextContent(/Planned|Partial/);
+    }
   });
 
   it("calls onNavigate when a link is used (closes the mobile menu)", () => {

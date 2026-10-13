@@ -24,6 +24,7 @@ export async function listActivity(
     .limit(limit + 1);
   if (query.before) request = request.lt("id", query.before);
   if (query.entityType) request = request.eq("entity_type", query.entityType);
+  if (query.q) request = request.ilike("summary", `%${query.q}%`);
 
   const { data, error } = await request;
   if (error) throw mapPostgrestError(error, "Activity");

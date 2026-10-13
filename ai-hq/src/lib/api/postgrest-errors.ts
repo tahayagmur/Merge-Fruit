@@ -12,10 +12,17 @@ export interface PostgrestLikeError {
  * Translates database errors into client-safe API errors. Raw database
  * messages are never forwarded: they can reveal schema details.
  */
+/** SQLSTATE used by AI HQ's own database rules; their messages are written for users. */
+export const BUSINESS_RULE_CODE = "AHQ01";
+
 export function mapPostgrestError(error: PostgrestLikeError, entity = "Record"): ApiError {
   switch (error.code) {
+    case BUSINESS_RULE_CODE:
+      return new ApiError("RULE_VIOLATION", error.message.slice(0, 300));
     case "PGRST116":
+    case "P0002": // no_data_found raised by our functions
       return ApiError.notFound(entity);
+    case "22023": // invalid_parameter_value (e.g. unknown time zone)
     case "23514": // check_violation
     case "23502": // not_null_violation
     case "22001": // string_data_right_truncation

@@ -21,7 +21,8 @@ create schema if not exists auth;
 
 create table if not exists auth.users (
   id uuid primary key,
-  email text unique
+  email text unique,
+  created_at timestamptz default now()
 );
 
 -- Same resolution order as Supabase's auth.uid().

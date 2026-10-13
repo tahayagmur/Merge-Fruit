@@ -5,8 +5,11 @@ import type { CommandCenterSummary } from "@/lib/domain";
 import type { AppSupabaseClient } from "@/lib/supabase/server";
 import { toCommandCenterSummary } from "./mappers";
 
-export async function getCommandCenterSummary(supabase: AppSupabaseClient): Promise<CommandCenterSummary> {
-  const { data, error } = await supabase.rpc("command_center_summary");
+export async function getCommandCenterSummary(
+  supabase: AppSupabaseClient,
+  options: { includeDemo?: boolean } = {},
+): Promise<CommandCenterSummary> {
+  const { data, error } = await supabase.rpc("command_center_summary", { include_demo: options.includeDemo ?? false });
   if (error) throw mapPostgrestError(error, "Summary");
   return toCommandCenterSummary(data);
 }

@@ -29,6 +29,8 @@ export interface TestDatabase extends SqlRunner {
   asUser<T>(userId: string, fn: (db: SqlRunner) => Promise<T>): Promise<T>;
   /** Runs `fn` as the Supabase `anon` role (no JWT). */
   asAnon<T>(fn: (db: SqlRunner) => Promise<T>): Promise<T>;
+  /** Runs `fn` as `service_role` (bypasses RLS), like a future server-side worker. */
+  asService<T>(fn: (db: SqlRunner) => Promise<T>): Promise<T>;
   close(): Promise<void>;
 }
 
@@ -44,8 +46,8 @@ export function schemaSql(): string[] {
   return [STUB_SQL, ...migrationFiles()].map((file) => readFileSync(file, "utf8"));
 }
 
-function roleSetup(role: "authenticated" | "anon", userId?: string): string {
-  const claims = userId ? JSON.stringify({ sub: userId, role }) : "";
+function roleSetup(role: "authenticated" | "anon" | "service_role", userId?: string): string {
+  const claims = userId ? JSON.stringify({ sub: userId, role }) : role === "service_role" ? JSON.stringify({ role }) : "";
   // set_config(..., true) scopes the claims to the current transaction, the
   // same way PostgREST does for every API request.
   return `set local role ${role}; select set_config('request.jwt.claims', '${claims}', true);`;
@@ -73,6 +75,7 @@ async function createPgliteDatabase(): Promise<TestDatabase> {
       (await db.query<R>(sql, params)).rows,
     asUser: (userId, fn) => runAs(roleSetup("authenticated", userId), fn),
     asAnon: (fn) => runAs(roleSetup("anon"), fn),
+    asService: (fn) => runAs(roleSetup("service_role"), fn),
     close: () => db.close(),
   };
 }
@@ -116,6 +119,7 @@ async function createPostgresDatabase(url: string): Promise<TestDatabase> {
       (await client.query<R>(sql, params)).rows,
     asUser: (userId, fn) => runAs(roleSetup("authenticated", userId), fn),
     asAnon: (fn) => runAs(roleSetup("anon"), fn),
+    asService: (fn) => runAs(roleSetup("service_role"), fn),
     close: () => client.end(),
   };
 }

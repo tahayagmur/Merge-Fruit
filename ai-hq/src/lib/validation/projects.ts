@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { PRIORITIES, PROJECT_CATEGORIES, PROJECT_STATUSES } from "@/lib/domain";
-import { optionalDate, optionalText, requireAtLeastOneField, requiredText } from "./common";
+import { optionalDate, optionalText, pageSchema, requireAtLeastOneField, requiredText, searchQuerySchema } from "./common";
 
 const projectFields = {
   name: requiredText("Name", 120),
@@ -34,9 +34,18 @@ export const projectUpdateSchema = z
 export const projectListQuerySchema = z.strictObject({
   status: z.enum(PROJECT_STATUSES).optional(),
   category: z.enum(PROJECT_CATEGORIES).optional(),
+  q: searchQuerySchema,
+  page: pageSchema,
 });
 
 export type ProjectListQuery = z.output<typeof projectListQuerySchema>;
 
 export type ProjectCreateInput = z.output<typeof projectCreateSchema>;
 export type ProjectUpdateInput = z.output<typeof projectUpdateSchema>;
+
+export const PROJECT_TEMPLATES = ["game_release", "saas_launch"] as const;
+export type ProjectTemplate = (typeof PROJECT_TEMPLATES)[number];
+
+export const applyTemplateSchema = z.strictObject({
+  template: z.enum(PROJECT_TEMPLATES),
+});

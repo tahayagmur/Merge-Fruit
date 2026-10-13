@@ -31,6 +31,8 @@ export default defineConfig({
           name: "db",
           environment: "node",
           include: ["tests/db/**/*.test.ts"],
+          // A shared TEST_DATABASE_URL is reset by every file, so files must run one by one.
+          fileParallelism: !process.env.TEST_DATABASE_URL,
           // One database instance per file; PGlite boot + migrations take a moment.
           testTimeout: 30_000,
           hookTimeout: 60_000,

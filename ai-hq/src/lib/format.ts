@@ -41,3 +41,29 @@ export function percentage(part: number, total: number): number {
   if (total <= 0) return 0;
   return Math.round((part / total) * 100);
 }
+
+/** Today's date (YYYY-MM-DD) in an IANA time zone. Falls back to UTC for unknown zones. */
+export function todayInTimeZone(timeZone: string, now: Date = new Date()): string {
+  try {
+    return new Intl.DateTimeFormat("en-CA", { timeZone, year: "numeric", month: "2-digit", day: "2-digit" }).format(now);
+  } catch {
+    return todayUtc(now);
+  }
+}
+
+/** Absolute timestamp in the workspace time zone, e.g. "Oct 14, 2026, 09:30". */
+export function formatDateTime(timestamp: string, timeZone = "UTC"): string {
+  try {
+    return new Intl.DateTimeFormat("en", {
+      timeZone,
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+      hourCycle: "h23",
+    }).format(new Date(timestamp));
+  } catch {
+    return new Date(timestamp).toISOString();
+  }
+}

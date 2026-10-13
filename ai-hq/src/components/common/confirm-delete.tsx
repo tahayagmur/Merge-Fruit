@@ -1,7 +1,7 @@
 "use client";
 
 import { Loader2 } from "lucide-react";
-import { type ReactNode, useState } from "react";
+import { type ReactNode, useId, useState } from "react";
 import {
   AlertDialog,
   AlertDialogCancel,
@@ -13,6 +13,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 
 interface ConfirmDeleteProps {
   title: string;
@@ -22,6 +23,10 @@ interface ConfirmDeleteProps {
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
   confirmLabel?: string;
+  /** When set, the user must type this text before confirming (for sensitive actions). */
+  confirmPhrase?: string;
+  /** "default" for confirmations that are sensitive but not destructive. */
+  tone?: "destructive" | "default";
   onConfirm: () => Promise<boolean>;
 }
 
@@ -33,11 +38,20 @@ export function ConfirmDelete({
   open: controlledOpen,
   onOpenChange,
   confirmLabel = "Delete",
+  confirmPhrase,
+  tone = "destructive",
   onConfirm,
 }: ConfirmDeleteProps) {
+  const uid = useId();
+  const [typed, setTyped] = useState("");
   const [uncontrolledOpen, setUncontrolledOpen] = useState(false);
   const open = controlledOpen ?? uncontrolledOpen;
-  const setOpen = onOpenChange ?? setUncontrolledOpen;
+  const setOpenState = onOpenChange ?? setUncontrolledOpen;
+  const setOpen = (next: boolean) => {
+    if (!next) setTyped("");
+    setOpenState(next);
+  };
+  const phraseMatches = !confirmPhrase || typed.trim() === confirmPhrase;
   const [pending, setPending] = useState(false);
 
   async function confirm() {
@@ -57,9 +71,23 @@ export function ConfirmDelete({
           <AlertDialogTitle>{title}</AlertDialogTitle>
           <AlertDialogDescription>{description}</AlertDialogDescription>
         </AlertDialogHeader>
+        {confirmPhrase && (
+          <div className="grid gap-2">
+            <label htmlFor={`${uid}-confirm-phrase`} className="text-sm text-muted-foreground">
+              Type <span className="font-mono text-foreground">{confirmPhrase}</span> to confirm.
+            </label>
+            <Input
+              id={`${uid}-confirm-phrase`}
+              value={typed}
+              onChange={(event) => setTyped(event.target.value)}
+              autoComplete="off"
+              spellCheck={false}
+            />
+          </div>
+        )}
         <AlertDialogFooter>
           <AlertDialogCancel disabled={pending}>Cancel</AlertDialogCancel>
-          <Button variant="destructive" onClick={confirm} disabled={pending}>
+          <Button variant={tone === "destructive" ? "destructive" : "default"} onClick={confirm} disabled={pending || !phraseMatches}>
             {pending && <Loader2 className="animate-spin" />}
             {confirmLabel}
           </Button>

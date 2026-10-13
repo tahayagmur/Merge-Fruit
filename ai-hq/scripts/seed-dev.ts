@@ -1,6 +1,6 @@
 /**
- * Seeds DEVELOPMENT data: one dev user plus demo projects, tasks and an
- * automation entry. Refuses to run unless APP_ENV=development and the target is
+ * Seeds DEVELOPMENT data: one dev user plus the labelled demo dataset
+ * (src/lib/demo/dataset.ts). Refuses to run unless APP_ENV=development and the target is
  * a local Supabase or the project named in DEV_SUPABASE_PROJECT_REF.
  *
  *   npm run db:seed:dev            # create user + demo data (skips if present)
@@ -12,18 +12,11 @@ import { randomBytes } from "node:crypto";
 import { existsSync } from "node:fs";
 import { createClient } from "@supabase/supabase-js";
 import type { Database } from "../src/lib/database.types";
+import { demoAgents, demoProjects } from "../src/lib/demo/dataset";
 import { resolveSeedTarget, SeedRefusedError } from "./lib/seed-guard";
-
-const DEMO_PREFIX = "[Demo] ";
 
 for (const file of [".env.development.local", ".env.local"]) {
   if (existsSync(file)) process.loadEnvFile(file);
-}
-
-function isoDate(daysFromToday: number) {
-  const date = new Date();
-  date.setUTCDate(date.getUTCDate() + daysFromToday);
-  return date.toISOString().slice(0, 10);
 }
 
 async function main() {
@@ -49,74 +42,68 @@ async function main() {
   }
   const ownerId = user.id;
 
-  // 2. Demo data, tagged with a prefix so it is easy to recognise and remove.
-  const { data: existing, error: existingError } = await admin
+  // 2. Demo data: the same labelled dataset the in-app loader uses (is_demo = true, "[Demo] " prefix).
+  // The secret key bypasses RLS, so every query is scoped to the development user explicitly.
+  const DEMO_TABLES = ["agent_task_records", "agent_definitions", "automations", "tasks", "projects"] as const;
+  const { count, error: countError } = await admin
     .from("projects")
-    .select("id")
+    .select("id", { count: "exact", head: true })
     .eq("owner_id", ownerId)
-    .like("name", `${DEMO_PREFIX}%`);
-  if (existingError) throw existingError;
+    .eq("is_demo", true);
+  if (countError) throw countError;
 
-  if (existing.length > 0 && !reset) {
+  if ((count ?? 0) > 0 && !reset) {
     console.log("Demo data already present. Run with --reset to recreate it.");
   } else {
-    if (existing.length > 0) {
-      const { error } = await admin.from("projects").delete().in("id", existing.map((project) => project.id));
+    for (const table of DEMO_TABLES) {
+      const { error } = await admin.from(table).delete().eq("owner_id", ownerId).eq("is_demo", true);
       if (error) throw error;
-      const { error: automationError } = await admin
-        .from("automations")
-        .delete()
-        .eq("owner_id", ownerId)
-        .like("name", `${DEMO_PREFIX}%`);
-      if (automationError) throw automationError;
     }
 
-    const { data: projects, error: projectError } = await admin
-      .from("projects")
-      .insert([
-        {
-          owner_id: ownerId,
-          name: `${DEMO_PREFIX}AI HQ foundation`,
-          description: "Sample project created by the development seed.",
-          status: "active",
-          category: "general",
-          priority: "high",
-          due_date: isoDate(14),
-        },
-        {
-          owner_id: ownerId,
-          name: `${DEMO_PREFIX}Puzzle game soft launch`,
-          description: "Sample game project.",
-          status: "planning",
-          category: "game",
-          priority: "medium",
-          due_date: isoDate(45),
-        },
-      ])
-      .select("id, name");
-    if (projectError) throw projectError;
+    const projectIds: string[] = [];
+    for (const demo of demoProjects()) {
+      const { data: project, error } = await admin
+        .from("projects")
+        .insert({ ...demo.project, owner_id: ownerId, is_demo: true })
+        .select("id")
+        .single();
+      if (error) throw error;
+      projectIds.push(project.id);
+      if (demo.tasks.length > 0) {
+        const { error: taskError } = await admin
+          .from("tasks")
+          .insert(demo.tasks.map((task) => ({ ...task, owner_id: ownerId, project_id: project.id, is_demo: true })));
+        if (taskError) throw taskError;
+      }
+      if (demo.automations.length > 0) {
+        const { error: automationError } = await admin
+          .from("automations")
+          .insert(demo.automations.map((item) => ({ ...item, owner_id: ownerId, project_id: project.id, is_demo: true })));
+        if (automationError) throw automationError;
+      }
+    }
 
-    const [foundation, game] = projects;
-    const { error: taskError } = await admin.from("tasks").insert([
-      { owner_id: ownerId, project_id: foundation.id, title: "Review RLS policies", status: "done", priority: "high" },
-      { owner_id: ownerId, project_id: foundation.id, title: "Connect existing n8n workflows (Phase 2)", status: "todo", priority: "medium", due_date: isoDate(10) },
-      { owner_id: ownerId, project_id: foundation.id, title: "Write runbook", status: "in_progress", priority: "medium", due_date: isoDate(-1) },
-      { owner_id: ownerId, project_id: game.id, title: "Prepare store listing", status: "todo", priority: "low" },
-      { owner_id: ownerId, project_id: game.id, title: "Fix crash on resume", status: "blocked", priority: "critical" },
-    ]);
-    if (taskError) throw taskError;
-
-    const { error: automationError } = await admin.from("automations").insert({
-      owner_id: ownerId,
-      project_id: foundation.id,
-      name: `${DEMO_PREFIX}Weekly project digest`,
-      description: "Sample catalogue entry. Not linked to any n8n workflow.",
-      trigger_type: "schedule",
-      trigger_notes: "Every Monday 09:00",
-      status: "draft",
-    });
-    if (automationError) throw automationError;
-    console.log("Inserted demo projects, tasks and an automation entry.");
+    for (const demo of demoAgents()) {
+      const { data: agent, error } = await admin
+        .from("agent_definitions")
+        .insert({ ...demo.agent, owner_id: ownerId, is_demo: true })
+        .select("id")
+        .single();
+      if (error) throw error;
+      if (demo.tasks.length > 0) {
+        const { error: taskError } = await admin.from("agent_task_records").insert(
+          demo.tasks.map(({ projectIndex, ...task }) => ({
+            ...task,
+            owner_id: ownerId,
+            agent_id: agent.id,
+            project_id: projectIndex === undefined ? null : (projectIds[projectIndex] ?? null),
+            is_demo: true,
+          })),
+        );
+        if (taskError) throw taskError;
+      }
+    }
+    console.log("Inserted the demo dataset (projects, tasks, automations, agents, agent tasks).");
   }
 
   if (generatedPassword) {
