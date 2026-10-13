@@ -10,8 +10,9 @@ import { PageHeader } from "@/components/layout/page-header";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { requireWorkspace } from "@/lib/auth/workspace";
+import { isAdminRole, requireWorkspace } from "@/lib/auth/workspace";
 import { listActivity } from "@/lib/data/activity";
+import { listProfiles } from "@/lib/data/profiles";
 import { ACTIVITY_ENTITY_LABELS, ACTIVITY_ENTITY_TYPES } from "@/lib/domain";
 import { type ActivityQuery, activityQuerySchema } from "@/lib/validation/activity";
 
@@ -48,33 +49,63 @@ function activityHref(params: Record<string, string | undefined>) {
 async function ActivityContent({ searchParams }: { searchParams: PageProps<"/activity">["searchParams"] }) {
   const raw = await searchParams;
   const parsed = activityQuerySchema.safeParse({
+    scope: single(raw.scope),
     entityType: single(raw.entityType),
     before: single(raw.before),
     q: single(raw.q),
     limit: PAGE_SIZE,
   });
   // Invalid parameters fall back to the unfiltered first page instead of an error screen.
-  const query: ActivityQuery = parsed.success ? parsed.data : { limit: PAGE_SIZE, q: undefined };
+  const query: ActivityQuery = parsed.success ? parsed.data : { scope: "mine", limit: PAGE_SIZE, q: undefined };
 
-  const { supabase } = await requireWorkspace();
-  const page = await listActivity(supabase, query);
+  const { supabase, user, profile } = await requireWorkspace();
+  const canAudit = isAdminRole(profile.role);
+  // Members asking for the workspace feed get their own feed (the API answers 403).
+  const workspace = canAudit && query.scope === "workspace";
+  const [page, profiles] = await Promise.all([
+    listActivity(supabase, query, workspace ? { workspace: true } : { ownerId: user.id }),
+    workspace ? listProfiles(supabase) : Promise.resolve([]),
+  ]);
+  const actorNames = workspace
+    ? Object.fromEntries(profiles.map((item) => [item.id, item.displayName || item.email || "User"]))
+    : undefined;
   const now = new Date();
 
-  const params = { entityType: query.entityType, q: query.q };
+  const params = {
+    scope: workspace ? "workspace" : undefined,
+    entityType: query.entityType,
+    q: query.q,
+  };
   const filtered = Boolean(query.entityType || query.q);
   const nextHref = page.nextCursor ? activityHref({ ...params, before: String(page.nextCursor) }) : null;
 
   return (
     <div className="grid grid-cols-1 gap-4">
       <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
-        <FilterChips
-          label="Type"
-          param="entityType"
-          current={query.entityType}
-          basePath="/activity"
-          params={params}
-          options={ACTIVITY_ENTITY_TYPES.map((value) => ({ value, label: ACTIVITY_ENTITY_LABELS[value] }))}
-        />
+        <div className="grid gap-3">
+          {canAudit && (
+            <FilterChips
+              label="Feed"
+              param="scope"
+              current={params.scope}
+              basePath="/activity"
+              params={params}
+              allLabel="Mine"
+              options={[{ value: "workspace", label: "Whole workspace" }]}
+            />
+          )}
+          <FilterChips
+            label="Type"
+            param="entityType"
+            current={query.entityType}
+            basePath="/activity"
+            params={params}
+            options={ACTIVITY_ENTITY_TYPES.map((value) => ({
+              value,
+              label: ACTIVITY_ENTITY_LABELS[value],
+            }))}
+          />
+        </div>
         <SearchForm
           basePath="/activity"
           params={params}
@@ -96,7 +127,7 @@ async function ActivityContent({ searchParams }: { searchParams: PageProps<"/act
               }
             />
           ) : (
-            <ActivityFeed entries={page.entries} now={now} />
+            <ActivityFeed entries={page.entries} now={now} actorNames={actorNames} />
           )}
         </CardContent>
       </Card>

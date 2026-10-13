@@ -41,7 +41,18 @@ const ACTION_COLOR: Record<ActivityAction, string> = {
   deleted: "text-destructive",
 };
 
-export function ActivityFeed({ entries, now, compact }: { entries: ActivityEntry[]; now: Date; compact?: boolean }) {
+export function ActivityFeed({
+  entries,
+  now,
+  compact,
+  actorNames,
+}: {
+  entries: ActivityEntry[];
+  now: Date;
+  compact?: boolean;
+  /** When set (workspace audit view), each entry shows who made the change. */
+  actorNames?: Record<string, string>;
+}) {
   return (
     <ol className="relative flex flex-col">
       {entries.map((entry, index) => {
@@ -66,6 +77,14 @@ export function ActivityFeed({ entries, now, compact }: { entries: ActivityEntry
                 </time>
                 <span className="mx-1.5">·</span>
                 <span>{ACTIVITY_ENTITY_LABELS[entry.entityType]}</span>
+                {actorNames && (
+                  <>
+                    <span className="mx-1.5">·</span>
+                    <span className="text-foreground/80">
+                      {entry.actorId ? (actorNames[entry.actorId] ?? "Unknown user") : "Deleted user"}
+                    </span>
+                  </>
+                )}
               </p>
             </div>
           </li>

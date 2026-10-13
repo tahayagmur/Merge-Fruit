@@ -1,3 +1,4 @@
+import { Download } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Suspense } from "react";
@@ -13,6 +14,7 @@ import { ProfileForm } from "@/components/settings/profile-form";
 import { RoleControl } from "@/components/settings/role-control";
 import { SignOutEverywhere } from "@/components/settings/sign-out-everywhere";
 import { WorkspaceForm } from "@/components/settings/workspace-form";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -32,6 +34,7 @@ const TABS = [
   { id: "workspace", label: "Workspace" },
   { id: "users", label: "Users & roles" },
   { id: "demo", label: "Demo data" },
+  { id: "export", label: "Data export" },
   { id: "environment", label: "Environment" },
 ] as const;
 
@@ -80,6 +83,7 @@ async function SettingsContent({ searchParams }: { searchParams: PageProps<"/set
         {tab === "workspace" && <WorkspaceTab workspace={workspace} />}
         {tab === "users" && <UsersTab workspace={workspace} />}
         {tab === "demo" && <DemoTab workspace={workspace} />}
+        {tab === "export" && <ExportTab />}
         {tab === "environment" && <EnvironmentTab workspace={workspace} />}
       </div>
     </div>
@@ -298,6 +302,27 @@ async function DemoTab({ workspace }: { workspace: WorkspaceContext }) {
       </CardHeader>
       <CardContent>
         <DemoDataPanel counts={counts} production={env.appEnv === "production"} />
+      </CardContent>
+    </Card>
+  );
+}
+
+function ExportTab() {
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>Data export</CardTitle>
+        <CardDescription>
+          One JSON file with everything you own: projects, tasks, automations, agents, agent tasks and your activity log.
+          Workspace and integration settings are not included. Useful as a personal backup or before a rollback.
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        <Button asChild>
+          <a href="/api/export" download>
+            <Download /> Download my data
+          </a>
+        </Button>
       </CardContent>
     </Card>
   );

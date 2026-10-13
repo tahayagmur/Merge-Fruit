@@ -115,6 +115,8 @@ export function toActivityEntry(row: ActivityRow): ActivityEntry {
       : {};
   return {
     id: row.id,
+    ownerId: row.owner_id,
+    actorId: row.actor_id,
     entityType: isOneOf(ACTIVITY_ENTITY_TYPES, row.entity_type) ? row.entity_type : "project",
     entityId: row.entity_id,
     action: isOneOf(ACTIVITY_ACTIONS, row.action) ? row.action : "updated",

@@ -8,6 +8,8 @@ const now = new Date("2026-10-13T12:00:00Z");
 const entries: ActivityEntry[] = [
   {
     id: 2,
+    ownerId: "u1",
+    actorId: "u2",
     entityType: "task",
     entityId: "t1",
     action: "status_changed",
@@ -17,6 +19,8 @@ const entries: ActivityEntry[] = [
   },
   {
     id: 1,
+    ownerId: "u1",
+    actorId: null,
     entityType: "project",
     entityId: "p1",
     action: "created",
@@ -34,6 +38,15 @@ describe("ActivityFeed", () => {
     expect(items[0]).toHaveTextContent("Task Ship v1: todo -> done");
     expect(items[0]).toHaveTextContent("2 hours ago");
     expect(items[1]).toHaveTextContent("yesterday");
+  });
+
+  it("names who made each change only in the workspace audit view", () => {
+    const { rerender } = render(<ActivityFeed entries={entries} now={now} />);
+    expect(screen.queryByText("Bob")).not.toBeInTheDocument();
+    rerender(<ActivityFeed entries={entries} now={now} actorNames={{ u2: "Bob" }} />);
+    const items = screen.getAllByRole("listitem");
+    expect(items[0]).toHaveTextContent("Bob");
+    expect(items[1]).toHaveTextContent("Deleted user");
   });
 
   it("exposes machine-readable timestamps", () => {

@@ -72,6 +72,7 @@ test("members cannot use admin or owner operations, even by calling the API dire
   ).toBe(403);
   expect((await bob.request.delete("/api/integrations/n8n")).status()).toBe(403);
   expect((await bob.request.patch(`/api/users/${USERS.bob.id}/role`, { data: { role: "owner" } })).status()).toBe(403);
+  expect((await bob.request.get("/api/activity?scope=workspace")).status()).toBe(403);
 
   // The same screens are read-only for members.
   await bob.goto("/settings?tab=workspace");
@@ -79,6 +80,8 @@ test("members cannot use admin or owner operations, even by calling the API dire
   await expect(bob.getByRole("button", { name: "Save workspace" })).toHaveCount(0);
   await bob.goto("/settings?tab=users");
   await expect(bob.getByText("Only workspace owners and admins can see the user list.")).toBeVisible();
+  await bob.goto("/activity?scope=workspace");
+  await expect(bob.getByRole("group", { name: "Filter by feed" })).toHaveCount(0);
   await bob.goto("/integrations/n8n");
   await expect(bob.getByText("Only workspace owners and admins can change integration settings.")).toBeVisible();
   await expect(bob.getByRole("button", { name: "Save settings" })).toHaveCount(0);
@@ -136,4 +139,31 @@ test("the content security policy is sent and the app runs without violations", 
   await page.keyboard.press("Escape");
 
   expect(violations).toEqual([]);
+});
+
+test("owners audit the whole workspace; personal feeds stay personal", async ({ browser }) => {
+  const bob = await browser.newPage();
+  await signIn(bob, USERS.bob);
+  const name = uniqueName("Bob audit");
+  const created = await bob.request.post("/api/projects", { data: { name } });
+  expect(created.status()).toBe(201);
+  const { data: project } = await created.json();
+
+  const alice = await browser.newPage();
+  await signIn(alice, USERS.alice);
+  await alice.goto("/activity");
+  await expect(alice.getByText(`Project created: ${name}`)).toHaveCount(0);
+
+  await alice.getByRole("group", { name: "Filter by feed" }).getByRole("link", { name: "Whole workspace" }).click();
+  await expect(alice).toHaveURL("/activity?scope=workspace");
+  const entry = alice.getByRole("listitem").filter({ hasText: `Project created: ${name}` });
+  await expect(entry).toContainText(USERS.bob.email);
+
+  const api = await alice.request.get("/api/activity?scope=workspace&entityType=project");
+  expect(api.status()).toBe(200);
+  expect(JSON.stringify(await api.json())).toContain(name);
+  const own = await alice.request.get("/api/activity?entityType=project");
+  expect(JSON.stringify(await own.json())).not.toContain(name);
+
+  expect((await bob.request.delete(`/api/projects/${project.id}`)).status()).toBe(204);
 });

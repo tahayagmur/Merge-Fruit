@@ -75,11 +75,11 @@ export default function CommandCenterPage(props: PageProps<"/">) {
 async function CommandCenterContent({ searchParams }: { searchParams: PageProps<"/">["searchParams"] }) {
   const params = await searchParams;
   const includeDemo = params.demo === "include";
-  const { supabase, settings } = await requireWorkspace();
+  const { supabase, settings, user } = await requireWorkspace();
   const [summary, upcoming, activity, projects, queued, integrations] = await Promise.all([
     getCommandCenterSummary(supabase, { includeDemo }),
     listUpcomingTasks(supabase, { limit: 6, includeDemo }),
-    listActivity(supabase, { limit: 8 }),
+    listActivity(supabase, { limit: 8 }, { ownerId: user.id }),
     listProjects(supabase, { status: "active", pageSize: 5, includeDemo }),
     listQueuedAgentTasks(supabase, { limit: 4, includeDemo }),
     listIntegrationViews(supabase),

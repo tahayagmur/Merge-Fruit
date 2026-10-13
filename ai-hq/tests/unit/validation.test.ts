@@ -85,8 +85,13 @@ describe("automation validation", () => {
 
 describe("activity query validation", () => {
   it("coerces and bounds pagination", () => {
-    expect(activityQuerySchema.parse({ limit: "20", before: "15" })).toEqual({ limit: 20, before: 15 });
+    expect(activityQuerySchema.parse({ limit: "20", before: "15" })).toEqual({ scope: "mine", limit: 20, before: 15 });
     expect(activityQuerySchema.safeParse({ limit: "500" }).success).toBe(false);
-    expect(activityQuerySchema.parse({})).toEqual({ limit: 50 });
+    expect(activityQuerySchema.parse({})).toEqual({ scope: "mine", limit: 50 });
+  });
+
+  it("defaults to the personal feed and only knows two scopes", () => {
+    expect(activityQuerySchema.parse({ scope: "workspace" }).scope).toBe("workspace");
+    expect(activityQuerySchema.safeParse({ scope: "everyone" }).success).toBe(false);
   });
 });

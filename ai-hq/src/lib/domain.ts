@@ -189,6 +189,10 @@ export interface Automation {
 
 export interface ActivityEntry {
   id: number;
+  /** Whose feed the entry belongs to. */
+  ownerId: string;
+  /** Who made the change (null when the account was deleted). */
+  actorId: string | null;
   entityType: ActivityEntityType;
   entityId: string | null;
   action: ActivityAction;

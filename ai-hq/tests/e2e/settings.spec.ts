@@ -1,6 +1,7 @@
+import { readFile } from "node:fs/promises";
 import { expect, test } from "@playwright/test";
 import { USERS } from "./support/fixtures";
-import { choose, signIn } from "./support/helpers";
+import { choose, signIn, uniqueName } from "./support/helpers";
 
 test.beforeEach(async ({ page }) => {
   await signIn(page, USERS.alice);
@@ -81,6 +82,34 @@ test("demo data is labelled, kept out of figures by default and removable", asyn
   await page.getByRole("alertdialog").getByRole("button", { name: "Remove demo data" }).click();
   await expect(page.getByText("Demo data removed")).toBeVisible();
   await expect(page.getByRole("button", { name: "Load demo data" })).toBeEnabled();
+});
+
+test("the data export downloads the user's own records only", async ({ page, browser }) => {
+  const mine = uniqueName("Export mine");
+  const created = await page.request.post("/api/projects", { data: { name: mine } });
+  const { data: project } = await created.json();
+
+  const bob = await browser.newPage();
+  await signIn(bob, USERS.bob);
+  const theirs = uniqueName("Export theirs");
+  const bobProject = await (await bob.request.post("/api/projects", { data: { name: theirs } })).json();
+
+  await page.goto("/settings?tab=export");
+  const [download] = await Promise.all([
+    page.waitForEvent("download"),
+    page.getByRole("link", { name: "Download my data" }).click(),
+  ]);
+  expect(download.suggestedFilename()).toMatch(/^ai-hq-export-\d{4}-\d{2}-\d{2}\.json$/);
+  const file = JSON.parse(await readFile((await download.path())!, "utf8"));
+  expect(file).toMatchObject({ format: "ai-hq-export", version: 1, user: { email: USERS.alice.email } });
+  const names = file.projects.map((item: { name: string }) => item.name);
+  expect(names).toContain(mine);
+  expect(names).not.toContain(theirs);
+  // Alice is the owner and may audit Bob's activity, but it never lands in her personal export.
+  expect(JSON.stringify(file.activity)).not.toContain(theirs);
+
+  expect((await page.request.delete(`/api/projects/${project.id}`)).status()).toBe(204);
+  expect((await bob.request.delete(`/api/projects/${bobProject.data.id}`)).status()).toBe(204);
 });
 
 async function ownId(page: import("@playwright/test").Page): Promise<string> {

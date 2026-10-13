@@ -3,8 +3,12 @@ import path from "node:path";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { createTestDatabase, migrationFiles, type TestDatabase } from "./harness";
 
-const ROLLBACK = path.resolve(__dirname, "../../supabase/rollback/20261014120000_phase2_core_down.sql");
+const ROLLBACK_DIR = path.resolve(__dirname, "../../supabase/rollback");
+// Newer migrations depend on Phase 2 objects, so their rollbacks run first (newest first).
+const LATER_ROLLBACKS = ["20261015120000_workspace_audit_down.sql"].map((file) => path.join(ROLLBACK_DIR, file));
+const ROLLBACK = path.join(ROLLBACK_DIR, "20261014120000_phase2_core_down.sql");
 const PHASE2 = migrationFiles().find((file) => file.includes("phase2_core"))!;
+const LATER_MIGRATIONS = migrationFiles().filter((file) => file > PHASE2);
 const USER = "00000000-0000-4000-8000-00000000a11c";
 
 let db: TestDatabase;
@@ -23,6 +27,7 @@ afterAll(async () => {
 
 describe("phase 2 rollback script", () => {
   it("restores the Phase 1 schema and keeps Phase 1 data", async () => {
+    for (const file of LATER_ROLLBACKS) await db.exec(readFileSync(file, "utf8"));
     await db.exec(readFileSync(ROLLBACK, "utf8"));
 
     const tables = await db.query<{ table_name: string }>(
@@ -43,6 +48,7 @@ describe("phase 2 rollback script", () => {
 
   it("can be re-applied after a rollback", async () => {
     await db.exec(readFileSync(PHASE2, "utf8"));
+    for (const file of LATER_MIGRATIONS) await db.exec(readFileSync(file, "utf8"));
     const [profile] = await db.query<{ role: string }>("select role from public.profiles where id = $1", [USER]);
     expect(profile.role).toBe("owner");
     const [automation] = await db.query<{ provider: string; external_workflow_id: string }>(

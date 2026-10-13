@@ -12,9 +12,15 @@ export interface ActivityPage {
   nextCursor: number | null;
 }
 
+/**
+ * Lists activity. `feed` is explicit so a workspace-wide listing is always a
+ * deliberate choice: RLS lets owners and admins read every entry, so their own
+ * feed must be filtered by owner.
+ */
 export async function listActivity(
   supabase: AppSupabaseClient,
-  query: Partial<ActivityQuery> = {},
+  query: Partial<ActivityQuery>,
+  feed: { ownerId: string } | { workspace: true },
 ): Promise<ActivityPage> {
   const limit = query.limit ?? 50;
   let request = supabase
@@ -22,6 +28,7 @@ export async function listActivity(
     .select("*")
     .order("id", { ascending: false })
     .limit(limit + 1);
+  if ("ownerId" in feed) request = request.eq("owner_id", feed.ownerId);
   if (query.before) request = request.lt("id", query.before);
   if (query.entityType) request = request.eq("entity_type", query.entityType);
   if (query.q) request = request.ilike("summary", `%${query.q}%`);
