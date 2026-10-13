@@ -26,8 +26,8 @@ arasındaki tutarlılığı denetler).
 | SaaS & Business | Kısmi | SaaS projeleri, lansman kontrol listesi, gelir için dürüst boş durum | Faz 6: salt okunur ödeme verisi |
 | AI Agent Hub | Kısmi | Ajan tanımları (sürümlü), görev kuyruğu, iptal | Faz 4: Hermes Agent ile çalıştırma |
 | Integrations | Kısmi | 8 servisin kataloğu (Hermes Agent dahil), durum, ayarlar (admin), sır varlığı | Faz 3–6: connector'lar ve bağlantı testleri |
-| Activity Logs | Çalışıyor | Değiştirilemez denetim kaydı, 8 tür, arama | Faz 3'te n8n çalışmaları |
-| Settings | Çalışıyor | Profil, parola, iki adımlı giriş (TOTP), oturumlar, çalışma alanı, roller, demo veri, ortam | Kurtarma kodları, bildirim tercihleri, veri dışa aktarma |
+| Activity Logs | Çalışıyor | Değiştirilemez denetim kaydı, 8 tür, arama, owner/admin için tüm çalışma alanı | Faz 3'te n8n çalışmaları |
+| Settings | Çalışıyor | Profil, parola, iki adımlı giriş (TOTP), oturumlar, çalışma alanı, roller, demo veri, veri dışa aktarımı, ortam | Kurtarma kodları (Supabase açınca), bildirim tercihleri (bildirim kanalı bağlanınca) |
 
 ## Sıradaki faz için sizden gerekenler
 

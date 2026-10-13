@@ -185,9 +185,14 @@ Eski imajlar silinmemelidir (en az son 3 sürüm saklanır).
 
 1. Yedek alın (Faz 2 verisi — profiller, ayarlar, ajanlar, entegrasyon ayarları — silinecek).
 2. Önce uygulamayı Faz 1 sürümüne döndürün.
-3. `supabase/rollback/20261014120000_phase2_core_down.sql` dosyasını SQL Editor'da veya `psql` ile çalıştırın.
-4. Supabase migration geçmişinden `20261014120000` kaydını kaldırın
-   (`npx supabase migration repair --status reverted 20261014120000`).
+3. Geri alma betiklerini **yeniden eskiye** sırayla çalıştırın (SQL Editor veya `psql`):
+   `supabase/rollback/20261015120000_workspace_audit_down.sql`, ardından
+   `supabase/rollback/20261014120000_phase2_core_down.sql`.
+4. Supabase migration geçmişinden bu kayıtları kaldırın
+   (`npx supabase migration repair --status reverted 20261015120000 20261014120000`).
+
+Yalnızca çalışma alanı denetim görünümünü geri almak için 3. adımda ilk betik yeterlidir
+(`migration repair --status reverted 20261015120000`); veri silinmez.
 
 Geri alma betiği `tests/db/rollback.test.ts` ile test edilir.
 

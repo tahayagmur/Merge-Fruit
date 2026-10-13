@@ -58,7 +58,7 @@ birinin projesine veya ajanına kayıt ekleyemez — bu veritabanı düzeyinde i
 | Tablo | Okuma | Yazma |
 | --- | --- | --- |
 | `projects`, `tasks`, `automations`, `agent_definitions`, `agent_task_records` | Yalnızca sahibi | Yalnızca sahibi |
-| `activity_logs` | Yalnızca sahibi | Kimse (yalnızca tetikleyiciler) |
+| `activity_logs` | Sahibi; owner/admin tüm çalışma alanını (`20261015120000_workspace_audit`) | Kimse (yalnızca tetikleyiciler) |
 | `profiles` | Kendi satırı; admin/owner herkesi | Yalnızca kendi `display_name` alanı (sütun yetkisi) |
 | `system_settings` | Tüm oturum açmış kullanıcılar | Admin/owner; yalnızca `workspace_name`, `timezone` |
 | `integration_configs` | Tüm oturum açmış kullanıcılar | Admin/owner; yalnızca `key`, `enabled`, `settings` (test sonucu sütunları hariç) |

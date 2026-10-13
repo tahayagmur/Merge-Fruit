@@ -15,8 +15,12 @@
 - **Hız sınırı** (`src/lib/rate-limit.ts`): başarısız girişler adres başına 15 dakikada 20, e-posta başına 8;
   parola değişiminde mevcut parolanın yanlış girilmesi kullanıcı başına 15 dakikada 5. Yalnızca **başarısız**
   denemeler sayılır. Adres, ters vekilin ayarladığı `X-Real-IP` veya `X-Forwarded-For`'un son değerinden alınır
-  (istemcinin taklit edebileceği önceki değerler yok sayılır). Sınırlayıcı bellek içidir (tek sunucu için
-  yeterli); Supabase Auth'un kendi sınırları da geçerlidir.
+  (istemcinin taklit edebileceği önceki değerler yok sayılır).
+- **İki katmanlı sınır:** (1) uygulamanın bellek içi sınırlayıcısı (kullanıcı/e-posta/adres ayrıntısında, uygulama
+  örneği başına); (2) Supabase Auth'un sunucu tarafı sınırları. Girişleri AI HQ sunucusu yaptığı için Supabase Auth
+  tüm denemeleri sunucunun adresinden görür; bu yüzden `sign_in_sign_ups` (5 dakikada 30) ve `token_verifications`
+  sınırları **bütün uygulama örneklerinin paylaştığı genel bir üst sınır** gibi çalışır. Önerilen kurulum (Compose)
+  tek örnektir; birden fazla örnekte de bu ortak üst sınır geçerli kalır.
 - **İki adımlı giriş (TOTP, Supabase Auth MFA):** Settings → Security'den kimlik doğrulayıcı uygulaması eklenir
   (QR kod veya anahtar + ilk kodla doğrulama). Açıksa parola girişi yalnızca `aal1` oturumu verir; proxy, sayfalar
   (`requireUser`) ve API (`apiRoute` → `401 MFA_REQUIRED`) `aal2` olmadan erişime izin vermez, kullanıcı `/login/mfa`
@@ -40,7 +44,9 @@
 3. **Satır düzeyi güvenlik (RLS)** — her tabloda açık. Kişisel kayıtlar (projeler, görevler, otomasyonlar,
    ajanlar, ajan görevleri, aktivite) yalnızca sahibine görünür. Uygulama yalnızca publishable anahtarı kullanır.
 4. **Bileşik yabancı anahtarlar** — çocuk kayıtlar ebeveynlerine `(id, owner_id)` ile bağlıdır.
-5. **Değiştirilemez aktivite kaydı** — yalnızca `SECURITY DEFINER` tetikleyiciler yazar.
+5. **Değiştirilemez aktivite kaydı** — yalnızca `SECURITY DEFINER` tetikleyiciler yazar. Owner ve admin'ler tüm
+   çalışma alanının kaydını **okuyabilir** (Activity Logs → "Whole workspace"); üyeler yalnızca kendi kayıtlarını
+   görür; hiç kimse kayıt ekleyemez, değiştiremez, silemez.
 6. **Sahte "Connected" engeli** — entegrasyon test sonucu sütunlarına kullanıcıların yazma yetkisi yoktur; durum
    sunucuda hesaplanır ve connector + başarılı gerçek test olmadan "Connected" olamaz.
 7. **anon rolü** — hiçbir tabloya, görünüme veya fonksiyona erişemez.
@@ -107,12 +113,16 @@ doğrular.
 - `tests/e2e/security.spec.ts`: iki gerçek oturumla izolasyon, CSRF, üye hesabıyla admin/owner uçlarının doğrudan
   çağrılması (`403`), entegrasyon ayarına sır eklenememesi, ajan kuralları.
 - `tests/e2e/auth.spec.ts`: çerezlerin `httpOnly`/`Lax`/≤7 gün olduğu ve `document.cookie` ile okunamadığı.
+- `tests/db/audit.test.ts`, `tests/e2e/security.spec.ts`: owner/admin çalışma alanı denetimini okur, üye okuyamaz,
+  kimse yazamaz; kişisel dışa aktarım başkasının kaydını içermez.
 - `tests/e2e/mfa.spec.ts`: kurulum, yanlış kod reddi, parola oturumunun sayfa ve API'ye erişememesi, ikinci adım, kodla kapatma (emülatör ve gerçek Supabase Auth).
 
 ## Bilinen sınırlar / sonraki adımlar
 
 - CSP'de betikler için `'unsafe-inline'` (nonce, Partial Prerendering ile uyumsuz; yukarıya bakın).
-- Hız sınırlayıcı bellek içidir; birden fazla uygulama örneği çalıştırılırsa paylaşılan bir depoya (ör. Redis)
-  taşınmalıdır.
-- İki adımlı giriş için kurtarma kodları yok (Supabase'de deneysel); telefon kaybında yönetici faktörü kaldırır.
-- Aktivite kayıtları kişiseldir; admin için çalışma alanı genelinde denetim görünümü henüz yok.
+- Birden fazla uygulama örneğinde kullanıcı başına ayrıntılı sınırlar örnek sayısıyla çarpılır (Supabase Auth'un
+  ortak üst sınırı yine geçerlidir). Bu durumda sınırlayıcı paylaşılan bir depoya (ör. Redis) taşınmalıdır.
+- İki adımlı giriş için **kurtarma kodları** yok: Supabase Auth bunları destekliyor ama sunucuda varsayılan olarak
+  kapalı ve Supabase CLI 2.120'de açma ayarı yok (denendi: `mfa_recovery_codes_enroll_not_enabled`). Yalnızca test
+  emülatöründe çalışan bir özellik eklemek yanıltıcı olurdu. Supabase bu ayarı açtığında `auth.mfa.recoveryCodes`
+  API'siyle eklenebilir. O zamana kadar telefon kaybında faktörü Supabase panelinden owner kaldırır.

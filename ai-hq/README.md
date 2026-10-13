@@ -54,8 +54,8 @@ Ek belgeler: [DEPLOYMENT](docs/DEPLOYMENT.md) · [DATA_MODEL](docs/DATA_MODEL.md
 | SaaS & Business | Kısmi | SaaS projeleri, lansman kontrol listesi. Gelir verisi bağlı kaynak olmadan **hiç gösterilmez** (tahmini/örnek sayı yok) | Faz 6: salt okunur ödeme verisi |
 | AI Agent Hub | Kısmi | Ajan tanımları (talimat, sağlayıcı, model, yetenekler, sürüm), görev kuyruğu (kuyruğa alma, iptal, silme), arama, filtre, sayfalama | Faz 4: ajan çalıştırma ortamı |
 | Integrations | Kısmi | 8 entegrasyonun kataloğu (n8n, Hermes Agent, Claude, OpenAI, webhook'lar, Google Play, App Store, Stripe), durum (Not configured / Ready to configure / Connected / Error), eksik ayar ve sunucu sırrı (yalnızca **var/yok**), yöneticiler için gizli olmayan ayarlar | Faz 3+: bağlantı testleri (connector'lar) |
-| Activity Logs | Çalışıyor | Değiştirilemez denetim kaydı; 8 kayıt türüne göre filtre, arama, sayfalama | — |
-| Settings | Çalışıyor | Profil, parola değişimi (mevcut parola tekrar doğrulanır), **iki adımlı giriş (kimlik doğrulayıcı uygulaması)**, tüm cihazlardan çıkış, çalışma alanı adı + saat dilimi, kullanıcılar ve roller, demo veri yükle/kaldır, ortam bilgisi | Kurtarma kodları |
+| Activity Logs | Çalışıyor | Değiştirilemez denetim kaydı; 8 kayıt türüne göre filtre, arama, sayfalama; owner/admin için **tüm çalışma alanı** görünümü (değişikliği kimin yaptığıyla) | — |
+| Settings | Çalışıyor | Profil, parola değişimi (mevcut parola tekrar doğrulanır), **iki adımlı giriş (kimlik doğrulayıcı uygulaması)**, tüm cihazlardan çıkış, çalışma alanı adı + saat dilimi, kullanıcılar ve roller, demo veri yükle/kaldır, **kişisel veri dışa aktarımı (JSON)**, ortam bilgisi | Kurtarma kodları (Supabase tarafında henüz açılamıyor) |
 
 Üst çubukta global arama (projeler, görevler, otomasyonlar, ajanlar), çalışma alanı adı, ortam rozeti ve rol
 rozeti bulunur.
@@ -163,6 +163,8 @@ bir tanım (ve bağlanma zamanı gelince bir connector) yeterlidir. n8n için ay
 | --- | --- |
 | `supabase/migrations/20261013120000_phase1_foundation.sql` | Faz 1: projeler, görevler, otomasyonlar, aktivite kaydı |
 | `supabase/migrations/20261014120000_phase2_core.sql` | Faz 2: profiller/roller, sistem ayarları, entegrasyon yapılandırmaları, ajan tanımları ve görev kayıtları, iş akışı meta verisi, demo bayrakları, saat dilimine göre "bugün" |
+| `supabase/migrations/20261015120000_workspace_audit.sql` | Owner/admin tüm aktivite kaydını okuyabilir (salt okunur) |
+| `supabase/rollback/20261015120000_workspace_audit_down.sql` | Yukarıdakini geri alır — Faz 2 geri alınacaksa **önce** bu çalıştırılır |
 | `supabase/rollback/20261014120000_phase2_core_down.sql` | Faz 2'yi geri alır (Faz 2 verisini siler — önce yedek) |
 
 Tablolar, ilişkiler, indeksler ve erişim kuralları: [docs/DATA_MODEL.md](docs/DATA_MODEL.md).
@@ -181,7 +183,7 @@ Tablolar, ilişkiler, indeksler ve erişim kuralları: [docs/DATA_MODEL.md](docs
 | `npm run test:unit` / `npm run test:db` | Birim+bileşen / veritabanı (RLS) testleri |
 | `npm run test:e2e` | Playwright, test emülatörüne karşı |
 | `npm run test:e2e:supabase` | Playwright, **gerçek yerel Supabase**'e karşı (`npm run db:start` gerekir) |
-| `npm run check` | lint + typecheck + test + build |
+| `npm run check` | lint + typecheck + test + build (GitHub Actions'ta `.github/workflows/ai-hq.yml` aynısını + E2E'yi çalıştırır) |
 | `npm run db:start` / `db:stop` / `db:reset` / `db:push` / `db:types` | Supabase CLI işlemleri |
 | `npm run db:seed:dev` | Geliştirme kullanıcısı + demo veri (üretimde reddeder) |
 
@@ -256,7 +258,8 @@ Tüm uçlar oturum ister (aksi `401`); izin listesi dışı hesaplar `403` alır
 | PATCH | `/api/users/:id/role` | Rol değiştir — **owner** |
 | GET / POST / DELETE | `/api/demo-data` | Demo veri durumu / yükle / kaldır |
 | GET | `/api/search?q=` | Global arama |
-| GET | `/api/activity` | Aktivite (`?limit`, `?before`, `?entityType`, `?q`) |
+| GET | `/api/activity` | Aktivite (`?limit`, `?before`, `?entityType`, `?q`, `?scope=workspace` — **owner/admin**) |
+| GET | `/api/export` | Kendi kayıtlarının tamamı, JSON dosyası olarak |
 
 Hata kodları: `VALIDATION_ERROR`, `INVALID_JSON` (400) · `UNAUTHENTICATED`, `MFA_REQUIRED` (401) · `FORBIDDEN` (403) ·
 `NOT_FOUND` (404) · `CONFLICT` (409) · `PAYLOAD_TOO_LARGE` (413) · `UNSUPPORTED_MEDIA_TYPE` (415) ·
