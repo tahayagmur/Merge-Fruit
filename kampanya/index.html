@@ -1,0 +1,923 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=5">
+<title>Kupon Ödüllü İnteraktif Mini-Oyun Kampanyaları | Tamga Studio B2B</title>
+<meta name="description" content="E-Ticaret satışlarınızı %30 artıran kupon ödüllü interaktif HTML5 mini-oyun kampanyaları. 48 saatte anahtar teslim kurulum, kurumsal fatura avantajı. Hemen canlı demoyu oynayın!">
+<link rel="canonical" href="https://tamgastudio.com/kampanya/">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<meta name="theme-color" content="#07090e">
+
+<!-- Open Graph -->
+<meta property="og:type" content="website">
+<meta property="og:title" content="E-Ticaret Satışlarınızı %30 Artıran İnteraktif Mini-Oyun Kampanyaları">
+<meta property="og:description" content="48 Saatte Teslim, Kurumsal Fatura Avantajı. Lansman Özel: 9.500 TL + KDV. Hemen canlı demoyu test edin!">
+<meta property="og:url" content="https://tamgastudio.com/kampanya/">
+
+<!-- Fonts -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&family=Syncopate:wght@700&display=swap" rel="stylesheet">
+
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#06080c;
+  --bg2:#0a0e17;
+  --card:rgba(15,22,36,0.78);
+  --border:rgba(0,255,156,0.18);
+  --border2:rgba(0,229,255,0.22);
+  --acc:#00ff9c;
+  --acc-dark:#00c978;
+  --acc2:#00e5ff;
+  --gold:#fbbf24;
+  --wa:#25D366;
+  --txt:#f1f5f9;
+  --mut:#94a3b8;
+  --mono:'JetBrains Mono',monospace;
+  --sans:'Space Grotesk',system-ui,sans-serif;
+  --disp:'Syncopate',sans-serif;
+}
+html{scroll-behavior:smooth;background:var(--bg);color:var(--txt);font-family:var(--sans);line-height:1.6}
+body{overflow-x:hidden;background:radial-gradient(circle at 50% 0%, rgba(0,255,156,0.08) 0%, transparent 55%), radial-gradient(circle at 85% 30%, rgba(0,229,255,0.07) 0%, transparent 50%), var(--bg)}
+
+/* TOP URGENCY BAR */
+.top-bar{
+  background:linear-gradient(90deg, #042f1e, #063946, #042f1e);
+  border-bottom:1px solid var(--border);
+  padding:9px 16px;text-align:center;font-size:0.82rem;font-family:var(--mono);
+  color:#e2e8f0;display:flex;justify-content:center;align-items:center;gap:10px;flex-wrap:wrap;
+}
+.top-bar .badge{background:var(--acc);color:#02180e;font-weight:700;padding:2px 8px;border-radius:4px;font-size:0.72rem;letter-spacing:0.06em;text-transform:uppercase}
+
+/* NAVBAR */
+.navbar{
+  max-width:1200px;margin:0 auto;padding:18px clamp(16px,4vw,36px);
+  display:flex;justify-content:space-between;align-items:center;
+  border-bottom:1px solid rgba(255,255,255,0.06);
+}
+.brand{display:flex;align-items:center;gap:12px;text-decoration:none;color:var(--txt);font-family:var(--disp);font-weight:700;font-size:0.95rem;letter-spacing:0.12em}
+.brand img{width:36px;height:36px;border-radius:8px;border:1px solid var(--acc);object-fit:cover}
+.brand b{color:var(--acc)}
+.nav-actions{display:flex;align-items:center;gap:14px}
+.nav-link{color:var(--mut);text-decoration:none;font-size:0.88rem;font-weight:500;transition:0.2s}
+.nav-link:hover{color:var(--acc)}
+.btn-nav-wa{
+  background:rgba(37,211,102,0.14);border:1px solid var(--wa);color:#4ade80;
+  padding:8px 16px;border-radius:8px;font-family:var(--mono);font-size:0.78rem;font-weight:700;
+  text-decoration:none;display:inline-flex;align-items:center;gap:7px;transition:0.25s;
+}
+.btn-nav-wa:hover{background:var(--wa);color:#031c0d;box-shadow:0 0 20px rgba(37,211,102,0.45)}
+
+/* CONTAINER */
+.container{max-width:1200px;margin:0 auto;padding:0 clamp(16px,4vw,36px)}
+
+/* HERO + DEMO SPLIT */
+.hero{padding:clamp(32px,5vw,64px) 0 clamp(48px,7vw,84px)}
+.hero-grid{display:grid;grid-template-columns:1.1fr 0.9fr;gap:clamp(28px,4vw,52px);align-items:center}
+@media(max-width:980px){.hero-grid{grid-template-columns:1fr}}
+
+.kicker{
+  display:inline-flex;align-items:center;gap:8px;
+  background:rgba(0,255,156,0.08);border:1px solid var(--border);
+  color:var(--acc);padding:6px 14px;border-radius:999px;
+  font-family:var(--mono);font-size:0.76rem;font-weight:600;margin-bottom:20px;
+}
+.kicker .dot{width:8px;height:8px;border-radius:50%;background:var(--acc);box-shadow:0 0 10px var(--acc);animation:pulse 1.6s infinite}
+@keyframes pulse{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.35);opacity:0.55}}
+
+.hero h1{
+  font-size:clamp(1.85rem,3.6vw,2.95rem);line-height:1.18;font-weight:700;
+  letter-spacing:-0.02em;margin-bottom:18px;color:#fff;
+}
+.hero h1 .hl{
+  background:linear-gradient(90deg,var(--acc),var(--acc2));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+}
+.hero h1 .sub-hl{
+  display:block;font-size:clamp(1.05rem,1.9vw,1.35rem);color:var(--gold);
+  font-family:var(--mono);font-weight:600;margin-top:10px;letter-spacing:0;
+}
+.hero-lead{color:var(--mut);font-size:1.05rem;margin-bottom:24px;max-width:580px}
+
+/* 3 MADDELİK FAYDA LİSTESİ (KUTU İÇİNDE) */
+.benefit-quick{
+  list-style:none;display:grid;gap:10px;margin-bottom:26px;
+}
+.benefit-quick li{
+  display:flex;align-items:center;gap:12px;background:rgba(255,255,255,0.03);
+  border:1px solid rgba(255,255,255,0.07);padding:11px 15px;border-radius:10px;
+  font-size:0.95rem;font-weight:500;color:#e2e8f0;
+}
+.benefit-quick li span.chk{
+  width:24px;height:24px;border-radius:6px;background:rgba(0,255,156,0.15);
+  color:var(--acc);display:inline-flex;align-items:center;justify-content:center;
+  font-weight:700;flex-shrink:0;
+}
+
+/* PRICING CALLOUT BOX */
+.price-box{
+  background:linear-gradient(135deg, rgba(0,255,156,0.1) 0%, rgba(0,229,255,0.05) 100%);
+  border:1.5px solid var(--acc);border-radius:16px;padding:20px 24px;
+  margin-bottom:26px;position:relative;overflow:hidden;
+  box-shadow:0 16px 40px -15px rgba(0,255,156,0.22);
+}
+.price-tag-badge{
+  position:absolute;top:12px;right:14px;background:var(--gold);color:#1e1300;
+  font-family:var(--mono);font-size:0.7rem;font-weight:700;padding:3px 9px;border-radius:6px;
+  text-transform:uppercase;
+}
+.price-label{font-family:var(--mono);font-size:0.78rem;color:var(--acc2);text-transform:uppercase;letter-spacing:0.1em}
+.price-val{font-size:clamp(1.65rem,3vw,2.25rem);font-weight:700;color:#fff;margin:4px 0}
+.price-val small{font-size:0.95rem;color:var(--mut);font-weight:500}
+.price-desc{font-size:0.88rem;color:#cbd5e1}
+
+/* WHATSAPP CTA BUTTON */
+.cta-wrap{display:flex;flex-wrap:wrap;gap:14px;align-items:center}
+.btn-wa-main{
+  display:inline-flex;align-items:center;justify-content:center;gap:12px;
+  background:linear-gradient(135deg, #25D366 0%, #128C7E 100%);
+  color:#fff;text-decoration:none;font-weight:700;font-size:1.08rem;
+  padding:17px 30px;border-radius:14px;border:1px solid rgba(255,255,255,0.25);
+  box-shadow:0 0 0 0 rgba(37,211,102,0.7), 0 12px 30px -6px rgba(37,211,102,0.55);
+  animation:waPulse 2s infinite;transition:transform 0.2s, box-shadow 0.2s;
+  cursor:pointer;
+}
+.btn-wa-main:hover{transform:translateY(-2px) scale(1.01);box-shadow:0 18px 38px -6px rgba(37,211,102,0.75)}
+.btn-wa-main svg{width:24px;height:24px;fill:currentColor;flex-shrink:0}
+@keyframes waPulse{
+  0%{box-shadow:0 0 0 0 rgba(37,211,102,0.65), 0 12px 30px -6px rgba(37,211,102,0.5)}
+  70%{box-shadow:0 0 0 14px rgba(37,211,102,0), 0 12px 30px -6px rgba(37,211,102,0.5)}
+  100%{box-shadow:0 0 0 0 rgba(37,211,102,0), 0 12px 30px -6px rgba(37,211,102,0.5)}
+}
+.btn-demo-scroll{
+  display:inline-flex;align-items:center;gap:8px;padding:16px 22px;
+  border-radius:14px;border:1px solid var(--border2);background:rgba(0,229,255,0.06);
+  color:var(--acc2);text-decoration:none;font-weight:600;font-size:0.95rem;transition:0.2s;
+}
+.btn-demo-scroll:hover{background:rgba(0,229,255,0.15)}
+
+/* ===================================================
+   RIGHT COLUMN: INTERACTIVE HTML5 MINI-GAME + CUSTOMIZER
+   =================================================== */
+.demo-shell{
+  background:var(--card);border:1.5px solid var(--border2);border-radius:22px;
+  padding:18px;box-shadow:0 25px 60px -15px rgba(0,0,0,0.75), 0 0 40px rgba(0,229,255,0.08);
+  backdrop-filter:blur(12px);
+}
+.demo-topbar{
+  display:flex;justify-content:space-between;align-items:center;gap:10px;
+  margin-bottom:12px;padding-bottom:10px;border-bottom:1px solid rgba(255,255,255,0.08);
+  flex-wrap:wrap;
+}
+.demo-title-badge{
+  font-family:var(--mono);font-size:0.75rem;color:var(--acc);display:flex;align-items:center;gap:6px;
+}
+.brand-customizer{
+  display:flex;align-items:center;gap:6px;flex-wrap:wrap;
+}
+.preset-btn{
+  background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.14);
+  color:#e2e8f0;font-size:0.72rem;font-family:var(--mono);padding:5px 9px;
+  border-radius:6px;cursor:pointer;transition:0.2s;
+}
+.preset-btn.active,.preset-btn:hover{border-color:var(--acc);color:var(--acc);background:rgba(0,255,156,0.1)}
+
+/*Brand Customizer Input Bar*/
+.custom-brand-bar{
+  display:flex;gap:8px;margin-bottom:12px;align-items:center;flex-wrap:wrap;
+  background:rgba(0,0,0,0.35);padding:8px 10px;border-radius:10px;border:1px solid rgba(255,255,255,0.06);
+}
+.custom-brand-bar label{font-size:0.73rem;color:var(--mut);font-family:var(--mono)}
+.custom-brand-bar input[type="text"]{
+  background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.15);
+  color:#fff;padding:5px 9px;border-radius:6px;font-size:0.8rem;flex:1;min-width:120px;
+}
+.custom-brand-bar input[type="color"]{
+  width:30px;height:28px;border:none;background:none;cursor:pointer;
+}
+
+/* GAME STAGE */
+.game-viewport{
+  position:relative;width:100%;height:430px;background:linear-gradient(180deg,#090d16 0%,#10192b 100%);
+  border-radius:14px;overflow:hidden;border:1px solid rgba(255,255,255,0.1);
+  user-select:none;touch-action:none;
+}
+#gameCanvas{width:100%;height:100%;display:block}
+
+/* HUD Inside Game */
+.g-hud{
+  position:absolute;top:12px;left:12px;right:12px;display:flex;justify-content:space-between;
+  align-items:center;pointer-events:none;z-index:4;
+}
+.g-brand-pill{
+  background:rgba(0,0,0,0.65);backdrop-filter:blur(6px);
+  border:1px solid var(--brand-theme, #00ff9c);padding:5px 12px;border-radius:999px;
+  font-weight:700;font-size:0.82rem;color:#fff;display:flex;align-items:center;gap:6px;
+}
+.g-stats{
+  display:flex;gap:8px;font-family:var(--mono);font-size:0.8rem;font-weight:700;
+}
+.g-stat-box{
+  background:rgba(0,0,0,0.65);padding:5px 10px;border-radius:8px;border:1px solid rgba(255,255,255,0.15);
+}
+
+/* Overlays (Start & Win Coupon) */
+.g-overlay{
+  position:absolute;inset:0;background:rgba(6,8,14,0.88);backdrop-filter:blur(8px);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:24px;text-align:center;z-index:10;transition:opacity 0.25s;
+}
+.g-overlay.hidden{opacity:0;pointer-events:none}
+.g-icon-big{font-size:3rem;margin-bottom:8px;filter:drop-shadow(0 0 16px rgba(0,255,156,0.4))}
+.g-overlay h3{font-size:1.35rem;color:#fff;margin-bottom:6px}
+.g-overlay p{font-size:0.9rem;color:var(--mut);max-width:320px;margin-bottom:18px}
+.btn-play-game{
+  background:var(--brand-theme, #00ff9c);color:#04150d;border:none;
+  padding:13px 28px;border-radius:12px;font-weight:700;font-size:1rem;
+  cursor:pointer;box-shadow:0 8px 25px rgba(0,255,156,0.4);transition:0.2s;
+}
+.btn-play-game:hover{transform:scale(1.05)}
+
+/* Coupon Modal Box */
+.coupon-card{
+  background:linear-gradient(145deg, rgba(16,26,42,0.96), rgba(8,14,24,0.98));
+  border:2px dashed var(--acc);border-radius:16px;padding:18px 20px;width:100%;max-width:340px;
+  margin-bottom:14px;box-shadow:0 15px 35px rgba(0,0,0,0.6);
+}
+.coupon-win-tag{
+  display:inline-block;background:rgba(0,255,156,0.15);color:var(--acc);
+  font-family:var(--mono);font-size:0.72rem;font-weight:700;padding:3px 10px;border-radius:99px;
+  margin-bottom:8px;
+}
+.coupon-code-row{
+  display:flex;align-items:center;justify-content:space-between;gap:8px;
+  background:rgba(0,0,0,0.55);border:1px solid rgba(255,255,255,0.14);
+  padding:10px 14px;border-radius:10px;margin-top:10px;
+}
+.coupon-code-txt{font-family:var(--mono);font-size:1.15rem;font-weight:700;color:var(--gold);letter-spacing:0.1em}
+.btn-copy-code{
+  background:var(--acc);color:#031c0d;border:none;padding:7px 12px;border-radius:7px;
+  font-family:var(--mono);font-size:0.75rem;font-weight:700;cursor:pointer;transition:0.2s;
+}
+.btn-copy-code:hover{background:var(--acc2)}
+.demo-foot-note{
+  text-align:center;font-size:0.76rem;color:var(--mut);margin-top:10px;font-family:var(--mono);
+}
+
+/* ===================================================
+   SECTION: NEDEN BANNER DEĞİL DE MİNİ-OYUN? (SOSYAL KANIT)
+   =================================================== */
+.section{padding:clamp(48px,7vw,84px) 0;border-top:1px solid rgba(255,255,255,0.06)}
+.sec-head{text-align:center;max-width:720px;margin:0 auto clamp(32px,5vw,52px)}
+.sec-kicker{font-family:var(--mono);font-size:0.78rem;color:var(--acc);text-transform:uppercase;letter-spacing:0.2em;margin-bottom:10px}
+.sec-title{font-size:clamp(1.55rem,3vw,2.35rem);color:#fff;font-weight:700;line-height:1.25;margin-bottom:12px}
+.sec-sub{color:var(--mut);font-size:1rem}
+
+.compare-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
+@media(max-width:860px){.compare-grid{grid-template-columns:1fr}}
+.card{
+  background:var(--card);border:1px solid var(--border);border-radius:18px;
+  padding:28px 24px;transition:transform 0.25s, border-color 0.25s;
+}
+.card:hover{transform:translateY(-4px);border-color:var(--acc)}
+.card-metric{
+  font-family:var(--mono);font-size:2.3rem;font-weight:700;color:var(--acc);
+  line-height:1;margin-bottom:12px;display:flex;align-items:baseline;gap:8px;
+}
+.card-metric span{font-size:0.85rem;color:var(--acc2);font-weight:500}
+.card h3{font-size:1.18rem;color:#fff;margin-bottom:10px}
+.card p{color:var(--mut);font-size:0.93rem}
+
+/* Banner vs Game Table */
+.vs-box{
+  margin-top:36px;background:rgba(10,15,26,0.85);border:1px solid rgba(255,255,255,0.09);
+  border-radius:18px;padding:26px;display:grid;grid-template-columns:1fr 1fr;gap:24px;
+}
+@media(max-width:720px){.vs-box{grid-template-columns:1fr}}
+.vs-col h4{font-family:var(--mono);font-size:0.9rem;margin-bottom:14px;text-transform:uppercase;letter-spacing:0.08em}
+.vs-bad h4{color:#f87171}
+.vs-good h4{color:var(--acc)}
+.vs-list{list-style:none;display:grid;gap:10px;font-size:0.92rem;color:#cbd5e1}
+.vs-list li{display:flex;align-items:center;gap:10px}
+
+/* ===================================================
+   SECTION: 3 GÜNLÜK TESLİMAT SÜRECİ
+   =================================================== */
+.steps-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;position:relative}
+@media(max-width:860px){.steps-grid{grid-template-columns:1fr}}
+.step-card{
+  background:linear-gradient(180deg, rgba(17,25,40,0.85) 0%, rgba(10,14,23,0.9) 100%);
+  border:1px solid var(--border2);border-radius:18px;padding:28px 24px;position:relative;
+}
+.step-day{
+  display:inline-block;background:rgba(0,229,255,0.12);border:1px solid var(--acc2);
+  color:var(--acc2);font-family:var(--mono);font-size:0.78rem;font-weight:700;
+  padding:4px 12px;border-radius:8px;margin-bottom:14px;
+}
+.step-card h3{font-size:1.2rem;color:#fff;margin-bottom:10px}
+.step-card p{color:var(--mut);font-size:0.92rem}
+
+/* ===================================================
+   BOTTOM FINAL CTA BANNER
+   =================================================== */
+.final-cta{
+  background:linear-gradient(135deg, rgba(0,255,156,0.12) 0%, rgba(0,229,255,0.09) 100%);
+  border:1.5px solid var(--acc);border-radius:24px;padding:clamp(32px,5vw,56px);
+  text-align:center;margin:20px 0 60px;
+}
+.final-cta h2{font-size:clamp(1.6rem,3.2vw,2.4rem);color:#fff;margin-bottom:12px}
+.final-cta p{color:#cbd5e1;max-width:600px;margin:0 auto 26px;font-size:1.02rem}
+
+/* STICKY MOBILE WHATSAPP BAR */
+.sticky-wa{
+  position:fixed;bottom:18px;right:18px;z-index:99;
+  display:flex;align-items:center;gap:10px;
+  background:#25D366;color:#031c0d;font-weight:700;font-size:0.9rem;
+  padding:13px 20px;border-radius:999px;text-decoration:none;
+  box-shadow:0 10px 30px rgba(37,211,102,0.5);transition:0.2s;
+}
+.sticky-wa:hover{transform:scale(1.06)}
+.sticky-wa svg{width:22px;height:22px;fill:#031c0d}
+
+/* FOOTER */
+footer{border-top:1px solid rgba(255,255,255,0.07);padding:30px 0;text-align:center;color:var(--mut);font-size:0.84rem;font-family:var(--mono)}
+footer a{color:var(--acc);text-decoration:none}
+</style>
+</head>
+<body>
+
+<!-- TOP URGENCY BAR -->
+<div class="top-bar">
+  <span class="badge">LANSMAN ÖZEL</span>
+  <span>E-Ticaret & Butik Markalara Özel Anahtar Teslim İnteraktif Oyun Kampanyası — Kontenjan Sınırlıdır</span>
+</div>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+  <a href="https://tamgastudio.com" class="brand">
+    <img src="../tamga-logo.jpg" alt="Tamga Studio">
+    <span>TAMGA<b>_</b>STUDIO</span>
+  </a>
+  <div class="nav-actions">
+    <a href="#neden" class="nav-link">Neden Mini-Oyun?</a>
+    <a href="#surec" class="nav-link">Teslimat Süreci</a>
+    <a href="https://tamgastudio.com" class="nav-link">Ana Sayfa</a>
+    <a href="https://wa.me/905524285681?text=Merhaba%20Tamga%20Studio%2C%209.500%20TL%20Lansman%20Paketiniz%20%28Kupon%20%C3%96d%C3%BCll%C3%BC%20Mini-Oyun%29%20hakk%C4%B1nda%20bilgi%20ve%20sipari%C5%9F%20vermek%20istiyorum." target="_blank" rel="noopener" class="btn-nav-wa">
+      <span>WhatsApp Sipariş</span>
+    </a>
+  </div>
+</nav>
+
+<!-- HERO & LIVE INTERACTIVE DEMO -->
+<section class="hero">
+  <div class="container">
+    <div class="hero-grid">
+      
+      <!-- LEFT: OFFER & CTA -->
+      <div>
+        <div class="kicker">
+          <span class="dot"></span>
+          <span>B2B E-TİCARET DÖNÜŞÜM PAKETİ // SHOPIFY • İKAS • TİCİMAX • WOOCOMMERCE</span>
+        </div>
+
+        <h1>
+          E-Ticaret Satışlarınızı <span class="hl">%30 Artıran</span> İnteraktif Mini-Oyun Kampanyaları
+          <span class="sub-hl">⚡ 48 Saatte Teslim • Kurumsal Fatura Avantajı</span>
+        </h1>
+
+        <p class="hero-lead">
+          Ziyaretçileriniz klasik sıkıcı indirim pop-up'larını okumadan kapatır. Onlara 15 saniyelik eğlenceli bir marka deneyimi sunun; kendi kazandıkları kuponu sepette harcama oranını <b>3 katına</b> çıkarın.
+        </p>
+
+        <!-- 3 MADDELİK NET FAYDA LİSTESİ -->
+        <ul class="benefit-quick">
+          <li>
+            <span class="chk">✓</span>
+            <div><b>3 Kat Daha Uzun Site Süresi:</b> Oyun oynayan ziyaretçi sitede ortalama 45+ saniye daha fazla kalır.</div>
+          </li>
+          <li>
+            <span class="chk">✓</span>
+            <div><b>%30 Daha Yüksek Sepet Dönüşümü:</b> Emekle kazanılan indirim kuponu (Endowment Etkisi) anında siparişe dönüşür.</div>
+          </li>
+          <li>
+            <span class="chk">✓</span>
+            <div><b>5 Dakikada Sıfır Kodla Entegrasyon:</b> Mevcut e-ticaret sitenizi yavaşlatmadan tek satır kod veya kampanya linkiyle çalışır.</div>
+          </li>
+        </ul>
+
+        <!-- SABİT FİYAT VE KAPSAM KUTUSU -->
+        <div class="price-box">
+          <span class="price-tag-badge">KURUMSAL FATURALI</span>
+          <div class="price-label">// Sabit Fiyat & Net Kapsam Garantisi</div>
+          <div class="price-val">Lansman Özel Paketi: 9.500 TL <small>+ KDV</small></div>
+          <div class="price-desc">
+            <b>Hazır Kurulum + 1 Ay Tam Kullanım Dahil.</b> Markanızın logosu, kurumsal renkleri, ürün görselleriniz ve kendi kupon kodunuzla 48 saat içinde yayına hazır teslim edilir.
+          </div>
+        </div>
+
+        <!-- WHATSAPP CTA BUTTON -->
+        <div class="cta-wrap">
+          <a href="https://wa.me/905524285681?text=Merhaba%20Tamga%20Studio%2C%20tamgastudio.com%2Fkampanya%20sayfas%C4%B1ndaki%20demoyu%20inceledim.%209.500%20TL%20%2B%20KDV%20Lansman%20Paketi%20i%C3%A7in%20sipari%C5%9F%20vermek%20%2F%20markama%20%C3%B6zel%20demo%20istemek%20istiyorum." target="_blank" rel="noopener" class="btn-wa-main">
+            <svg viewBox="0 0 24 24"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.77-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.502-2.961-2.617-.087-.116-.708-.94-.708-1.793s.448-1.273.607-1.446c.159-.173.346-.217.462-.217l.332.006c.106.005.249-.04.39.298.144.347.491 1.2.534 1.287.043.087.072.188.014.304-.058.116-.087.188-.173.289l-.26.304c-.087.086-.177.18-.076.354.101.174.449.741.964 1.201.662.591 1.221.774 1.394.86s.274.072.376-.043c.101-.116.433-.506.549-.68.116-.173.231-.145.39-.087s1.011.477 1.184.564.289.13.332.202c.045.072.045.419-.1.824zm-3.423-14.416c-6.627 0-12 5.373-12 12 0 2.126.556 4.124 1.535 5.862l-1.535 5.603 5.754-1.509c1.693.921 3.633 1.444 5.698 1.444 6.627 0 12-5.373 12-12s-5.373-12-11.452-11.4z"/></svg>
+            <span>WhatsApp ile Hemen Sipariş Ver / Demo İste</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- RIGHT: LIVE INTERACTIVE MINI-GAME DEMO -->
+      <div id="canli-demo">
+        <div class="demo-shell">
+          <div class="demo-topbar">
+            <div class="demo-title-badge">
+              <span>🎮 CANLI DEMO // HEMEN OYNAYIN</span>
+            </div>
+            <div class="brand-customizer">
+              <button type="button" class="preset-btn active" data-preset="cosmetic">🧴 Kozmetik & Serum</button>
+              <button type="button" class="preset-btn" data-preset="fashion">👗 Butik & Moda</button>
+              <button type="button" class="preset-btn" data-preset="tech">🎧 Aksesuar</button>
+            </div>
+          </div>
+
+          <!-- 5 Saniyede Marka Özelleştirme Barı -->
+          <div class="custom-brand-bar">
+            <label for="brandNameInput">Marka Adınız:</label>
+            <input type="text" id="brandNameInput" value="LUMIÈRE SKIN" maxlength="20" placeholder="Örn: Butik Adınız">
+            <label for="brandColorInput">Tema:</label>
+            <input type="color" id="brandColorInput" value="#00ff9c" title="Marka Renginizi Seçin">
+          </div>
+
+          <!-- OYUN ALANI -->
+          <div class="game-viewport" id="gameViewport">
+            <canvas id="gameCanvas" width="460" height="430"></canvas>
+
+            <!-- Oyun İçi Üst Bar -->
+            <div class="g-hud">
+              <div class="g-brand-pill" id="hudBrandPill">
+                <span id="hudBrandEmoji">🧴</span>
+                <span id="hudBrandText">LUMIÈRE SKIN</span>
+              </div>
+              <div class="g-stats">
+                <div class="g-stat-box">SKOR: <span id="hudScore">0</span></div>
+                <div class="g-stat-box">SÜRE: <span id="hudTime">15</span>s</div>
+              </div>
+            </div>
+
+            <!-- Başlangıç Ekranı -->
+            <div class="g-overlay" id="startOverlay">
+              <div class="g-icon-big" id="startEmoji">🧴✨</div>
+              <h3 id="startTitle">15 Saniyede Ürünleri Yakala, İndirimi Kap!</h3>
+              <p>Yukarıdan düşen ürünleri sepetle yakalayın, kırmızı engellerden kaçının ve sürpriz indirim kuponunu kazanın!</p>
+              <button type="button" class="btn-play-game" id="btnStartGame">DEMOYU BAŞLAT ▸</button>
+            </div>
+
+            <!-- Oyun Sonu Kupon Kazanma Ekranı -->
+            <div class="g-overlay hidden" id="winOverlay">
+              <div class="coupon-card">
+                <span class="coupon-win-tag">🎉 OYUN TAMAMLANDI • SKOR: <b id="finalScoreTxt">120</b></span>
+                <h3 style="font-size:1.18rem;margin-bottom:4px">Tebrikler! %20 İndirim Kazandınız</h3>
+                <p style="font-size:0.8rem;margin-bottom:8px;color:#94a3b8">Sepette anında geçerli özel kupon kodunuz:</p>
+                <div class="coupon-code-row">
+                  <span class="coupon-code-txt" id="couponCodeTxt">TAMGA20</span>
+                  <button type="button" class="btn-copy-code" id="btnCopyCoupon">Kodu Kopyala</button>
+                </div>
+              </div>
+              <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center">
+                <button type="button" class="preset-btn" id="btnReplayGame" style="padding:9px 14px">↻ Tekrar Oyna</button>
+                <a href="https://wa.me/905524285681?text=Merhaba%2C%20sitedeki%20mini%20oyun%20demosunu%20oynad%C4%B1m%20%28Kupon%3A%20TAMGA20%29.%20Kendi%20markam%20i%C3%A7in%20sipari%C5%9F%20vermek%20istiyorum." target="_blank" rel="noopener" class="btn-play-game" style="text-decoration:none;padding:9px 16px;font-size:0.85rem">Bu Oyunu Markama Kur ▸</a>
+              </div>
+            </div>
+          </div>
+
+          <div class="demo-foot-note">
+            💡 Yukarıdan kendi marka adınızı ve renginizi yazarak oyunun nasıl anında markanıza dönüştüğünü test edebilirsiniz!
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- 3. SOSYAL KANIT VE GÜVEN BÖLÜMÜ -->
+<section class="section" id="neden">
+  <div class="container">
+    <div class="sec-head">
+      <div class="sec-kicker">// VERİLERLE DÖNÜŞÜM ETKİSİ</div>
+      <h2 class="sec-title">Neden Klasik Banner Değil de İnteraktif Mini-Oyun?</h2>
+      <p class="sec-sub">Reklam maliyetlerinin (Meta & Google Ads) her geçen gün arttığı e-ticarette, sitenize getirdiğiniz trafiği müşteriye dönüştürmenin en kârlı yolu oyunlaştırmadır (Gamification).</p>
+    </div>
+
+    <div class="compare-grid">
+      <div class="card">
+        <div class="card-metric">3.2x <span>Daha Uzun Süre</span></div>
+        <h3>3 Kat Daha Uzun Site Süresi</h3>
+        <p>Standart bir e-ticaret ziyaretçisi sitede ortalama 18 saniye kalırken, interaktif mini-oyun oynayan müşteriler markanızla 60+ saniye boyunca kesintisiz etkileşime girer.</p>
+      </div>
+      <div class="card">
+        <div class="card-metric">+%30 <span>Sepet Dönüşümü</span></div>
+        <h3>Emekle Kazanılan Kupon Psikolojisi</h3>
+        <p>Herkese bedava verilen "%10 İndirim" pop-up'ı değersiz algılanır. Ancak 15 saniyelik bir oyun sonunda <b>"kazanılan"</b> kupon, müşteride sahiplik duygusu yaratarak sepette kullanılma oranını %30 artırır.</p>
+      </div>
+      <div class="card">
+        <div class="card-metric">%100 <span>Marka Özelleştirme</span></div>
+        <h3>Ürünlerinizi Oyunun Başrolü Yapın</h3>
+        <p>Yeni çıkardığınız cilt bakım serumunu, sezonun en çok satan elbisesini veya özel kutunuzu doğrudan oyunun içine yerleştirerek ürün bilinirliğini viral şekilde büyütün.</p>
+      </div>
+    </div>
+
+    <!-- Karşılaştırma Kutusu -->
+    <div class="vs-box">
+      <div class="vs-col vs-bad">
+        <h4>❌ Klasik Pop-up & Statik Bannerlar</h4>
+        <ul class="vs-list">
+          <li><span>✖</span> Ziyaretçilerin %92'si ilk 1 saniyede okumadan kapatır (Banner Körlüğü).</li>
+          <li><span>✖</span> Sıkıcıdır, marka değerine ve akılda kalıcılığa katkı sağlamaz.</li>
+          <li><span>✖</span> Verilen kupon kodları unutulur, sepet terk oranı yüksektir.</li>
+        </ul>
+      </div>
+      <div class="vs-col vs-good">
+        <h4>✅ Tamga Studio İnteraktif Oyun Kampanyası</h4>
+        <ul class="vs-list">
+          <li><span>✔</span> Dopamin ve eğlence odaklıdır; ziyaretçi kendi isteğiyle katılır.</li>
+          <li><span>✔</span> Instagram hikayelerinde ve Reels'larda organik paylaşım (UGC) tetikler.</li>
+          <li><span>✔</span> Oyun sonunda tek tıkla kopyalanan kupon doğrudan kasaya yönlendirir.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TESLİMAT SÜRECİ -->
+<section class="section" id="surec">
+  <div class="container">
+    <div class="sec-head">
+      <div class="sec-kicker">// HIZLI & KURUMSAL İŞLEYİŞ</div>
+      <h2 class="sec-title">48 Saatte Anahtar Teslim Kurulum Süreci</h2>
+      <p class="sec-sub">Teknik detaylarla veya kodlamayla hiç uğraşmayın. Biz her şeyi anahtar teslim hazırlayıp sitenize entegre ediyoruz.</p>
+    </div>
+
+    <div class="steps-grid">
+      <div class="step-card">
+        <span class="step-day">1. GÜN // TASARIM & DEMO ONAYI</span>
+        <h3>Markanıza Özel Uyarlama</h3>
+        <p>Logonuzu, kurumsal renklerinizi, oyunda düşmesini istediğiniz ürün görsellerinizi ve indirim kuponu kodunuzu oyuna entegre edip size canlı önizleme linki gönderiyoruz.</p>
+      </div>
+      <div class="step-card">
+        <span class="step-day">2. GÜN // SİTE ENTEGRASYONU</span>
+        <h3>5 Dakikada Canlı Kurulum</h3>
+        <p>Shopify, İkas, Ticimax, IdeaSoft veya özel yazılım e-ticaret sitenize hız kaybı yaşatmadan (60 FPS optimize) pop-up, özel sayfa veya kayan buton olarak entegre ediyoruz.</p>
+      </div>
+      <div class="step-card">
+        <span class="step-day">3. GÜN // YAYIN & FATURA KESİMİ</span>
+        <h3>Yayına Alma & Kurumsal Fatura</h3>
+        <p>Kampanyanız aktif olarak satış üretmeye başlar. Resmi kurumsal faturanız kesilir ve 1 ay boyunca teknik destek ve sunucu barındırma tarafımızca sağlanır.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FINAL CTA -->
+<div class="container">
+  <div class="final-cta">
+    <div class="kicker" style="margin-bottom:14px"><span class="dot"></span><span>HEMEN BAŞLAYALIM</span></div>
+    <h2>Markanız İçin Özel Demoyu Bugün Hazırlayalım</h2>
+    <p>Lansman özel <b>9.500 TL + KDV</b> sabit fiyat avantajından yararlanmak ve markanıza özel kurguyu konuşmak için hemen WhatsApp hattımızdan bize ulaşın.</p>
+    <a href="https://wa.me/905524285681?text=Merhaba%20Tamga%20Studio%2C%20e-ticaret%20markam%C4%B1z%20i%C3%A7in%209.500%20TL%20%2B%20KDV%20Kupon%20%C3%96d%C3%BCll%C3%BC%20Mini-Oyun%20kampanyas%C4%B1%20sipari%C5%9Fi%20vermek%20istiyoruz." target="_blank" rel="noopener" class="btn-wa-main">
+      <svg viewBox="0 0 24 24"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.77-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.502-2.961-2.617-.087-.116-.708-.94-.708-1.793s.448-1.273.607-1.446c.159-.173.346-.217.462-.217l.332.006c.106.005.249-.04.39.298.144.347.491 1.2.534 1.287.043.087.072.188.014.304-.058.116-.087.188-.173.289l-.26.304c-.087.086-.177.18-.076.354.101.174.449.741.964 1.201.662.591 1.221.774 1.394.86s.274.072.376-.043c.101-.116.433-.506.549-.68.116-.173.231-.145.39-.087s1.011.477 1.184.564.289.13.332.202c.045.072.045.419-.1.824zm-3.423-14.416c-6.627 0-12 5.373-12 12 0 2.126.556 4.124 1.535 5.862l-1.535 5.603 5.754-1.509c1.693.921 3.633 1.444 5.698 1.444 6.627 0 12-5.373 12-12s-5.373-12-11.452-11.4z"/></svg>
+      <span>WhatsApp ile Hemen Sipariş Ver (0552 428 56 81)</span>
+    </a>
+  </div>
+</div>
+
+<!-- STICKY WHATSAPP FLOATING BUTTON -->
+<a href="https://wa.me/905524285681?text=Merhaba%20Tamga%20Studio%2C%20Kupon%20%C3%96d%C3%BCll%C3%BC%20Mini-Oyun%20kampanyas%C4%B1%20i%C3%A7in%20bilgi%20almak%20istiyorum." target="_blank" rel="noopener" class="sticky-wa" aria-label="WhatsApp İletişim">
+  <svg viewBox="0 0 24 24"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.77-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.502-2.961-2.617-.087-.116-.708-.94-.708-1.793s.448-1.273.607-1.446c.159-.173.346-.217.462-.217l.332.006c.106.005.249-.04.39.298.144.347.491 1.2.534 1.287.043.087.072.188.014.304-.058.116-.087.188-.173.289l-.26.304c-.087.086-.177.18-.076.354.101.174.449.741.964 1.201.662.591 1.221.774 1.394.86s.274.072.376-.043c.101-.116.433-.506.549-.68.116-.173.231-.145.39-.087s1.011.477 1.184.564.289.13.332.202c.045.072.045.419-.1.824zm-3.423-14.416c-6.627 0-12 5.373-12 12 0 2.126.556 4.124 1.535 5.862l-1.535 5.603 5.754-1.509c1.693.921 3.633 1.444 5.698 1.444 6.627 0 12-5.373 12-12s-5.373-12-11.452-11.4z"/></svg>
+  <span>Hemen Sipariş Ver</span>
+</a>
+
+<footer>
+  <div class="container">
+    <p>© 2026 <a href="https://tamgastudio.com">Tamga Studio</a> — Tüm Hakları Saklıdır. | <a href="https://tamgastudio.com/privacy-policy.html">Gizlilik Politikası</a></p>
+  </div>
+</footer>
+
+<!-- ===================================================
+     INTERACTIVE HTML5 MINI-GAME ENGINE (VANILLA JS)
+     =================================================== -->
+<script>
+(function(){
+  'use strict';
+
+  // Marka Ön Ayarları (5 dakikada özelleştirilebilir yapı)
+  const PRESETS = {
+    cosmetic: {
+      name: 'LUMIÈRE SKIN',
+      color: '#00ff9c',
+      emoji: '🧴',
+      goodItems: ['🧴', '💧', '✨', '🌿'],
+      badItems: ['💣', '❌'],
+      coupon: 'TAMGA20'
+    },
+    fashion: {
+      name: 'VELVET BUTİK',
+      color: '#f472b6',
+      emoji: '👗',
+      goodItems: ['👗', '👠', '👜', '💎'],
+      badItems: ['💣', '❌'],
+      coupon: 'TAMGA20'
+    },
+    tech: {
+      name: 'NOVA STORE',
+      color: '#00e5ff',
+      emoji: '🎧',
+      goodItems: ['🎧', '⌚', '📱', '⚡'],
+      badItems: ['💣', '❌'],
+      coupon: 'TAMGA20'
+    }
+  };
+
+  let currentConfig = { ...PRESETS.cosmetic };
+
+  const canvas = document.getElementById('gameCanvas');
+  const ctx = canvas.getContext('2d');
+  const viewport = document.getElementById('gameViewport');
+
+  const hudBrandEmoji = document.getElementById('hudBrandEmoji');
+  const hudBrandText = document.getElementById('hudBrandText');
+  const hudScore = document.getElementById('hudScore');
+  const hudTime = document.getElementById('hudTime');
+  const startOverlay = document.getElementById('startOverlay');
+  const winOverlay = document.getElementById('winOverlay');
+  const startEmoji = document.getElementById('startEmoji');
+  const finalScoreTxt = document.getElementById('finalScoreTxt');
+  const couponCodeTxt = document.getElementById('couponCodeTxt');
+  const brandNameInput = document.getElementById('brandNameInput');
+  const brandColorInput = document.getElementById('brandColorInput');
+
+  let gameRunning = false;
+  let score = 0;
+  let timeLeft = 15;
+  let timerInterval = null;
+  let items = [];
+  let particles = [];
+  let floatingTexts = [];
+  let lastSpawn = 0;
+
+  const basket = {
+    x: 230,
+    y: 375,
+    w: 86,
+    h: 34,
+    targetX: 230
+  };
+
+  function resizeCanvas() {
+    const rect = viewport.getBoundingClientRect();
+    canvas.width = rect.width;
+    canvas.height = rect.height;
+    basket.y = canvas.height - 52;
+    if (!gameRunning) {
+      basket.x = canvas.width / 2;
+      basket.targetX = canvas.width / 2;
+      drawStaticPreview();
+    }
+  }
+  window.addEventListener('resize', resizeCanvas);
+
+  function applyBrandTheme() {
+    document.documentElement.style.setProperty('--brand-theme', currentConfig.color);
+    hudBrandEmoji.textContent = currentConfig.emoji;
+    hudBrandText.textContent = currentConfig.name;
+    startEmoji.textContent = currentConfig.emoji + '✨';
+    couponCodeTxt.textContent = currentConfig.coupon;
+    if (!gameRunning) drawStaticPreview();
+  }
+
+  // Preset Butonları
+  document.querySelectorAll('.preset-btn[data-preset]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.preset-btn[data-preset]').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      const p = PRESETS[btn.getAttribute('data-preset')];
+      currentConfig = { ...p };
+      brandNameInput.value = currentConfig.name;
+      brandColorInput.value = currentConfig.color;
+      applyBrandTheme();
+    });
+  });
+
+  brandNameInput.addEventListener('input', (e) => {
+    currentConfig.name = e.target.value.trim() || 'MARKANIZ';
+    applyBrandTheme();
+  });
+
+  brandColorInput.addEventListener('input', (e) => {
+    currentConfig.color = e.target.value;
+    applyBrandTheme();
+  });
+
+  // Mouse & Touch Kontrolleri
+  function handleMove(clientX) {
+    const rect = canvas.getBoundingClientRect();
+    const relX = clientX - rect.left;
+    basket.targetX = Math.max(basket.w / 2 + 8, Math.min(canvas.width - basket.w / 2 - 8, relX));
+  }
+  canvas.addEventListener('mousemove', e => handleMove(e.clientX));
+  canvas.addEventListener('touchmove', e => {
+    if (e.touches.length > 0) handleMove(e.touches[0].clientX);
+  }, { passive: true });
+  canvas.addEventListener('touchstart', e => {
+    if (e.touches.length > 0) handleMove(e.touches[0].clientX);
+  }, { passive: true });
+
+  function spawnItem() {
+    const isBad = Math.random() < 0.2;
+    const pool = isBad ? currentConfig.badItems : currentConfig.goodItems;
+    const emoji = pool[Math.floor(Math.random() * pool.length)];
+    items.push({
+      x: 28 + Math.random() * (canvas.width - 56),
+      y: -30,
+      vy: 2.7 + Math.random() * 2.3 + (15 - timeLeft) * 0.12,
+      emoji: emoji,
+      isBad: isBad,
+      size: 28
+    });
+  }
+
+  function addBurst(x, y, color, text) {
+    for (let i = 0; i < 8; i++) {
+      const ang = (Math.PI * 2 * i) / 8;
+      particles.push({
+        x, y,
+        vx: Math.cos(ang) * (2 + Math.random() * 2),
+        vy: Math.sin(ang) * (2 + Math.random() * 2),
+        alpha: 1,
+        color
+      });
+    }
+    floatingTexts.push({ x, y, text, alpha: 1 });
+  }
+
+  function startGame() {
+    score = 0;
+    timeLeft = 15;
+    items = [];
+    particles = [];
+    floatingTexts = [];
+    hudScore.textContent = score;
+    hudTime.textContent = timeLeft;
+    startOverlay.classList.add('hidden');
+    winOverlay.classList.add('hidden');
+    gameRunning = true;
+    lastSpawn = performance.now();
+
+    if (timerInterval) clearInterval(timerInterval);
+    timerInterval = setInterval(() => {
+      timeLeft--;
+      hudTime.textContent = Math.max(0, timeLeft);
+      if (timeLeft <= 0) {
+        endGame();
+      }
+    }, 1000);
+
+    requestAnimationFrame(gameLoop);
+  }
+
+  function endGame() {
+    gameRunning = false;
+    if (timerInterval) clearInterval(timerInterval);
+    finalScoreTxt.textContent = score;
+    winOverlay.classList.remove('hidden');
+  }
+
+  function drawStaticPreview() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    // Arka plan ızgarası
+    ctx.strokeStyle = 'rgba(255,255,255,0.03)';
+    ctx.lineWidth = 1;
+    for (let x = 0; x < canvas.width; x += 36) {
+      ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, canvas.height); ctx.stroke();
+    }
+    for (let y = 0; y < canvas.height; y += 36) {
+      ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(canvas.width, y); ctx.stroke();
+    }
+  }
+
+  function gameLoop(now) {
+    if (!gameRunning) return;
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    drawStaticPreview();
+
+    // Ürün üretimi
+    if (now - lastSpawn > 370) {
+      spawnItem();
+      lastSpawn = now;
+    }
+
+    // Sepet yumuşak hareket
+    basket.x += (basket.targetX - basket.x) * 0.28;
+
+    // Sepeti Çiz
+    const bx = basket.x - basket.w / 2;
+    const by = basket.y;
+    ctx.save();
+    ctx.fillStyle = currentConfig.color;
+    ctx.shadowColor = currentConfig.color;
+    ctx.shadowBlur = 16;
+    ctx.beginPath();
+    ctx.roundRect(bx, by, basket.w, basket.h, 10);
+    ctx.fill();
+    ctx.restore();
+
+    ctx.fillStyle = '#04120b';
+    ctx.font = '700 11px "JetBrains Mono", monospace';
+    ctx.textAlign = 'center';
+    ctx.fillText('SEPET', basket.x, by + 21);
+
+    // Düşen Ürünleri Güncelle & Çiz
+    for (let i = items.length - 1; i >= 0; i--) {
+      const it = items[i];
+      it.y += it.vy;
+
+      ctx.font = '26px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText(it.emoji, it.x, it.y);
+
+      // Çarpışma Kontrolü
+      if (
+        it.y + 12 >= by &&
+        it.y - 12 <= by + basket.h &&
+        it.x >= bx - 10 &&
+        it.x <= bx + basket.w + 10
+      ) {
+        if (it.isBad) {
+          score = Math.max(0, score - 15);
+          addBurst(it.x, by, '#f87171', '-15');
+        } else {
+          score += 20;
+          addBurst(it.x, by, currentConfig.color, '+20');
+        }
+        hudScore.textContent = score;
+        items.splice(i, 1);
+        continue;
+      }
+
+      if (it.y > canvas.height + 30) {
+        items.splice(i, 1);
+      }
+    }
+
+    // Efekt Parçacıkları
+    for (let i = particles.length - 1; i >= 0; i--) {
+      const p = particles[i];
+      p.x += p.vx;
+      p.y += p.vy;
+      p.alpha -= 0.04;
+      if (p.alpha <= 0) { particles.splice(i, 1); continue; }
+      ctx.fillStyle = p.color;
+      ctx.globalAlpha = p.alpha;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, 3, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.globalAlpha = 1;
+    }
+
+    // Uçan Skor Yazıları
+    for (let i = floatingTexts.length - 1; i >= 0; i--) {
+      const ft = floatingTexts[i];
+      ft.y -= 1.2;
+      ft.alpha -= 0.03;
+      if (ft.alpha <= 0) { floatingTexts.splice(i, 1); continue; }
+      ctx.globalAlpha = ft.alpha;
+      ctx.font = '700 14px "JetBrains Mono", monospace';
+      ctx.fillStyle = '#fff';
+      ctx.fillText(ft.text, ft.x, ft.y);
+      ctx.globalAlpha = 1;
+    }
+
+    requestAnimationFrame(gameLoop);
+  }
+
+  document.getElementById('btnStartGame').addEventListener('click', startGame);
+  document.getElementById('btnReplayGame').addEventListener('click', startGame);
+
+  // Kupon Kopyalama
+  const btnCopy = document.getElementById('btnCopyCoupon');
+  btnCopy.addEventListener('click', () => {
+    navigator.clipboard.writeText(currentConfig.coupon).catch(() => {});
+    btnCopy.textContent = '✓ KOPYALANDI!';
+    setTimeout(() => { btnCopy.textContent = 'Kodu Kopyala'; }, 2000);
+  });
+
+  // Başlangıç kurulumu
+  setTimeout(() => {
+    resizeCanvas();
+    applyBrandTheme();
+  }, 50);
+})();
+</script>
+</body>
+</html>
