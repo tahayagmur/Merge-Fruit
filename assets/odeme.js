@@ -12,12 +12,21 @@
 
   /* ======================= AYAR ======================= */
   var AYAR = {
-    aktif: false,                       // Paddle hesabı onaylanınca true
+    aktif: false,                       // true = herkes için açık. false iken yalnızca ?odeme=test adresinde açılır (sandbox denemesi)
     ortam: 'sandbox',                   // 'sandbox' | 'production'
-    token: '',                          // Paddle > Developer tools > Authentication > client-side token
+    token: 'test_812366a9d4899975422befbd623',   // Paddle > Authentication > client-side token
     basariSayfasi: '/odeme-tamam.html'  // ödeme sonrası yönlendirme
   };
   /* ==================================================== */
+
+  /* ---- test modu: ?odeme=test ile bu oturumda sandbox ödemesi açılır, ?odeme=kapat ile kapanır ---- */
+  var testModu = false;
+  try {
+    var t = new URLSearchParams(location.search).get('odeme');
+    if (t === 'test') sessionStorage.setItem('ts_odeme_test', '1');
+    if (t === 'kapat') sessionStorage.removeItem('ts_odeme_test');
+    testModu = AYAR.ortam === 'sandbox' && sessionStorage.getItem('ts_odeme_test') === '1';
+  } catch (e) {}
 
   /* ---- kampanya kaynağı (UTM): ilk ve son tıklama, bütün ürünlerde ortak ---- */
   var KEYS = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term'];
@@ -81,7 +90,8 @@
   }
 
   var api = {
-    get aktif() { return !!(AYAR.aktif && AYAR.token); },
+    get aktif() { return !!((AYAR.aktif || testModu) && AYAR.token); },
+    testModu: testModu,
     ortam: AYAR.ortam,
     utm: utm,
     track: track,
