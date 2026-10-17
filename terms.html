@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="alternate icon" type="image/jpeg" href="tamga-logo.jpg">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kullanım ve Satış Koşulları – Tamga Studio</title>
+<link rel="canonical" href="https://tamgastudio.com/terms.html">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://tamgastudio.com/terms.html">
+<meta property="og:title" content="Kullanım ve Satış Koşulları – Tamga Studio">
+<meta property="og:image" content="https://tamgastudio.com/tamga-logo.jpg">
+<meta name="twitter:card" content="summary">
+<meta name="description" content="TamgaStudio yazılım lisanslarının satış ve kullanım koşulları.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Space+Grotesk:wght@300;400;500;600;700&family=Syncopate:wght@400;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#0a0a0c;--bg2:#050607;
+  --panel:rgba(13,18,16,.62);
+  --line:rgba(0,255,156,.14);
+  --acc:#00ff9c;--acc2:#00e5ff;
+  --txt:#e6edf3;--mut:#a3afba;--mut2:#6b7785;
+  --mono:'JetBrains Mono',ui-monospace,monospace;
+  --sans:'Space Grotesk',system-ui,sans-serif;
+  --disp:'Syncopate',sans-serif;
+}
+body{background:var(--bg);color:var(--txt);font-family:var(--sans);overflow-x:hidden;-webkit-font-smoothing:antialiased}
+::selection{background:var(--acc);color:#031}
+#bgMatrix{position:fixed;inset:0;width:100%;height:100%;z-index:0;opacity:.07;pointer-events:none}
+nav{position:sticky;top:0;z-index:90;display:flex;justify-content:space-between;align-items:center;gap:12px;padding:16px clamp(18px,4vw,44px);background:rgba(8,10,11,.78);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
+.logo{display:flex;align-items:center;gap:11px;text-decoration:none;white-space:nowrap}
+.logo img{width:28px;height:28px;object-fit:cover;border:1px solid var(--line);display:block}
+.logo span{font-family:var(--disp);font-weight:700;font-size:.92rem;letter-spacing:.18em;color:var(--txt)}
+.logo b{color:var(--acc);font-weight:700}
+.nav-links{display:flex;align-items:center;gap:clamp(12px,2.4vw,30px)}
+.nav-links a,.lang{font-family:var(--mono);font-size:.74rem;letter-spacing:.18em;text-transform:uppercase;color:var(--mut);text-decoration:none;transition:.2s;white-space:nowrap}
+.nav-links a:hover{color:var(--acc);text-shadow:0 0 14px rgba(0,255,156,.6)}
+.lang{background:none;border:1px solid var(--line);padding:6px 10px;cursor:pointer;color:var(--txt)}
+.lang:hover{border-color:var(--acc);color:var(--acc)}
+@media(max-width:640px){.nav-links a{display:none}.logo span{font-size:.78rem}}
+main{position:relative;z-index:5}
+.wrap{max-width:860px;margin:0 auto;padding:0 clamp(18px,4vw,40px)}
+.page-hero{padding:clamp(60px,10vh,90px) 0 clamp(30px,5vh,44px)}
+.kicker{font-family:var(--mono);font-size:.74rem;letter-spacing:.32em;color:var(--acc2);text-transform:uppercase;margin-bottom:16px}
+.kicker::before{content:'> '}
+h1.title{font-family:var(--disp);font-size:clamp(1.2rem,3.4vw,2.1rem);font-weight:700;letter-spacing:.05em;text-transform:uppercase;line-height:1.35}
+.date{font-family:var(--mono);font-size:.74rem;letter-spacing:.2em;color:var(--mut2);text-transform:uppercase;margin-top:14px}
+.tabs{display:flex;flex-wrap:wrap;gap:8px;margin-top:22px}
+.tabs a{font-family:var(--mono);font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;color:var(--mut);text-decoration:none;border:1px solid var(--line);padding:7px 11px}
+.tabs a[aria-current="page"]{color:var(--acc);border-color:var(--acc)}
+.doc{position:relative;background:var(--panel);border:1px solid var(--line);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);padding:clamp(26px,5vw,48px);margin-bottom:90px}
+.doc::before,.doc::after{content:'';position:absolute;width:15px;height:15px;border:2px solid var(--acc)}
+.doc::before{top:-2px;left:-2px;border-right:0;border-bottom:0}
+.doc::after{bottom:-2px;right:-2px;border-left:0;border-top:0}
+.doc p{color:var(--mut);line-height:1.85;font-weight:300;font-size:.95rem;margin-top:10px}
+.doc p:first-child{margin-top:0}
+.doc b{color:var(--txt);font-weight:600}
+.doc h2{font-family:var(--mono);font-size:.84rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--acc);margin:38px 0 12px;padding-bottom:10px;border-bottom:1px dashed rgba(0,255,156,.25)}
+.doc ul,.doc ol{list-style:none;margin-top:10px;counter-reset:n}
+.doc li{color:var(--mut);line-height:1.8;font-weight:300;font-size:.95rem;padding-left:28px;position:relative;margin-bottom:8px}
+.doc ul>li::before{content:'▸';position:absolute;left:0;color:var(--acc);font-family:var(--mono)}
+.doc ol>li{counter-increment:n}
+.doc ol>li::before{content:counter(n) '.';position:absolute;left:0;color:var(--acc);font-family:var(--mono);font-size:.85rem;top:.1em}
+.doc a{color:var(--acc2);text-decoration:none;border-bottom:1px dashed rgba(0,229,255,.4);transition:.2s}
+.doc a:hover{color:var(--acc);border-color:var(--acc)}
+.doc .muted{font-size:.85rem;color:var(--mut2);margin-top:30px}
+[data-l="en"]{display:none}
+html[lang="en"] [data-l="tr"]{display:none}
+html[lang="en"] [data-l="en"]{display:block}
+html[lang="en"] span[data-l="en"]{display:inline}
+footer{position:relative;z-index:5;border-top:1px solid var(--line);background:var(--bg2);padding:30px clamp(18px,4vw,44px);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;font-family:var(--mono);font-size:.72rem;letter-spacing:.12em;color:var(--mut2)}
+footer nav{all:unset;display:flex;flex-wrap:wrap;gap:8px 18px}
+footer a{color:var(--mut);text-decoration:none;transition:.2s}
+footer a:hover{color:var(--acc)}
+@media print{#bgMatrix,nav,.tabs,footer,.lang{display:none!important}body{background:#fff;color:#000}.doc{border:0;background:none;padding:0}.doc p,.doc li{color:#000}.doc h2{color:#000}[data-l]{display:block!important}}
+</style>
+</head>
+<body>
+<canvas id="bgMatrix" aria-hidden="true"></canvas>
+
+<nav aria-label="Ana menü">
+  <a class="logo" href="/"><img src="tamga-logo.jpg" alt="Tamga Studio logo"><span>TAMGA<b>_</b>STUDIO</span></a>
+  <div class="nav-links">
+    <a href="/"><span data-l="tr">Ana Sayfa</span><span data-l="en">Home</span></a>
+    <a href="about.html"><span data-l="tr">Hakkımızda</span><span data-l="en">About</span></a>
+    <button class="lang" id="langBtn" type="button" aria-label="Language / Dil">EN</button>
+  </div>
+</nav>
+
+<main>
+  <div class="wrap">
+    <header class="page-hero">
+      <p class="kicker" lang="en">tamga_studio.legal( )</p>
+      <h1 class="title"><span data-l="tr">Kullanım ve Satış Koşulları</span><span data-l="en">Terms of Sale and Use</span></h1>
+      <p class="date"><span data-l="tr">Son güncelleme :: 17 Ekim 2026</span><span data-l="en">Last updated :: 17 October 2026</span></p>
+      <div class="tabs" id="tabs">
+        <a href="terms.html"><span data-l="tr">Koşullar</span><span data-l="en">Terms</span></a>
+        <a href="refund-policy.html"><span data-l="tr">İade</span><span data-l="en">Refunds</span></a>
+        <a href="product-privacy.html"><span data-l="tr">Ürün gizliliği / KVKK</span><span data-l="en">Product privacy</span></a>
+        <a href="privacy-policy.html"><span data-l="tr">Site gizliliği</span><span data-l="en">Site privacy</span></a>
+      </div>
+    </header>
+
+    <article class="doc" data-l="tr" lang="tr">
+
+<p>Bu koşullar, TamgaStudio markasıyla sunulan yazılımların (ör. SoundPath) lisanslarının satışına ve kullanımına uygulanır. Lisans talep eden, satın alan veya yazılımı kullanan kişi ya da kurum (“Müşteri”) bu koşulları kabul etmiş sayılır.</p>
+
+<h2>1. Satıcı</h2>
+<p><b>Özge YAĞMUR</b> (TamgaStudio)<br>Yeşilköy Mahallesi, Atatürk Caddesi No:12 İç Kapı No:1, Bakırköy / İstanbul, Türkiye<br>Vergi dairesi / no: Bakırköy Vergi Dairesi / 9280450601<br>E-posta: <a href="mailto:ceo@bionests.com">ceo@bionests.com</a></p>
+
+<h2>2. Ürün ve lisans</h2>
+<ol>
+<li>Yazılım, müşterinin bilgisayarında tarayıcıda çalışan tek bir dosya olarak teslim edilir. Lisans, imzalı bir lisans koduyla etkinleştirilir.</li>
+<li>Lisans; kodda adı yazan lisans sahibine verilen, devredilemez ve münhasır olmayan bir kullanım hakkıdır. Kullanıcı sayısı satın alınan pakette yazdığı kadardır.</li>
+<li><b>Deneme lisansı</b> ücretsizdir; kodun ilk girildiği andan itibaren kodda yazan gün sayısı kadar geçerlidir.</li>
+<li><b>Yıllık lisans</b> başlangıç tarihinden itibaren satın alınan süre kadar geçerlidir ve bitiş tarihi kesindir. Yıllık lisans <b>kendiliğinden yenilenmez</b>; bitişten önce yenileme teklifi gönderilir. Süre dolunca yazılım kilitlenir, müşterinin çalışmaları silinmez.</li>
+<li><b>Süresiz lisans</b> satılmışsa, ilgili sürümü süresiz kullanma hakkı verir.</li>
+<li>Yıllık lisans süresince yayımlanan güncellemeler ücretsizdir.</li>
+</ol>
+
+<h2>3. Sipariş, fiyat ve ödeme</h2>
+<ol>
+<li>Fiyatlar ürün sayfasında ABD doları olarak gösterilir. Geçerli olduğu durumlarda KDV ve benzeri vergiler fiyata dahil değildir.</li>
+<li><b>E-postayla sipariş:</b> Müşteri ürün sayfasındaki düğmeyle veya e-postayla talepte bulunur. Satıcı fatura veya proforma düzenler. Türkiye'deki müşterilere fatura Türk lirası ile, fatura tarihindeki T.C. Merkez Bankası döviz satış kuru üzerinden düzenlenebilir.</li>
+<li><b>Çevrimiçi ödeme:</b> Ödeme sayfası üzerinden yapılan satışlarda sipariş süreci, çevrimiçi satıcımız ve Merchant of Record'umuz olan <b>Paddle.com</b> tarafından yürütülür. Paddle tüm müşteri hizmetleri sorularını ve iadeleri de yönetir. Bu satışlarda Paddle'ın alıcı koşulları da geçerlidir.</li>
+<li>Satıcı, ödeme onaylanmadan lisans koduna erişim vermez.</li>
+</ol>
+
+<h2>4. Teslimat</h2>
+<p>Yazılım dosyası ve lisans kodu, ödeme onaylandıktan sonra müşterinin bildirdiği e-posta adresine gönderilir; bu genellikle bir iş günü içinde yapılır. Fiziksel teslimat yoktur.</p>
+
+<h2>5. Kullanım kuralları</h2>
+<ol>
+<li>Yazılım, kaynaklı bağlantıların ultrasonik muayenesi için bir planlama ve doğrulama yardımcısıdır. Her teknik, ilgili standart ve yazılı prosedür kapsamında yetkili personel tarafından gözden geçirilmeli ve onaylanmalıdır.</li>
+<li>Genlik, kazanç, demet genişliği ve kapsama değerleri model tahminleridir. Cihaz ayarları referans bloklarda ve cihaz geri okuma kontrolüyle doğrulanmalıdır.</li>
+<li>Lisans kodu paylaşılamaz. Yazılım yeniden dağıtılamaz, değiştirilemez ve tersine mühendislik yapılamaz.</li>
+<li>Müşterinin yazılımla oluşturduğu teknikler, kayıtlar ve dosyalar müşteriye aittir ve müşterinin bilgisayarında kalır.</li>
+</ol>
+
+<h2>6. Fikri mülkiyet</h2>
+<p>Yazılımın tüm hakları satıcıya aittir. Lisans, yalnızca bu koşullarda yazan kullanım hakkını verir; mülkiyet devri değildir.</p>
+
+<h2>7. Garanti ve sorumluluğun sınırlandırılması</h2>
+<ol>
+<li>Yazılım “olduğu gibi” sunulur. Yazılımın her kullanım amacına uygun ya da hatasız olduğu garanti edilmez. Müşteri, satın almadan önce deneme lisansıyla yazılımı kendi işinde deneyebilir.</li>
+<li>Kanunun izin verdiği ölçüde satıcı; yazılımın kullanımından doğan muayene sonuçları, kararlar, dolaylı zararlar, kâr kaybı veya veri kaybından sorumlu değildir.</li>
+<li>Kanunun izin verdiği ölçüde satıcının toplam sorumluluğu, müşterinin ilgili lisans için son 12 ayda ödediği tutarla sınırlıdır.</li>
+<li>Bu sınırlamalar, kanunen sınırlandırılamayan sorumlulukları (ör. kast ve ağır kusur) ve tüketicilerin kanuni haklarını etkilemez.</li>
+</ol>
+
+<h2>8. İade</h2>
+<p>İade koşulları <a href="refund-policy.html">İade Politikası</a> sayfasındadır. Satın alma tarihinden itibaren 14 gün içinde iade talep edilebilir.</p>
+
+<h2>9. Kişisel veriler</h2>
+<p>Kişisel verilerin işlenmesi <a href="product-privacy.html">Ürün Gizlilik Politikası ve KVKK Aydınlatma Metni</a> sayfasında anlatılmıştır.</p>
+
+<h2>10. Lisansın sona ermesi</h2>
+<p>Müşteri bu koşulları, özellikle 5.3 maddesini ihlal ederse satıcı lisansı yazılı bildirimle sona erdirebilir. Lisans sona erdiğinde müşteri yazılımı kullanmayı bırakır ve lisans kodunu siler.</p>
+
+<h2>11. Değişiklikler</h2>
+<p>Satıcı bu koşulları güncelleyebilir. Güncel metin bu sayfada yayımlanır. Değişiklikler, değişiklikten önce satın alınmış lisans süresinin koşullarını müşteri aleyhine değiştirmez.</p>
+
+<h2>12. Uygulanacak hukuk</h2>
+<p>Bu koşullara Türkiye Cumhuriyeti hukuku uygulanır. Uyuşmazlıklarda İstanbul (Merkez) mahkemeleri ve icra daireleri yetkilidir. Tüketiciler, kanuni sınırlar içinde tüketici hakem heyetlerine ve tüketici mahkemelerine başvurabilir.</p>
+
+<h2>13. İletişim</h2>
+<p>Sorular için: <a href="mailto:ceo@bionests.com">ceo@bionests.com</a></p>
+
+    </article>
+    <article class="doc" data-l="en" lang="en">
+
+<p>These terms apply to the sale and use of licences for software offered under the TamgaStudio brand (for example SoundPath). By requesting, buying or using a licence, the person or organisation (the “Customer”) accepts these terms.</p>
+
+<h2>1. Seller</h2>
+<p><b>Özge YAĞMUR</b> (trading as TamgaStudio)<br>Yeşilköy Mahallesi, Atatürk Caddesi No:12 İç Kapı No:1, Bakırköy / İstanbul, Türkiye<br>Tax office / no: Bakırköy Vergi Dairesi / 9280450601<br>Email: <a href="mailto:ceo@bionests.com">ceo@bionests.com</a></p>
+
+<h2>2. Product and licence</h2>
+<ol>
+<li>The software is delivered as a single file that runs in a browser on the Customer's computer. The licence is activated with a signed licence code.</li>
+<li>The licence is a non-exclusive, non-transferable right of use granted to the licensee named in the code, for the number of users in the purchased plan.</li>
+<li>A <b>trial licence</b> is free and is valid for the number of days in the code, counted from its first activation.</li>
+<li>An <b>annual licence</b> is valid for the purchased term from its start date, and its end date is fixed. Annual licences <b>do not renew automatically</b>; we send a renewal offer before the end date. When the term ends the software locks; the Customer's work is not deleted.</li>
+<li>A <b>perpetual licence</b>, where sold, grants use of the relevant version without time limit.</li>
+<li>Updates released during an annual term are included.</li>
+</ol>
+
+<h2>3. Orders, prices and payment</h2>
+<ol>
+<li>Prices are shown on the product page in US dollars and exclude VAT and similar taxes where applicable.</li>
+<li><b>Orders by email:</b> the Customer sends a request using the product page or by email, and the Seller issues an invoice or pro forma. Customers in Türkiye may be invoiced in Turkish lira at the Central Bank of the Republic of Türkiye selling rate on the invoice date.</li>
+<li><b>Online checkout:</b> for purchases made through the online checkout, our order process is conducted by our online reseller <b>Paddle.com</b>. Paddle.com is the Merchant of Record for all our online orders. Paddle provides all customer service inquiries and handles returns. Paddle's buyer terms also apply to these purchases.</li>
+<li>Licence codes are issued only after payment is confirmed.</li>
+</ol>
+
+<h2>4. Delivery</h2>
+<p>The software file and licence code are sent to the Customer's email address after payment is confirmed, normally within one business day. There is no physical delivery.</p>
+
+<h2>5. Rules of use</h2>
+<ol>
+<li>The software is a planning and verification aid for ultrasonic weld inspection. Every technique must be reviewed and approved by qualified personnel under the applicable code and the written procedure.</li>
+<li>Amplitudes, gains, beam widths and coverage are model estimates. Instrument settings are confirmed on reference blocks and with the instrument read-back check.</li>
+<li>The licence code must not be shared, and the software must not be redistributed, modified or reverse-engineered.</li>
+<li>Techniques, records and files the Customer creates are the Customer's and stay on the Customer's computer.</li>
+</ol>
+
+<h2>6. Intellectual property</h2>
+<p>All rights in the software belong to the Seller. The licence grants only the right of use described in these terms; it does not transfer ownership.</p>
+
+<h2>7. Warranty and limitation of liability</h2>
+<ol>
+<li>The software is provided “as is”. We do not warrant that it is fit for every purpose or free of errors. Customers can test it on their own work with a trial licence before buying.</li>
+<li>To the extent permitted by law, the Seller is not liable for inspection results, decisions, indirect damages, loss of profit or loss of data arising from use of the software.</li>
+<li>To the extent permitted by law, the Seller's total liability is limited to the amount the Customer paid for the relevant licence in the preceding 12 months.</li>
+<li>These limits do not affect liability that cannot be limited by law (such as for intent or gross negligence) or the statutory rights of consumers.</li>
+</ol>
+
+<h2>8. Refunds</h2>
+<p>Refunds are described in our <a href="refund-policy.html">Refund Policy</a>. A refund can be requested within 14 days of purchase.</p>
+
+<h2>9. Personal data</h2>
+<p>How personal data is processed is described in our <a href="product-privacy.html">Product Privacy Policy</a>.</p>
+
+<h2>10. Termination</h2>
+<p>If the Customer breaches these terms, in particular clause 5.3, the Seller may end the licence by written notice. When the licence ends, the Customer stops using the software and deletes the licence code.</p>
+
+<h2>11. Changes</h2>
+<p>The Seller may update these terms. The current version is published on this page. Changes do not alter, to the Customer's disadvantage, the terms of a licence term purchased before the change.</p>
+
+<h2>12. Governing law</h2>
+<p>These terms are governed by the laws of the Republic of Türkiye. The courts and enforcement offices of Istanbul (Central) have jurisdiction. Consumers keep any right to apply to consumer arbitration committees and consumer courts within statutory limits.</p>
+
+<h2>13. Contact</h2>
+<p>Questions: <a href="mailto:ceo@bionests.com">ceo@bionests.com</a></p>
+<p class="muted">This English text is a translation. If the two versions differ, the Turkish version applies, except where mandatory law of the Customer's country requires otherwise.</p>
+
+    </article>
+  </div>
+</main>
+
+<footer>
+  <span>© 2026 TAMGA STUDIO — TAMGASTUDIO.COM</span>
+  <nav aria-label="Yasal">
+    <a href="terms.html"><span data-l="tr">Kullanım ve Satış Koşulları</span><span data-l="en">Terms</span></a>
+    <a href="refund-policy.html"><span data-l="tr">İade Politikası</span><span data-l="en">Refund Policy</span></a>
+    <a href="product-privacy.html"><span data-l="tr">Ürün Gizliliği / KVKK</span><span data-l="en">Product Privacy</span></a>
+    <a href="privacy-policy.html"><span data-l="tr">Site Gizliliği</span><span data-l="en">Site Privacy</span></a>
+    <a href="mailto:ceo@bionests.com">ceo@bionests.com</a>
+  </nav>
+</footer>
+
+<script>
+(function(){
+  'use strict';
+  /* language: ?lang=en|tr, then saved choice, then browser language */
+  var root=document.documentElement,btn=document.getElementById('langBtn');
+  function set(l){root.lang=l;btn.textContent=l==='tr'?'EN':'TR';try{localStorage.setItem('ts_legal_lang',l);}catch(e){}}
+  var q=(location.search.match(/[?&]lang=(tr|en)/)||[])[1],s=null;try{s=localStorage.getItem('ts_legal_lang');}catch(e){}
+  set(q||s||((navigator.language||'').toLowerCase().indexOf('tr')===0?'tr':'en'));
+  btn.addEventListener('click',function(){set(root.lang==='tr'?'en':'tr');});
+  /* current tab */
+  document.querySelectorAll('#tabs a').forEach(function(a){if(a.getAttribute('href')==='terms.html')a.setAttribute('aria-current','page');});
+  /* background matrix (same ambience as the homepage) */
+  var bg=document.getElementById('bgMatrix'),ctx=bg.getContext('2d'),cols=[],FS=14,W=0,H=0,timer=0;
+  var G='01アイウエオカキクケコ<>/{}[]=+*#$&%!?;:'.split('');
+  function resize(){W=innerWidth;H=innerHeight;bg.width=W;bg.height=H;var n=Math.ceil(W/FS);cols.length=0;for(var i=0;i<n;i++)cols.push(Math.random()*-100);ctx.fillStyle='#000';ctx.fillRect(0,0,W,H);}
+  function step(now){requestAnimationFrame(step);if(now-timer<66)return;timer=now;ctx.fillStyle='rgba(0,0,0,0.08)';ctx.fillRect(0,0,W,H);ctx.font=FS+'px "JetBrains Mono",monospace';
+    for(var i=0;i<cols.length;i++){ctx.fillStyle=Math.random()<0.08?'#aaffdd':'#00ff9c';ctx.fillText(G[(Math.random()*G.length)|0],i*FS,cols[i]*FS);if(cols[i]*FS>H&&Math.random()>0.975)cols[i]=0;cols[i]++;}}
+  resize();addEventListener('resize',resize);
+  if(!matchMedia('(prefers-reduced-motion: reduce)').matches)requestAnimationFrame(step);
+})();
+</script>
+</body>
+</html>
