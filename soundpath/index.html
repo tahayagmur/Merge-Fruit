@@ -16,8 +16,8 @@
   ===================== YAYIN ÖNCESİ KONTROL =====================
   [x] Fiyatlar: bireysel $290/yıl, firma $1.490/yıl (17.10.2026 onaylandı)
   [x] İletişim: ceo@bionests.com
-  [ ] CONFIG.checkout: Paddle hazır olunca 'paddle' yap ve priceId'leri gir.
-      O zamana kadar 'request' modunda butonlar e-posta taslağı açar.
+  [ ] Paddle: /assets/odeme.js içinde AYAR.aktif=true + token; bu sayfada CONFIG.plans priceId'leri.
+      Kapalıyken (veya priceId girilmemişken) butonlar e-posta taslağı açar.
   [ ] Footer'daki /terms.html, /product-privacy.html, /refund-policy.html yayında mı?
   [ ] Sayfadaki her özellik v0.12.2'de doğrulandı (17.10.2026). Yeni iddia eklemeden önce programda kontrol et.
   ================================================================
@@ -284,16 +284,16 @@ footer a{color:var(--muted)}
   <div class="w">
     <p class="eyebrow" data-i="pr_eyebrow">Pricing</p>
     <h2 style="margin-top:12px" data-i="pr_title">Try it on your own weld first.</h2>
-    <p class="lead" style="margin-top:12px" data-i="pr_lead">Every plan includes all functions. Annual licences include updates.</p>
+    <p class="lead" style="margin-top:12px" data-i="pr_lead">Every plan includes all functions and updates. Paid plans are annual subscriptions.</p>
     <div class="plans" id="plans"></div>
-    <p class="small" data-i="pr_small">Prices exclude VAT where applicable. 14-day refund on every purchase. Annual licences do not renew automatically; we send a renewal code before the end date, and your work is never deleted.</p>
+    <p class="small" data-i="pr_small">Prices exclude VAT where applicable. Subscriptions renew every year until you cancel; after each successful payment we email your new licence code, and we remind you 30 days before renewal. Cancel anytime: your licence keeps working until the end of the paid year. 14-day refund on every payment.</p>
 
     <div class="faq">
       <details><summary data-i="q1">Does it need an internet connection?</summary><p data-i="a1">No. SoundPath is a single HTML file. Once saved on your computer it runs without internet, and nothing you enter is sent anywhere.</p></details>
       <details><summary data-i="q2">Where is my work stored?</summary><p data-i="a2">In the browser on your computer. Always open the same file in the same browser. You can also save the workspace as a file.</p></details>
       <details><summary data-i="q3">How does the trial work?</summary><p data-i="a3">We send you the file and a code. The 3 days start when you enter the code, so enter it when you are ready to work.</p></details>
-      <details><summary data-i="q4">What happens at the end of the annual licence?</summary><p data-i="a4">The program locks until a renewal code is entered. Your work is not deleted, and you continue where you left off.</p></details>
-      <details><summary data-i="q5">Can I get an invoice for my company?</summary><p data-i="a5">Yes. Write to us with your company details.</p></details>
+      <details><summary data-i="q4">How does the annual subscription work?</summary><p data-i="a4">It renews automatically every year. After each successful payment we email your new licence code; enter it in the program and carry on. We remind you 30 days before renewal. If you cancel, the licence works until the end of the year you paid for; after that the program locks, but your work is never deleted.</p></details>
+      <details><summary data-i="q5">Can I get an invoice for my company?</summary><p data-i="a5">Yes. At checkout you can enter your company name and tax number, and the invoice is issued with them. You can also write to us.</p></details>
     </div>
   </div>
 </section>
@@ -321,18 +321,18 @@ footer a{color:var(--muted)}
 </footer>
 <div class="sticky"><button class="btn primary" data-act="trial" data-track="sticky_trial" data-i="cta_trial">Request a 3-day trial</button></div>
 
+<script src="/assets/odeme.js"></script>
 <script>
 /* ====================== CONFIG — buradan yönet ====================== */
 const CONFIG = {
   product: 'soundpath',
   contactEmail: 'ceo@bionests.com',
-  checkout: 'request',                       // 'request' = e-posta taslağı · 'paddle' = Paddle ödeme
-  paddleEnv: 'sandbox', paddleClientToken: '',
+  // Ödeme: /assets/odeme.js içindeki AYAR.aktif açıksa Paddle, kapalıysa e-posta talebi. Fiyat kimliklerini Paddle'dan yaz.
   currency: '$',
   plans: [
     { id:'trial',   price:null, priceId:null,              featured:false },
-    { id:'single',  price:290,  priceId:'pri_SP_SINGLE',   featured:true  },
-    { id:'company', price:1490, priceId:'pri_SP_COMPANY',  featured:false }
+    { id:'single',  price:290,  priceId:'pri_REPLACE_SOUNDPATH_SINGLE',   featured:true  },
+    { id:'company', price:1490, priceId:'pri_REPLACE_SOUNDPATH_COMPANY',  featured:false }
   ]
 };
 /* =================================================================== */
@@ -376,23 +376,23 @@ const TR = {
   t2_t:'Dahili doğrulama', t2_d:'Hesaplama kontrolleri tarayıcınızda çalışır ve tekniğinizle birlikte saklayabileceğiniz bir doğrulama kaydı üretir.',
   t_founder:'<b>Kurucu müşteriler.</b> İlk kullanıcılarımızla doğrudan çalışıyoruz. SoundPath\'i gerçek kaynaklarda kullanıp geri bildirim verecekseniz kurucu müşteri koşullarını sorun.',
   t_founder_btn:'Bize yazın',
-  pr_eyebrow:'Fiyat', pr_title:'Önce kendi kaynağınızda deneyin.', pr_lead:'Her pakette tüm özellikler açıktır. Yıllık lisanslara güncellemeler dahildir.',
-  pr_small:'Fiyatlara geçerli olduğu yerlerde KDV dahil değildir. Her satın almada 14 gün içinde iade. Yıllık lisans kendiliğinden yenilenmez; bitişten önce yenileme kodu göndeririz ve çalışmalarınız hiçbir zaman silinmez.',
+  pr_eyebrow:'Fiyat', pr_title:'Önce kendi kaynağınızda deneyin.', pr_lead:'Her pakette tüm özellikler ve güncellemeler dahildir. Ücretli paketler yıllık aboneliktir.',
+  pr_small:'Fiyatlara geçerli olduğu yerlerde KDV dahil değildir. Abonelik siz iptal edene kadar her yıl yenilenir; her başarılı ödemeden sonra yeni lisans kodunuzu e-postayla göndeririz ve yenilemeden 30 gün önce hatırlatırız. İstediğiniz zaman iptal edebilirsiniz; lisansınız ödediğiniz yılın sonuna kadar çalışır. Her ödemede 14 gün içinde iade.',
   q1:'İnternet bağlantısı gerekir mi?', a1:'Hayır. SoundPath tek bir HTML dosyasıdır. Bilgisayarınıza kaydettikten sonra internetsiz çalışır ve girdiğiniz hiçbir şey bir yere gönderilmez.',
   q2:'Çalışmalarım nerede saklanır?', a2:'Bilgisayarınızdaki tarayıcıda. Dosyayı her seferinde aynı tarayıcıyla açın. Çalışma alanını dosya olarak da kaydedebilirsiniz.',
   q3:'Deneme nasıl işliyor?', a3:'Size dosyayı ve bir kod göndeririz. 3 gün, kodu girdiğiniz anda başlar; kodu çalışmaya hazır olduğunuzda girin.',
-  q4:'Yıllık lisans bitince ne olur?', a4:'Yenileme kodu girilene kadar program kilitlenir. Çalışmalarınız silinmez; kaldığınız yerden devam edersiniz.',
-  q5:'Firmam için fatura alabilir miyim?', a5:'Evet. Firma bilgilerinizle bize yazın.',
+  q4:'Yıllık abonelik nasıl işliyor?', a4:'Her yıl otomatik yenilenir. Her başarılı ödemeden sonra yeni lisans kodunuzu e-postayla göndeririz; programa girip devam edersiniz. Yenilemeden 30 gün önce hatırlatırız. İptal ederseniz lisans ödediğiniz yılın sonuna kadar çalışır; sonra program kilitlenir ama çalışmalarınız hiçbir zaman silinmez.',
+  q5:'Firmam için fatura alabilir miyim?', a5:'Evet. Ödeme sırasında firma adınızı ve vergi numaranızı girebilirsiniz; fatura bu bilgilerle düzenlenir. Dilerseniz bize de yazabilirsiniz.',
   fin_title:'Bir sonraki kaynağınızı SoundPath\'te planlayın.', fin_lead:'Adınızı ve firmanızı gönderin; dosya ve 3 günlük kodla dönelim.',
   ft1:'Kullanım koşulları', ft2:'Gizlilik / KVKK', ft3:'İade', ft4:'İletişim'
 };
 const PLAN_TXT = {
   en:{ trial:{name:'Trial',per:'3 days',price:'Free',items:['All functions','Code sent by email','No payment details'],btn:'Request trial'},
-       single:{tag:'Most chosen',name:'Individual',per:'/ year',items:['1 user','All functions','Updates for the year','Email support'],btn:'Buy individual licence',req:'Request individual licence'},
-       company:{name:'Company',per:'/ year',items:['5 users','All functions','Updates for the year','Priority support'],btn:'Buy company licence',req:'Request company licence'} },
+       single:{tag:'Most chosen',name:'Individual',per:'/ year',items:['1 user','All functions and updates','New code emailed each year','Cancel anytime'],btn:'Subscribe',req:'Request individual licence'},
+       company:{name:'Company',per:'/ year',items:['5 users','All functions and updates','Priority support','Cancel anytime'],btn:'Subscribe',req:'Request company licence'} },
   tr:{ trial:{name:'Deneme',per:'3 gün',price:'Ücretsiz',items:['Tüm özellikler','Kod e-postayla gelir','Ödeme bilgisi istenmez'],btn:'Deneme isteyin'},
-       single:{tag:'En çok tercih edilen',name:'Bireysel',per:'/ yıl',items:['1 kullanıcı','Tüm özellikler','Yıl boyunca güncellemeler','E-posta desteği'],btn:'Bireysel lisans alın',req:'Bireysel lisans isteyin'},
-       company:{name:'Firma',per:'/ yıl',items:['5 kullanıcı','Tüm özellikler','Yıl boyunca güncellemeler','Öncelikli destek'],btn:'Firma lisansı alın',req:'Firma lisansı isteyin'} }
+       single:{tag:'En çok tercih edilen',name:'Bireysel',per:'/ yıl',items:['1 kullanıcı','Tüm özellikler ve güncellemeler','Her yıl yeni kod e-postayla','İstediğiniz zaman iptal'],btn:'Abone olun',req:'Bireysel lisans isteyin'},
+       company:{name:'Firma',per:'/ yıl',items:['5 kullanıcı','Tüm özellikler ve güncellemeler','Öncelikli destek','İstediğiniz zaman iptal'],btn:'Abone olun',req:'Firma lisansı isteyin'} }
 };
 const MAIL = {
   en:{ trial:['SoundPath trial request','Name:\nCompany:\nCountry:\nWhat do you inspect (plate / pipe, thickness, technique):\n'],
@@ -419,13 +419,10 @@ function setLang(l) {
 }
 document.getElementById('langBtn').onclick = () => setLang(LANG === 'tr' ? 'en' : 'tr');
 
-/* ---------- UTM ---------- */
-const UTM_KEYS = ['utm_source','utm_medium','utm_campaign','utm_content','utm_term'];
-const UTM = (() => { const q = new URLSearchParams(location.search), now = {}; UTM_KEYS.forEach(k => { if (q.get(k)) now[k] = q.get(k); });
-  let first = null, last = null; try { first = JSON.parse(localStorage.getItem('ts_utm_first') || 'null'); last = JSON.parse(localStorage.getItem('ts_utm_last') || 'null');
-    if (Object.keys(now).length) { if (!first) localStorage.setItem('ts_utm_first', JSON.stringify(now)); localStorage.setItem('ts_utm_last', JSON.stringify(now)); first = first || now; last = now; } } catch (e) {}
-  return { first: first || now, last: Object.keys(now).length ? now : (last || {}) }; })();
-function track(name, props = {}) { const d = { ...props, ...UTM.last }; if (window.plausible) window.plausible(name, { props: d }); if (window.gtag) window.gtag('event', name, d); }
+/* ---------- ödeme ve takip: ortak dosya (/assets/odeme.js) ---------- */
+const PAY = window.TamgaOdeme || { aktif: false, utm: { first: {}, last: {} }, track() {}, ac: () => Promise.resolve(false) };
+const UTM = PAY.utm, track = PAY.track;
+const online = () => PAY.aktif;
 
 /* ---------- actions ---------- */
 function mail(kind) {
@@ -433,17 +430,10 @@ function mail(kind) {
   const src = UTM.last.utm_source ? `\n\n— ref: ${[UTM.last.utm_source, UTM.last.utm_campaign, UTM.last.utm_content].filter(Boolean).join(' / ')}` : '';
   location.href = `mailto:${CONFIG.contactEmail}?subject=${encodeURIComponent(subj)}&body=${encodeURIComponent(body + src)}`;
 }
-let paddleReady = false;
-function initPaddle() { if (CONFIG.checkout !== 'paddle' || !CONFIG.paddleClientToken) return;
-  const s = document.createElement('script'); s.src = 'https://cdn.paddle.com/paddle/v2/paddle.js';
-  s.onload = () => { try { Paddle.Environment.set(CONFIG.paddleEnv); Paddle.Initialize({ token: CONFIG.paddleClientToken }); paddleReady = true; } catch (e) {} };
-  document.head.appendChild(s); }
-function buy(plan) {
-  track('checkout_open', { plan: plan.id });
-  if (plan.id === 'trial' || CONFIG.checkout !== 'paddle' || !paddleReady) return mail(plan.id);
-  Paddle.Checkout.open({ items: [{ priceId: plan.priceId, quantity: 1 }],
-    customData: { product: CONFIG.product, plan: plan.id, ...Object.fromEntries(Object.entries(UTM.last).map(([k, v]) => ['last_' + k, v])), ...Object.fromEntries(Object.entries(UTM.first).map(([k, v]) => ['first_' + k, v])) },
-    settings: { displayMode: 'overlay', locale: LANG, successUrl: location.origin + '/tesekkurler.html?p=' + CONFIG.product } });
+async function buy(plan) {
+  if (plan.id === 'trial' || !online() || /REPLACE/.test(plan.priceId || '')) return mail(plan.id);
+  const opened = await PAY.ac({ urun: CONFIG.product, plan: plan.id, priceId: plan.priceId, dil: LANG });
+  if (!opened) mail(plan.id);
 }
 document.addEventListener('click', e => { const a = e.target.closest('[data-act]'); if (!a) return; e.preventDefault(); if (a.dataset.track) track(a.dataset.track); mail(a.dataset.act); });
 
@@ -453,7 +443,7 @@ function renderPlans() {
   const box = document.getElementById('plans'); box.innerHTML = '';
   CONFIG.plans.forEach(p => { const t = PLAN_TXT[LANG][p.id]; const paid = p.price != null;
     const el = document.createElement('div'); el.className = 'plan' + (p.featured ? ' main' : '');
-    const label = paid ? (CONFIG.checkout === 'paddle' ? t.btn : t.req) : t.btn;
+    const label = paid ? (online() ? t.btn : t.req) : t.btn;
     el.innerHTML = `<span class="tag">${esc(t.tag || '')}</span><h3>${esc(t.name)}</h3>
       <div class="price"><b>${paid ? CONFIG.currency + p.price.toLocaleString('en-US') : esc(t.price)}</b><span>${esc(t.per)}</span></div>
       <ul>${t.items.map(i => `<li>${esc(i)}</li>`).join('')}</ul>
@@ -470,7 +460,6 @@ document.querySelectorAll('[data-shot]').forEach(b => b.onclick = () => {
 
 document.getElementById('yr').textContent = new Date().getFullYear();
 setLang(LANG);
-initPaddle();
 </script>
 </body>
 </html>
