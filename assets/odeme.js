@@ -13,10 +13,14 @@
   /* ======================= AYAR ======================= */
   var AYAR = {
     aktif: false,                       // true = herkes için açık. false iken yalnızca ?odeme=test adresinde açılır (sandbox denemesi)
-    ortam: 'sandbox',                   // 'sandbox' | 'production'
-    token: 'test_812366a9d4899975422befbd623',   // Paddle > Authentication > client-side token
+    ortam: 'sandbox',                   // 'sandbox' | 'production'  (canlıya geçerken 'production')
+    tokenlar: {                         // Paddle > Developer tools > Authentication > client-side token (gizli değildir)
+      sandbox: 'test_812366a9d4899975422befbd623',
+      production: 'live_e5f3813b164ef34ad0bbd062428'
+    },
     basariSayfasi: '/odeme-tamam.html'  // ödeme sonrası yönlendirme
   };
+  AYAR.token = AYAR.tokenlar[AYAR.ortam];
   /* ==================================================== */
 
   /* ---- test modu: ?odeme=test ile bu oturumda sandbox ödemesi açılır, ?odeme=kapat ile kapanır ---- */

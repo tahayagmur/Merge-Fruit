@@ -331,8 +331,8 @@ const CONFIG = {
   currency: '$',
   plans: [
     { id:'trial',   price:null, priceId:null,              featured:false },
-    { id:'single',  price:290,  priceId:'pri_01m55xfnbkmnggnt7cxhgtevtk',   featured:true  },
-    { id:'company', price:1490, priceId:'pri_01m55xj9yp5ncjjhs4xzjry3s0',  featured:false }
+    { id:'single',  price:290,  priceId:{ sandbox:'pri_01m55xfnbkmnggnt7cxhgtevtk', production:'pri_01m587t5h1bcjyhks0sh5c7x17' }, featured:true  },
+    { id:'company', price:1490, priceId:{ sandbox:'pri_01m55xj9yp5ncjjhs4xzjry3s0', production:'pri_01m587vb0rcfxmhpm4bf2m7rqw' }, featured:false }
   ]
 };
 /* =================================================================== */
@@ -431,8 +431,9 @@ function mail(kind) {
   location.href = `mailto:${CONFIG.contactEmail}?subject=${encodeURIComponent(subj)}&body=${encodeURIComponent(body + src)}`;
 }
 async function buy(plan) {
-  if (plan.id === 'trial' || !online() || /REPLACE/.test(plan.priceId || '')) return mail(plan.id);
-  const opened = await PAY.ac({ urun: CONFIG.product, plan: plan.id, priceId: plan.priceId, dil: LANG });
+  const priceId = plan.priceId && typeof plan.priceId === 'object' ? plan.priceId[PAY.ortam || 'sandbox'] : plan.priceId;
+  if (plan.id === 'trial' || !online() || !priceId || /REPLACE/.test(priceId)) return mail(plan.id);
+  const opened = await PAY.ac({ urun: CONFIG.product, plan: plan.id, priceId, dil: LANG });
   if (!opened) mail(plan.id);
 }
 document.addEventListener('click', e => { const a = e.target.closest('[data-act]'); if (!a) return; e.preventDefault(); if (a.dataset.track) track(a.dataset.track); mail(a.dataset.act); });
