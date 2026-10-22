@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>29 Ekim Boyama</title>
+<meta name="description" content="Cumhuriyet Bayramı'na özel dijital boyama sayfası. Renk seç, dokun, boya.">
+<link rel="canonical" href="https://tamgastudio.com/29-ekim/">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<meta property="og:type" content="website">
+<meta property="og:title" content="29 Ekim Boyama">
+<meta property="og:description" content="Cumhuriyet Bayramı'na özel dijital boyama sayfası. Renk seç, dokun, boya.">
+<meta property="og:url" content="https://tamgastudio.com/29-ekim/">
+<meta property="og:image" content="https://tamgastudio.com/29-ekim/onizleme.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;800&display=swap">
+<style>
+:root{--paper:#fff8ef;--ink:#1e1b2e;--red:#e30a17;--muted:#6b6478;--card:#ffffff;--line:#eadfce;
+  --display:"Baloo 2",ui-rounded,"Arial Rounded MT Bold",system-ui,sans-serif;color-scheme:light}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--display)}
+.wrap{max-width:600px;margin:0 auto;padding-inline:16px;padding-block:calc(14px + env(safe-area-inset-top,0px)) calc(24px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;gap:12px}
+header{display:flex;align-items:center;gap:12px}
+.badge{flex:none;width:46px;height:46px;border-radius:50%;background:var(--red);display:grid;place-items:center}
+h1{margin:0;font-size:26px;line-height:1;font-weight:800}
+.sub{margin:2px 0 0;font-size:15px;color:var(--muted);font-weight:600}
+.board{position:relative;width:100%;aspect-ratio:1;max-width:100%;background:#fff;border-radius:18px;box-shadow:0 2px 0 var(--line),0 10px 30px rgba(120,80,40,.12);overflow:hidden;touch-action:none}
+.board canvas{position:absolute;inset:0;width:100%;height:100%}
+#lines{pointer-events:none}
+.palette{display:grid;grid-template-columns:repeat(6,1fr);gap:8px}
+.sw{aspect-ratio:1;border-radius:50%;border:3px solid #fff;box-shadow:0 0 0 1px var(--line);cursor:pointer;padding:0}
+.sw[aria-pressed="true"]{box-shadow:0 0 0 3px var(--ink);transform:scale(1.06)}
+.tools{display:flex;flex-wrap:wrap;gap:8px}
+.tb{flex:1 1 auto;font:700 16px var(--display);border:2px solid var(--line);background:var(--card);color:var(--ink);border-radius:12px;padding:8px 12px;cursor:pointer}
+.tb[aria-pressed="true"]{background:var(--ink);color:#fff;border-color:var(--ink)}
+.tb.save{background:var(--red);border-color:var(--red);color:#fff}
+.tb:focus-visible,.sw:focus-visible{outline:3px solid #2b6cff;outline-offset:2px}
+.hint{font-size:14px;color:var(--muted);text-align:center;margin:0;font-weight:600}
+footer{font-size:12.5px;color:var(--muted);text-align:center;font-family:system-ui,sans-serif}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="badge" aria-hidden="true">
+      <svg width="34" height="34" viewBox="0 0 34 34"><circle cx="14" cy="17" r="10" fill="#fff"/><circle cx="16.5" cy="17" r="8" fill="#e30a17"/><polygon fill="#fff" points="20.5,17 26.6,15 26.6,19 23,13.7 23,20.3"/></svg>
+    </div>
+    <div>
+      <h1>29 Ekim Boyama</h1>
+      <p class="sub">Cumhuriyetimizin 103. yılı kutlu olsun!</p>
+    </div>
+  </header>
+
+  <div class="board" id="board">
+    <canvas id="color" width="1000" height="1000"></canvas>
+    <canvas id="lines" width="1000" height="1000"></canvas>
+  </div>
+
+  <div class="palette" id="palette" role="group" aria-label="Renkler"></div>
+
+  <div class="tools">
+    <button class="tb" id="mFill" aria-pressed="true">🪣 Doldur</button>
+    <button class="tb" id="mBrush" aria-pressed="false">✏️ Fırça</button>
+    <button class="tb" id="undo">↶ Geri al</button>
+    <button class="tb" id="reset">Baştan</button>
+    <button class="tb save" id="save">Resmi kaydet</button>
+  </div>
+  <p class="hint" id="hint">Bir renk seç, boyamak istediğin yere dokun.</p>
+  <footer>TamgaStudio · Karekodla açılan dijital içerik örneği</footer>
+</div>
+
+<script>
+const W=1000, colorC=document.getElementById('color'), lineC=document.getElementById('lines');
+const cx=colorC.getContext('2d',{willReadFrequently:true}), lx=lineC.getContext('2d');
+const COLORS=[['Bayrak kırmızısı','#e30a17'],['Beyaz','#ffffff'],['Altın sarı','#ffc31a'],['Turuncu','#ff7a1a'],['Pembe','#ff7eb6'],['Mor','#8a4fd6'],
+ ['Gök mavisi','#6ec6ff'],['Lacivert','#1f3c88'],['Çimen yeşili','#5cc04a'],['Koyu yeşil','#1e7a3a'],['Kahverengi','#8b5a2b'],['Gri','#9aa0a6']];
+let cur='#e30a17', mode='fill', lineData=null, hist=[];
+
+/* palette */
+const pal=document.getElementById('palette');
+COLORS.forEach(([n,c])=>{const b=document.createElement('button');b.className='sw';b.style.background=c;b.title=n;b.setAttribute('aria-label',n);
+ b.setAttribute('aria-pressed',c===cur);b.onclick=()=>{cur=c;pal.querySelectorAll('.sw').forEach(x=>x.setAttribute('aria-pressed',x===b))};pal.appendChild(b)});
+
+/* line art */
+function star(ctx,x,y,R,r,rot){ctx.beginPath();for(let i=0;i<10;i++){const a=rot+i*Math.PI/5,rr=i%2?r:R;ctx.lineTo(x+rr*Math.cos(a),y+rr*Math.sin(a))}ctx.closePath()}
+function cloud(ctx,parts){const t=document.createElement('canvas');t.width=t.height=W;const c=t.getContext('2d');
+ c.fillStyle='#1e1b2e';parts.forEach(([x,y,r])=>{c.beginPath();c.arc(x,y,r,0,7);c.fill()});
+ c.globalCompositeOperation='destination-out';parts.forEach(([x,y,r])=>{c.beginPath();c.arc(x,y,r-6,0,7);c.fill()});ctx.drawImage(t,0,0)}
+function drawLines(){
+ const c=lx;c.clearRect(0,0,W,W);c.strokeStyle='#1e1b2e';c.lineWidth=6;c.lineJoin='round';c.lineCap='round';
+ // hills
+ c.beginPath();c.moveTo(-10,780);c.quadraticCurveTo(250,690,520,770);c.quadraticCurveTo(780,840,1010,740);c.stroke();
+ c.beginPath();c.moveTo(-10,880);c.quadraticCurveTo(300,820,600,880);c.quadraticCurveTo(820,920,1010,860);c.stroke();
+ // sun
+ c.beginPath();c.arc(140,140,62,0,7);c.stroke();
+ for(let i=0;i<10;i++){const a=i*Math.PI/5+.2;c.beginPath();c.moveTo(140+80*Math.cos(a),140+80*Math.sin(a));c.lineTo(140+108*Math.cos(a),140+108*Math.sin(a));c.stroke()}
+ c.beginPath();c.arc(118,130,7,0,7);c.stroke();c.beginPath();c.arc(162,130,7,0,7);c.stroke();
+ c.beginPath();c.arc(140,152,24,.2*Math.PI,.8*Math.PI);c.stroke();
+ // cloud
+ cloud(c,[[300,300,44],[350,280,56],[405,302,42],[352,322,40],[300,320,30],[410,322,28]]);
+ // firework
+ for(let i=0;i<12;i++){const a=i*Math.PI/6;c.beginPath();c.moveTo(430+18*Math.cos(a),110+18*Math.sin(a));c.lineTo(430+58*Math.cos(a),110+58*Math.sin(a));c.stroke();
+  c.beginPath();c.arc(430+72*Math.cos(a),110+72*Math.sin(a),9,0,7);c.stroke()}
+ // flag pole
+ c.beginPath();c.rect(552,170,16,640);c.stroke();c.beginPath();c.arc(560,154,18,0,7);c.stroke();
+ // flag cloth
+ c.beginPath();c.moveTo(568,186);c.bezierCurveTo(680,150,800,240,950,190);c.lineTo(950,450);c.bezierCurveTo(800,500,680,410,568,446);c.closePath();c.stroke();
+ // crescent + star
+ c.beginPath();c.arc(690,320,74,0,7);c.stroke();
+ c.save();c.beginPath();c.arc(690,320,74,0,7);c.clip();c.beginPath();c.arc(709,320,59,0,7);c.stroke();c.restore();
+ star(c,808,320,40,16,Math.PI);c.stroke();
+ // balloons
+ [[170,470,'#'],[285,430],[400,510]].forEach(([x,y])=>{c.beginPath();c.ellipse(x,y,50,62,0,0,7);c.stroke();
+  c.beginPath();c.moveTo(x-9,y+72);c.lineTo(x,y+60);c.lineTo(x+9,y+72);c.closePath();c.stroke();
+  c.beginPath();c.moveTo(x,y+72);c.bezierCurveTo(x+25,y+130,x-20,y+180,285,742);c.stroke();
+  c.beginPath();c.ellipse(x-18,y-22,10,16,-.5,0,7);c.stroke()});
+ // small stars in sky
+ [[880,90],[700,80],[240,620-30]].forEach(([x,y])=>{star(c,x,y,22,9,-Math.PI/2);c.stroke()});
+ // title text
+ c.font='800 150px "Baloo 2", "Arial Rounded MT Bold", sans-serif';c.textAlign='center';c.textBaseline='alphabetic';c.lineWidth=7;
+ c.strokeText('29 EKİM',500,985);
+ lineData=c.getImageData(0,0,W,W).data;
+}
+function resetColor(){cx.fillStyle='#fff';cx.fillRect(0,0,W,W)}
+
+/* flood fill */
+function hex(h){const n=parseInt(h.slice(1),16);return[n>>16&255,n>>8&255,n&255]}
+function fill(x,y){
+ x|=0;y|=0;if(x<0||y<0||x>=W||y>=W)return;const li=(y*W+x)*4;if(lineData[li+3]>110)return;
+ const img=cx.getImageData(0,0,W,W),d=img.data,[r,g,b]=hex(cur);
+ const tr=d[li],tg=d[li+1],tb=d[li+2];if(tr===r&&tg===g&&tb===b)return;
+ push();
+ const ok=i=>lineData[i+3]<=110&&Math.abs(d[i]-tr)<30&&Math.abs(d[i+1]-tg)<30&&Math.abs(d[i+2]-tb)<30;
+ const st=[[x,y]];
+ while(st.length){let[px,py]=st.pop();let i=(py*W+px)*4;while(py>=0&&ok(i)){py--;i-=W*4}py++;i+=W*4;let L=false,R=false;
+  while(py<W&&ok(i)){d[i]=r;d[i+1]=g;d[i+2]=b;d[i+3]=255;
+   if(px>0){if(ok(i-4)){if(!L){st.push([px-1,py]);L=true}}else L=false}
+   if(px<W-1){if(ok(i+4)){if(!R){st.push([px+1,py]);R=true}}else R=false}
+   py++;i+=W*4}}
+ cx.putImageData(img,0,0)}
+function push(){hist.push(cx.getImageData(0,0,W,W));if(hist.length>12)hist.shift()}
+
+/* input */
+const board=document.getElementById('board');let drawing=false,last=null;
+function pos(e){const r=board.getBoundingClientRect();return[(e.clientX-r.left)*W/r.width,(e.clientY-r.top)*W/r.height]}
+board.addEventListener('pointerdown',e=>{e.preventDefault();const[x,y]=pos(e);
+ if(mode==='fill'){fill(x,y);return}
+ push();drawing=true;last=[x,y];board.setPointerCapture(e.pointerId);dot(x,y)});
+board.addEventListener('pointermove',e=>{if(!drawing)return;const[x,y]=pos(e);cx.strokeStyle=cur;cx.lineWidth=22;cx.lineCap='round';
+ cx.beginPath();cx.moveTo(...last);cx.lineTo(x,y);cx.stroke();last=[x,y]});
+['pointerup','pointercancel'].forEach(t=>board.addEventListener(t,()=>drawing=false));
+function dot(x,y){cx.fillStyle=cur;cx.beginPath();cx.arc(x,y,11,0,7);cx.fill()}
+
+const mF=document.getElementById('mFill'),mB=document.getElementById('mBrush'),hint=document.getElementById('hint');
+function setMode(m){mode=m;mF.setAttribute('aria-pressed',m==='fill');mB.setAttribute('aria-pressed',m==='brush');
+ hint.textContent=m==='fill'?'Bir renk seç, boyamak istediğin yere dokun.':'Parmağınla serbestçe çiz.'}
+mF.onclick=()=>setMode('fill');mB.onclick=()=>setMode('brush');
+document.getElementById('undo').onclick=()=>{const h=hist.pop();if(h)cx.putImageData(h,0,0)};
+document.getElementById('reset').onclick=()=>{push();resetColor()};
+document.getElementById('save').onclick=()=>{const o=document.createElement('canvas');o.width=o.height=W;const c=o.getContext('2d');
+ c.drawImage(colorC,0,0);c.drawImage(lineC,0,0);const a=document.createElement('a');a.download='29-ekim-boyama.png';a.href=o.toDataURL('image/png');document.body.appendChild(a);a.click();a.remove()};
+
+resetColor();
+(document.fonts&&document.fonts.load?document.fonts.load('800 150px "Baloo 2"').catch(()=>{}):Promise.resolve()).then(drawLines);
+</script>
+</body>
+</html>
