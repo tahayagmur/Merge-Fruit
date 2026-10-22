@@ -4,3 +4,6 @@
 /abonelik/*
   X-Robots-Tag: noindex
   Referrer-Policy: no-referrer
+/indir/*
+  X-Robots-Tag: noindex
+  Referrer-Policy: no-referrer
