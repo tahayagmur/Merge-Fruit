@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ödemeniz alındı – TamgaStudio Software</title>
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Space+Grotesk:wght@400;500&family=Syncopate:wght@700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{--bg2:#050607;--acc:#00ff9c;--acc2:#00e5ff;--txt:#e6edf3;--mut:#a3afba;--mono:'JetBrains Mono',ui-monospace,monospace;--disp:'Syncopate',sans-serif;--sans:'Space Grotesk',system-ui,sans-serif}
+body{background:var(--bg2);color:var(--txt);min-height:100vh;min-height:100svh;display:flex;align-items:center;justify-content:center;text-align:center;padding:24px;font-family:var(--sans)}
+.box{max-width:560px;border:1px solid rgba(0,255,156,.25);background:rgba(13,18,16,.7);padding:clamp(28px,6vw,48px);position:relative}
+.box::before,.box::after{content:'';position:absolute;width:15px;height:15px;border:2px solid var(--acc)}
+.box::before{top:-2px;left:-2px;border-right:0;border-bottom:0}.box::after{bottom:-2px;right:-2px;border-left:0;border-top:0}
+.check{font-size:44px;color:var(--acc);display:block;margin-bottom:10px}
+.status{font-family:var(--mono);font-size:.72rem;letter-spacing:.2em;color:var(--acc2);margin-bottom:14px}
+h1{font-family:var(--disp);font-size:clamp(1.05rem,3.4vw,1.5rem);letter-spacing:.06em;text-transform:uppercase;line-height:1.4}
+p.d{color:var(--mut);line-height:1.8;margin-top:16px}
+a{color:var(--acc2)}
+.btn{display:inline-block;margin-top:26px;font-family:var(--mono);font-size:.8rem;letter-spacing:.14em;text-transform:uppercase;color:var(--acc);border:1px solid var(--acc);padding:12px 18px;text-decoration:none}
+[data-l="en"]{display:none}html[lang="en"] [data-l="tr"]{display:none}html[lang="en"] [data-l="en"]{display:block}
+</style>
+</head>
+<body>
+<div class="box">
+  <span class="check" aria-hidden="true">✓</span>
+  <p class="status" lang="en">// PAYMENT.RECEIVED — 200 OK</p>
+  <div data-l="tr">
+    <h1>Ödemeniz alındı</h1>
+    <p class="d">Teşekkürler. Lisans kodunuz ve kurulum bilgileri birkaç dakika içinde e-posta adresinize gelecek. Paddle ayrıca ödeme makbuzunuzu gönderir.</p>
+    <p class="d">E-posta 15 dakika içinde gelmezse istenmeyen e-posta klasörüne bakın ya da <a href="mailto:ceo@bionests.com">ceo@bionests.com</a> adresine yazın.</p>
+    <a class="btn" href="/">◂ Ana sayfa</a>
+  </div>
+  <div data-l="en">
+    <h1>Payment received</h1>
+    <p class="d">Thank you. Your licence code and setup details will arrive by email within a few minutes. Paddle also sends your payment receipt.</p>
+    <p class="d">If the email has not arrived within 15 minutes, check your spam folder or write to <a href="mailto:ceo@bionests.com">ceo@bionests.com</a>.</p>
+    <a class="btn" href="/">◂ Home</a>
+  </div>
+</div>
+<script>
+(function(){var l=(location.search.match(/[?&]lang=(tr|en)/)||[])[1]||((navigator.language||'').toLowerCase().indexOf('tr')===0?'tr':'en');document.documentElement.lang=l;
+try{if(window.plausible)window.plausible('purchase',{props:{product:(location.search.match(/[?&]p=([\w-]+)/)||[])[1]||''}});}catch(e){}})();
+</script>
+</body>
+</html>

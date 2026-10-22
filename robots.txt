@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+Disallow: /abonelik/
+Disallow: /odeme-tamam.html
+Sitemap: https://tamgatools.com/sitemap.xml
