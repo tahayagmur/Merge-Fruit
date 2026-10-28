@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="alternate icon" type="image/jpeg" href="tamga-logo.jpg">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Otomasyon – Tamga Studio</title>
+<meta name="description" content="Tekrar eden işleri otomasyona devredin: içerik üretimi ve yayın, e-posta akışları, müşteri bulma ve mesajlaşma asistanı.">
+<link rel="canonical" href="https://tamgastudio.com/otomasyon.html">
+<link rel="alternate" hreflang="en" href="https://tamgastudio.com/automation.html">
+<link rel="alternate" hreflang="tr" href="https://tamgastudio.com/otomasyon.html">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://tamgastudio.com/otomasyon.html">
+<meta property="og:title" content="Otomasyon – Tamga Studio">
+<meta property="og:description" content="Tekrar eden işleri otomasyona devredin. İş akışlarınızı kurar, sistemlerinize bağlar ve çalışır halde teslim ederiz.">
+<meta property="og:image" content="https://tamgastudio.com/tamga-logo.jpg">
+<meta property="og:locale" content="tr_TR">
+<meta name="twitter:card" content="summary">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Space+Grotesk:wght@300;400;500;600;700&family=Syncopate:wght@400;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#0a0a0c;--bg2:#050607;
+  --panel:rgba(13,18,16,.62);
+  --line:rgba(0,255,156,.14);
+  --acc:#00ff9c;--acc2:#00e5ff;--amber:#e8c170;
+  --txt:#e6edf3;--mut:#8b98a5;--mut2:#525e6b;
+  --mono:'JetBrains Mono',ui-monospace,monospace;
+  --sans:'Space Grotesk',system-ui,sans-serif;
+  --disp:'Syncopate',sans-serif;
+}
+body{background:var(--bg);color:var(--txt);font-family:var(--sans);overflow-x:hidden;-webkit-font-smoothing:antialiased}
+::selection{background:var(--acc);color:#031}
+
+#bgMatrix{position:fixed;inset:0;width:100%;height:100%;z-index:0;opacity:.07;pointer-events:none}
+
+nav{
+  position:sticky;top:0;z-index:90;
+  display:flex;justify-content:space-between;align-items:center;
+  padding:16px clamp(18px,4vw,44px);
+  background:rgba(8,10,11,.78);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+  border-bottom:1px solid var(--line);
+}
+.logo{display:flex;align-items:center;gap:11px;text-decoration:none;white-space:nowrap}
+.logo img{width:28px;height:28px;object-fit:cover;border:1px solid var(--line);display:block}
+.logo span{font-family:var(--disp);font-weight:700;font-size:.92rem;letter-spacing:.18em;color:var(--txt)}
+.logo b{color:var(--acc);font-weight:700}
+.nav-links{display:flex;align-items:center;gap:clamp(12px,2.4vw,30px)}
+.nav-links a{font-family:var(--mono);font-size:.74rem;letter-spacing:.18em;text-transform:uppercase;color:var(--mut);text-decoration:none;transition:.2s;white-space:nowrap}
+.nav-links a:hover{color:var(--acc);text-shadow:0 0 14px rgba(0,255,156,.6)}
+
+main{position:relative;z-index:5}
+.wrap{max-width:960px;margin:0 auto;padding:0 clamp(18px,4vw,40px)}
+
+.page-hero{padding:clamp(70px,12vh,110px) 0 clamp(40px,7vh,60px);text-align:center}
+.kicker{font-family:var(--mono);font-size:.74rem;letter-spacing:.32em;color:var(--acc2);text-transform:uppercase;margin-bottom:16px}
+.kicker::before{content:'> '}
+h1.title{
+  font-family:var(--disp);font-size:clamp(1.5rem,4.6vw,2.8rem);font-weight:700;
+  letter-spacing:.05em;text-transform:uppercase;line-height:1.25;
+}
+h1.title em{
+  font-style:normal;
+  background:linear-gradient(90deg,var(--acc),var(--acc2));
+  -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;
+  filter:drop-shadow(0 0 18px rgba(0,255,156,.3));
+}
+.page-hero p{color:var(--mut);font-weight:300;max-width:580px;margin:22px auto 0;line-height:1.8}
+
+.hud{
+  position:relative;background:rgba(10,12,14,.85);border:1px solid var(--line);
+}
+.hud::before,.hud::after{content:'';position:absolute;width:15px;height:15px;border:2px solid var(--acc);transition:.3s}
+.hud::before{top:-2px;left:-2px;border-right:0;border-bottom:0}
+.hud::after{bottom:-2px;right:-2px;border-left:0;border-top:0}
+.hud:hover{border-color:rgba(0,255,156,.4);box-shadow:0 0 38px rgba(0,255,156,.07)}
+.hud:hover::before,.hud:hover::after{width:24px;height:24px}
+
+.mission{padding:clamp(28px,5vw,44px);margin-bottom:44px}
+.mission h2{
+  font-family:var(--mono);font-size:.95rem;letter-spacing:.25em;text-transform:uppercase;
+  color:var(--acc);margin-bottom:16px;
+}
+.mission p{color:var(--mut);line-height:1.85;font-weight:300}
+
+.values{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:22px;margin-bottom:44px}
+.value{padding:28px 24px;transition:transform .3s}
+.value:hover{transform:translateY(-5px)}
+.value .num{font-family:var(--mono);font-size:.68rem;letter-spacing:.3em;color:var(--mut2);display:block;margin-bottom:16px}
+.value .ic{font-size:1.9rem;display:block;margin-bottom:14px;filter:drop-shadow(0 0 12px rgba(0,255,156,.3))}
+.value h3{font-size:1rem;font-weight:600;letter-spacing:.04em;margin-bottom:10px}
+.value p{color:var(--mut);font-size:.88rem;font-weight:300;line-height:1.7}
+
+.steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:22px;margin-bottom:60px}
+.step{padding:26px 22px}
+.step .num{font-family:var(--mono);font-size:.68rem;letter-spacing:.3em;color:var(--acc2);display:block;margin-bottom:12px}
+.step h3{font-size:.95rem;font-weight:600;letter-spacing:.04em;margin-bottom:9px}
+.step p{color:var(--mut);font-size:.86rem;font-weight:300;line-height:1.7}
+
+.cta{padding:clamp(40px,7vw,60px);text-align:center;margin-bottom:90px}
+.cta h2{font-family:var(--disp);font-size:clamp(1.2rem,3vw,1.7rem);font-weight:700;letter-spacing:.05em;text-transform:uppercase;margin-bottom:14px}
+.cta h2 em{font-style:normal;color:var(--acc)}
+.cta p{color:var(--mut);font-weight:300;margin-bottom:30px}
+.btn{
+  display:inline-block;font-family:var(--mono);font-size:.8rem;font-weight:700;
+  letter-spacing:.22em;text-transform:uppercase;text-decoration:none;
+  padding:16px 32px;margin:6px;transition:.25s;
+  clip-path:polygon(0 0,calc(100% - 14px) 0,100% 14px,100% 100%,14px 100%,0 calc(100% - 14px));
+}
+.btn-acc{background:var(--acc);color:#02130b}
+.btn-acc:hover{background:var(--acc2);box-shadow:0 0 34px rgba(0,229,255,.45);transform:translateY(-2px)}
+.btn-ghost{background:rgba(0,255,156,.05);color:var(--acc);border:1px solid rgba(0,255,156,.4)}
+.btn-ghost:hover{background:rgba(0,255,156,.14);box-shadow:0 0 24px rgba(0,255,156,.25);transform:translateY(-2px)}
+
+footer{
+  position:relative;z-index:5;border-top:1px solid var(--line);background:var(--bg2);
+  padding:30px clamp(18px,4vw,44px);
+  display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;
+  font-family:var(--mono);font-size:.72rem;letter-spacing:.12em;color:var(--mut2);
+}
+footer a{color:var(--mut);text-decoration:none;margin-left:18px;transition:.2s}
+footer a:hover{color:var(--acc)}
+
+.fx{opacity:0;transform:translateY(34px);transition:opacity .8s cubic-bezier(.22,1,.36,1),transform .8s cubic-bezier(.22,1,.36,1)}
+.fx.on{opacity:1;transform:none}
+@media (prefers-reduced-motion:reduce){.fx{opacity:1;transform:none;transition:none}}
+</style>
+</head>
+<body>
+
+<canvas id="bgMatrix" aria-hidden="true"></canvas>
+
+<nav aria-label="Ana menü">
+  <a class="logo" href="/"><img src="tamga-logo.jpg" alt="Tamga Studio logo"><span>TAMGA<b>_</b>STUDIO</span></a>
+  <div class="nav-links">
+    <a href="/">Ana Sayfa</a>
+    <a href="/#hizmetler">Hizmetler</a>
+    <a href="blog.html">Devlog</a>
+    <a href="automation.html">EN</a>
+  </div>
+</nav>
+
+<main>
+  <div class="wrap">
+
+    <header class="page-hero fx on">
+      <p class="kicker">tamga_studio.automation( )</p>
+      <h1 class="title">Tekrar Eden İşleri <em>Otomasyona Devredin</em></h1>
+      <p>Her gün elle yapılan işleri iş akışlarına çeviriyoruz. Akışı kurar, sizin sistemlerinize bağlar ve çalışır halde teslim ederiz.</p>
+    </header>
+
+    <section class="mission hud fx">
+      <h2>// 01 — Ne yapıyoruz</h2>
+      <p>Bir işletmede aynı iş günde onlarca kez tekrar ediyorsa, onu bir insanın yapması gerekmez. İçerik yayınlamak, gelen postayı sınıflandırmak, mesajlara ilk yanıtı vermek, hedef listesi çıkarmak — bunların hepsi tanımlanabilir adımlardan oluşur. Biz o adımları kurar, birbirine bağlar ve çalışır halde bırakırız.</p>
+    </section>
+
+    <section class="values">
+      <div class="value hud fx">
+        <span class="num">[ 01 ]</span><span class="ic">🎬</span>
+        <h3>İçerik Üretimi ve Yayın</h3>
+        <p>Kanalınızın konusuna ve tonuna göre video üretir; Instagram, TikTok, YouTube ve X'e her gün aynı saatte yükler.</p>
+      </div>
+      <div class="value hud fx">
+        <span class="num">[ 02 ]</span><span class="ic">📨</span>
+        <h3>E-posta Akışları</h3>
+        <p>Gelen postayı okur, sınıflandırır ve bağlı olduğu sistemlerde gereken işlemi başlatır.</p>
+      </div>
+      <div class="value hud fx">
+        <span class="num">[ 03 ]</span><span class="ic">🎯</span>
+        <h3>Müşteri Bulma</h3>
+        <p>Belirlediğiniz kriterlere uyan işletmeleri tarar, listeler ve ilk teması hazırlar.</p>
+      </div>
+      <div class="value hud fx">
+        <span class="num">[ 04 ]</span><span class="ic">💬</span>
+        <h3>Mesajlaşma Asistanı</h3>
+        <p>WhatsApp, Instagram DM ve Telegram üzerinden gelen soruları yanıtlar; randevuya ya da satışa taşır.</p>
+      </div>
+    </section>
+
+    <section class="steps">
+      <div class="step hud fx">
+        <span class="num">[ ADIM 1 ]</span>
+        <h3>Süreci dinleriz</h3>
+        <p>Hangi işin tekrar ettiğini ve kimin ne kadar vaktini aldığını konuşuruz.</p>
+      </div>
+      <div class="step hud fx">
+        <span class="num">[ ADIM 2 ]</span>
+        <h3>Akışı kurarız</h3>
+        <p>Adımları tanımlar, kullandığınız sistemlere bağlar ve gerçek veriyle test ederiz.</p>
+      </div>
+      <div class="step hud fx">
+        <span class="num">[ ADIM 3 ]</span>
+        <h3>Çalışır halde teslim</h3>
+        <p>Akış devreye girer, siz çıktıyı görürsünüz. Kapsam ve koşullar teklifte yazılıdır.</p>
+      </div>
+    </section>
+
+    <section class="cta hud fx">
+      <p class="kicker">// 02 — bağlantı kur</p>
+      <h2>Hangi İş Tekrar <em>Ediyor?</em></h2>
+      <p>Sürecinizi yazın, uygun olup olmadığını söyleyelim.</p>
+      <a href="mailto:ceo@bionests.com" class="btn btn-acc">📧 İletişime Geç ▸</a>
+      <a href="/" class="btn btn-ghost">◂ Ana Sayfa</a>
+    </section>
+
+  </div>
+</main>
+
+<footer>
+  <span>© 2026 TAMGA STUDIO — TÜM HAKLARI SAKLIDIR.</span>
+  <div>
+    <a href="privacy-policy.html">Gizlilik Politikası</a>
+    <a href="terms.html">Koşullar</a>
+    <a href="refund-policy.html">İade</a>
+    <a href="/">Ana Sayfa</a>
+  </div>
+</footer>
+
+<script>
+(function(){
+  'use strict';
+  var bg=document.getElementById('bgMatrix'),ctx=bg.getContext('2d');
+  var cols=[],FS=14,W=0,H=0,timer=0;
+  var GLYPHS='01アイウエオカキクケコ<>/{}[]=+*#$&%!?;:'.split('');
+  function resize(){
+    W=window.innerWidth;H=window.innerHeight;bg.width=W;bg.height=H;
+    var n=Math.ceil(W/FS);cols.length=0;
+    for(var i=0;i<n;i++)cols.push(Math.random()*-100);
+    ctx.fillStyle='#000';ctx.fillRect(0,0,W,H);
+  }
+  function step(now){
+    requestAnimationFrame(step);
+    if(now-timer<66)return;timer=now;
+    ctx.fillStyle='rgba(0,0,0,0.08)';ctx.fillRect(0,0,W,H);
+    ctx.font=FS+'px "JetBrains Mono",monospace';
+    for(var i=0;i<cols.length;i++){
+      var ch=GLYPHS[(Math.random()*GLYPHS.length)|0];
+      ctx.fillStyle=Math.random()<0.08?'#aaffdd':'#00ff9c';
+      ctx.fillText(ch,i*FS,cols[i]*FS);
+      if(cols[i]*FS>H&&Math.random()>0.975)cols[i]=0;
+      cols[i]++;
+    }
+  }
+  resize();window.addEventListener('resize',resize);
+  if(!window.matchMedia('(prefers-reduced-motion: reduce)').matches)requestAnimationFrame(step);
+
+  if('IntersectionObserver' in window){
+    var io=new IntersectionObserver(function(es){
+      es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('on');io.unobserve(e.target);}});
+    },{threshold:.12});
+    document.querySelectorAll('.fx:not(.on)').forEach(function(el){io.observe(el);});
+  }else{
+    document.querySelectorAll('.fx').forEach(function(el){el.classList.add('on');});
+  }
+
+  document.querySelectorAll('a[href^="mailto:"]').forEach(function(link){
+    link.addEventListener('click',function(){
+      var email=link.getAttribute('href').replace('mailto:','');
+      if(navigator.clipboard)navigator.clipboard.writeText(email).catch(function(){});
+      var toast=document.getElementById('mailToast');
+      if(!toast){
+        toast=document.createElement('div');
+        toast.id='mailToast';
+        toast.style.cssText='position:fixed;bottom:20px;left:50%;transform:translateX(-50%);'+
+          'background:rgba(5,10,8,.92);border:1px solid rgba(0,255,156,.5);color:#e6edf3;'+
+          'padding:12px 24px;font-family:JetBrains Mono,monospace;font-size:13px;z-index:9999;'+
+          'box-shadow:0 0 30px rgba(0,255,156,.25);opacity:0;transition:opacity .3s;'+
+          'pointer-events:none;text-align:center;backdrop-filter:blur(6px)';
+        document.body.appendChild(toast);
+      }
+      toast.innerHTML='📧 E-posta kopyalandı:<br><span style="color:#00ff9c">'+email+'</span>';
+      toast.style.opacity='1';
+      if(window.toastTimeout)clearTimeout(window.toastTimeout);
+      window.toastTimeout=setTimeout(function(){toast.style.opacity='0';},3500);
+    });
+  });
+})();
+</script>
+<script src="fx.js" defer></script>
+
+</body>
+</html>
